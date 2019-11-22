@@ -1,0 +1,9 @@
+*.gz
+*.txt
+*.html
+*cache
+*files
+*.Rproj
+.Rhistory
+.RData
+.Rproj.user

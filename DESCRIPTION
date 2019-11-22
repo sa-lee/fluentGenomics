@@ -1,0 +1,34 @@
+Package: fluentGenomics
+Type: Package
+Title: plyranges and tximeta case study
+Version: 0.0.1
+Authors@R: c(
+             person(role = c("aut", "cre"), "Stuart", "Lee", email = "stuart.andrew.lee@gmail.com"),
+             person(role=c("aut", "ctb"), "Michael", "Love", email = "michaelisaiahlove@gmail.com")
+             )
+Description: An extended case study in overlapping differential expression
+    and differential accessibility using plyranges and tximeta
+    package.
+License: MIT
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.1.1
+VignetteBuilder:
+    knitr,
+    rmarkdown
+Imports:
+    plyranges,
+    tximeta,
+    macrophage,
+    SummarizedExperiment,
+    DESeq2,
+    limma,
+    ggplot2,
+    dplyr,
+    readr
+Suggests:
+    knitr,
+    rmarkdown
+biocViews: Workflow, BasicWorkflow, GeneExpressionWorkflow
+
+
