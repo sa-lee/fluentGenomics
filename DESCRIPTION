@@ -30,5 +30,5 @@ Suggests:
     knitr,
     rmarkdown
 biocViews: Workflow, BasicWorkflow, GeneExpressionWorkflow
-
-
+URL: https://github.com/sa-lee/fluentGenomics
+BugReports: https://github.com/sa-lee/fluentGenomics/issues
