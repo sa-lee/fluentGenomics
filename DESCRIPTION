@@ -25,7 +25,8 @@ Imports:
     limma,
     ggplot2,
     dplyr,
-    readr
+    readr,
+    here
 Suggests:
     knitr,
     rmarkdown

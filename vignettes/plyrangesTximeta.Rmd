@@ -60,10 +60,10 @@ emphasise the use of the Bioconductor packages *plyranges* and
 transformations of data tied to genomic ranges, e.g. shifts, 
 windows, overlaps, etc. The *plyranges* package is described by 
 @Lee2019, and leverages underlying range operations described by 
-@granges. The second package is used to read RNA-seq quantification 
+@granges. The second package described by @Love2019-tximeta. is used to read RNA-seq quantification 
 into R/Bioconductor, such that the genomic ranges are automatically 
 attached to the quantification data and differential expression 
-results. 
+results.  
 
 # Data Import and Exploratory Analysis
 
@@ -149,57 +149,72 @@ gse <- summarizeToGene(se)
 ## Preliminary RNA-seq DE analysis
 
 We can easily run a differential expression analysis with *DESeq2*
-using the following code chunks [@Love2014]. The design indicates that we want to control for the donor (`line`) and test on the condition.
+using the following code chunks [@Love2014]. The design indicates that we want to control for the donor (`line`) and test
+for differences in gene expression on the condition. For a
+more comprehensive discussion of DE analysis see @Love2016-f1000 and
+@Law2018-f1000.
 
 ```{r}
 library(DESeq2)
 dds <- DESeqDataSet(gse, ~line + condition)
+# filter out lowly expressed genes
+# at least 10 counts in at least 6 samples
 keep <- rowSums(counts(dds) >= 10) >= 6
 dds <- dds[keep,]
 ```
 
+Below we set the contrasts on the condition variable, indicating
+we are estimating log2 fold changes of IFNg stimulated cell lines against naive cell lines. We are interested in log fold changes greater than 1 at a false discovery rate at of 1%. to test for  for 
+
 ```{r}
 dds <- DESeq(dds)
-res <- results(dds, contrast=c("condition","IFNg","naive"),
+res <- results(dds, 
+               contrast=c("condition","IFNg","naive"),
                lfcThreshold=1, alpha=0.01)
 ```
 
-Always good to do a little visualization of results:
+To see the results of the expression analysis, we can generate a
+summary table and an MA plot:
 
 ```{r}
 summary(res)
 DESeq2::plotMA(res, ylim=c(-10,10))
-plotCounts(dds, which.min(res$pvalue), "condition")
 ```
 
-We now output *GRanges* results (both DE and some non-DE for
-comparison later). The `select` command pulls out particular columns
-from the *GRanges*, in some cases renaming them so they will be unique
-when we look at differential accessibility (which also will have LFC
-and adjusted p-values).
+We now output the results as a *GRanges* object, due to
+the conventions of `plyranges` we construct a new column
+called `gene_id` from the rownames of the results. Each
+row now contains the genomic region (`seqnames`, `start`, `end`,
+`strand`) along with corresponding metadata columns (the `gene_id`
+and the results of the test).
 
 ```{r}
+suppressPackageStartupMessages(library(plyranges))
 de_genes <- results(dds, 
                     contrast=c("condition","IFNg","naive"),
                     lfcThreshold=1, 
-                    format="GRanges") %>%
-  filter(padj < 0.01) %>%
-  mutate(gene_id=names(.)) %>%
-  plyranges::select(gene_id,
-                    de_log2FC = log2FoldChange,
-                    de_padj = padj)
+                    format="GRanges") %>% 
+  names_to_column("gene_id")
+de_genes 
+```
+From this, we can restrict the results where that meet
+our FDR threshold and select (and rename) the metadata columns we're interested in:
+
+```{r}
+de_genes <- de_genes %>% 
+  filter(padj < 0.01) %>% 
+  select(gene_id, de_log2FC = log2FoldChange, de_padj = padj)
 ```
 
-We re-run `results` because we don't want to use an `lfcThreshold` 
-this time, to pull out genes which are not differentially expressed
-according to the *DESeq2* significance test.
+Next we re-run `results` because we don't want to use an 
+`lfcThreshold`  this time. This will extract genes which are not differentially expressed according to the *DESeq2* significance test.
 
 ```{r}
 other_genes <- results(dds, 
                        contrast=c("condition","IFNg","naive"),
                        format="GRanges") %>% 
   filter(pvalue > 0.1) %>%
-  mutate(gene_id=names(.)) %>%
+  names_to_column("gene_id") %>%
   plyranges::select(gene_id,
                     de_log2FC = log2FoldChange,
                     de_padj = padj)
@@ -227,32 +242,37 @@ and log2 transformed. Loading the *cqn*-normalized matrix of log2
 transformed read counts takes ~30 seconds and loads an object of ~370 Mb.
 
 ```{r eval=FALSE}
-atac_mat <- as.matrix(read.delim("ATAC_cqn_matrix.txt.gz"))
+atac_mat <- read_tsv(here::here("data-raw","ATAC_cqn_matrix.txt.gz")))
 ```
 
 We also read in the sample metadata:
 
 ```{r eval=FALSE}
-atac_coldata <- read.delim("ATAC_sample_metadata.txt.gz") %>% 
-  plyranges::select(
+atac_coldata <- read_tsv(here::here("data-raw", "ATAC_sample_metadata.txt.gz")) %>% 
+ select(
     sample_id,
     donor,
     condition = condition_name
   ) %>% 
-  mutate(condition = relevel(condition, "naive"))
+  mutate(condition = relevel(factor(condition), "naive"))
 ```
 
 Finally, we read in the peak metadata (locations in the genome), and
-convert to a *GRanges* object:
+convert to a *GRanges* object. The `as_granges()` function
+automatically converts the data.frame into a *GRanges* object,
+from that result, we extract the peak_id column and set
+the genome information to the build "GRCh38". We know this from the [Zenodo entry](https://zenodo.org/record/1188300#.XJOFSlNKiL5)
 
 ```{r eval=FALSE}
-peaks_df <- read.delim("ATAC_peak_metadata.txt.gz", strings=FALSE)
+peaks_df <- read_tsv(
+  here::here("data-raw","ATAC_peak_metadata.txt.gz"),
+  col_types = c("cidciicdc")
+)
+
 peaks_gr <- peaks_df %>% 
-  plyranges::select(seqnames = chr, start, end, peak_id=gene_id) %>% 
-  as_granges()
-# we know this from the Zenodo entry
-# https://zenodo.org/record/1188300#.XJOFSlNKiL5
-genome(peaks_gr) <- "GRCh38"
+  as_granges(seqnames = chr) %>% 
+  select(peak_id=gene_id) %>% 
+  set_genome_info(genome = "GRCh38")
 ```
 
 Now we make sure that our ATAC-seq quantifications and our metadata
@@ -307,13 +327,15 @@ the LFC and adjusted p-value from *limma*, so that we can consider the
 overlap with differential expression.
 
 ```{r eval=FALSE}
-peaks <- rowRanges(atac) %>% 
+peaks <- rowRanges(atac) %>%
+  remove_names() %>% 
   mutate(
     da_log2FC = tt$logFC,
     da_padj = tt$adj.P.Val
-  )
+  ) %>%
+  set_genome_info(genome = "hg38")
+  
 seqlevelsStyle(peaks) <- "UCSC"
-genome(peaks) <- "hg38"
 ```
 
 Due to restrictions on the size of this workflow repository, we do not
@@ -335,23 +357,19 @@ da_peaks <- peaks %>% filter(da_padj < .01)
 ## Overlap analysis with *plyranges*
 
 Now that we have DE genes, genes without strong signal of DE, and DA
-peaks, we can perform our original aim to assess the enrichment of DA
-peaks near DE genes. We've already used *plyranges* a number of times
-above, to `filter`, `mutate` and `select` on *GRanges* objects, but
-now we will get into more complicated use cases.
+peaks, we can perform our original aim to assess the enrichment of DA peaks near DE genes. 
 
-We define a function to sample `n` ranges from a *GRanges* object `x`.
+We've already used *plyranges* a number of times
+above, to `filter`, `mutate` and `select` on *GRanges* objects,
+as well as ensuring the correct genome annotation and style has
+been used, but now we will get into more complicated use cases.
 
-```{r}
-# sub-sample, here define a dplyr function first
-sample_n <- function(x,n) x[sample.int(length(x),n,replace=FALSE)]
-```
 
-We downsample the number of "other" genes to the number of DE genes: 
+In *plyranges*, we can select ranges by their position using *slice*. Using this we can downsample the number of "other" genes to the number of DE genes: 
 
 ```{r}
 other_genes <- other_genes %>%
-  sample_n(length(de_genes))
+  slice(sample.int(n(), length(de_genes)))
 ```
 
 We then bind these two sets of ranges together and add a new column
