@@ -226,46 +226,37 @@ The ATAC-seq data can be downloaded from the following deposition URL:
 
 <https://zenodo.org/record/1188300#.XIAhXlNKjOQ>
 
-The data is fairly large. For running this section of workflow we need
-the files:
+For running this section of workflow we need the files:
 
 * `ATAC_cqn_matrix.txt.gz` (109M)
 * `ATAC_sample_metadata.txt.gz` (<1M)
 * `ATAC_peak_metadata.txt.gz` (5.6M)
 
-Due to the large size of the matrix file, we cannot bundle the data
-with this workflow repository. We therefore set the following code
-chunks to be unevaluated, until the creation of the `peaks` object.
+Due to the large size of the matrix file, we have cached the 
+data as a `SummarizedExperiment` as part of this workflow package. 
+The following code loads the path to the cached data file, or if
+it is not present will create the cache and generate the file for you.
+We then read the file and assign to an object called `atac`.
 
-The ATAC-seq data has already been normalized with *cqn* [@Hansen2012]
-and log2 transformed. Loading the *cqn*-normalized matrix of log2
-transformed read counts takes ~30 seconds and loads an object of ~370 Mb.
-
-```{r eval=FALSE}
-atac_mat <- read_tsv(here::here("data-raw","ATAC_cqn_matrix.txt.gz")))
+```{r load-cache}
+library(fluentGenomics)
+(path_to_se <- cache_atac_se())
+atac <- readRDS(path_to_se)
 ```
 
-We also read in the sample metadata:
+### Generating a *SummarizedExperiment* object
 
-```{r eval=FALSE}
-atac_coldata <- read_tsv(here::here("data-raw", "ATAC_sample_metadata.txt.gz")) %>% 
- select(
-    sample_id,
-    donor,
-    condition = condition_name
-  ) %>% 
-  mutate(condition = relevel(factor(condition), "naive"))
-```
+The following code chunks are unevaluated and describe how the 
+*SummarizedExperiment* has been generated.
 
-Finally, we read in the peak metadata (locations in the genome), and
+First, we read in the peak metadata (locations in the genome), and
 convert to a *GRanges* object. The `as_granges()` function
 automatically converts the data.frame into a *GRanges* object,
 from that result, we extract the peak_id column and set
 the genome information to the build "GRCh38". We know this from the [Zenodo entry](https://zenodo.org/record/1188300#.XJOFSlNKiL5)
 
 ```{r eval=FALSE}
-peaks_df <- read_tsv(
-  here::here("data-raw","ATAC_peak_metadata.txt.gz"),
+peaks_df <- read_tsv("ATAC_peak_metadata.txt.gz",
   col_types = c("cidciicdc")
 )
 
@@ -275,16 +266,35 @@ peaks_gr <- peaks_df %>%
   set_genome_info(genome = "GRCh38")
 ```
 
-Now we make sure that our ATAC-seq quantifications and our metadata
-are aligned:
+We also read in the sample metadata:
 
 ```{r eval=FALSE}
-idx <- match(colnames(atac_mat), atac_coldata$sample_id)
-atac_coldata <- atac_coldata[idx,]
-all.equal(colnames(atac_mat), as.character(atac_coldata$sample_id))
+atac_coldata <- read_tsv("ATAC_sample_metadata.txt.gz") %>% 
+ select(
+    sample_id,
+    donor,
+    condition = condition_name
+  ) %>% 
+  mutate(condition = relevel(factor(condition), "naive"))
 ```
 
-We then combine the data, and two pieces of metadata into a
+The ATAC-seq data has already been normalized with *cqn* [@Hansen2012]
+and log2 transformed. Loading the *cqn*-normalized matrix of log2
+transformed read counts takes ~30 seconds and loads an object of ~370 Mb.
+We set the column names so the first row contains the rownames of the
+matrix, and the remaining columns are matched to the sample identifiers.
+
+```{r eval=FALSE}
+atac_mat <- read_tsv("ATAC_cqn_matrix.txt.gz",
+                     skip = 1, 
+                     col_names =c("rownames", atac_coldata[["sample_id"]]))
+rownames <- atac_mat[["rownames"]]
+atac_mat <- as.matrix(atac_mat[,-1])
+rownames(atac_mat) <- rownames
+```
+
+
+Finally, we then combine the data, and two pieces of metadata into a
 *SummarizedExperiment*: 
 
 ```{r eval=FALSE}
@@ -293,19 +303,20 @@ atac <- SummarizedExperiment(list(cqndata=atac_mat),
                              colData=atac_coldata)
 ```
 
+###  Differential Accessibility with limma
+
 We can check the SD over mean plot, to assess for any systematic
 trends:
 
-```{r eval=FALSE}
-rmu <- rowMeans(assay(atac))
-rvar <- rowVars(assay(atac))
-idx <- sample(nrow(atac),1e4)
-plot(rmu[idx], sqrt(rvar[idx]), cex=.1)
+```{r}
+ggplot(data = data.frame(rmu = rowMeans(assay(atac)), 
+                         rvar = rowVars(assay(atac))),
+       aes(x = rmu, y = sqrt(rvar))) + geom_hex()
 ```
 
 For assessing differential accessibility, we run *limma* [@Smyth2004]: 
 
-```{r eval=FALSE}
+```{r}
 library(limma)
 design <- model.matrix(~donor + condition, colData(atac))
 fit <- lmFit(assay(atac), design)
@@ -326,8 +337,8 @@ We now take the `rowRanges` of the *SummarizedExperiment* and attach
 the LFC and adjusted p-value from *limma*, so that we can consider the
 overlap with differential expression.
 
-```{r eval=FALSE}
-peaks <- rowRanges(atac) %>%
+```{r}
+atac_peaks <- rowRanges(atac) %>%
   remove_names() %>% 
   mutate(
     da_log2FC = tt$logFC,
@@ -335,7 +346,7 @@ peaks <- rowRanges(atac) %>%
   ) %>%
   set_genome_info(genome = "hg38")
   
-seqlevelsStyle(peaks) <- "UCSC"
+seqlevelsStyle(atac_peaks) <- "UCSC"
 ```
 
 Due to restrictions on the size of this workflow repository, we do not
@@ -343,15 +354,14 @@ evaluate the above chunks, but instead now load the `peaks` object
 that was saved after following the code above.
 
 ```{r}
-library(plyrangesTximetaCaseStudy)
+library(fluentGenomics)
 data(atac_peaks)
-peaks
 ```
 
 We filter to the set of peaks with a nominal FDR bound of 1%.
 
 ```{r}
-da_peaks <- peaks %>% filter(da_padj < .01)
+da_peaks <- atac_peaks %>% filter(da_padj < .01)
 ```
 
 ## Overlap analysis with *plyranges*
@@ -364,12 +374,12 @@ above, to `filter`, `mutate` and `select` on *GRanges* objects,
 as well as ensuring the correct genome annotation and style has
 been used, but now we will get into more complicated use cases.
 
-
-In *plyranges*, we can select ranges by their position using *slice*. Using this we can downsample the number of "other" genes to the number of DE genes: 
+As *plyranges* is built on top of *dplyr* it implements methods for many
+of it's verbs for *GRanges* objects. Here we can 
 
 ```{r}
 other_genes <- other_genes %>%
-  slice(sample.int(n(), length(de_genes)))
+  sample_n()
 ```
 
 We then bind these two sets of ranges together and add a new column
@@ -408,7 +418,7 @@ Now we can ask, how many DA peaks are near DE genes relative to
 "other" genes? Note that a gene may appear more than once, because we
 performed a left join. 
 
-We group by DE vs "other", and sum up the DA peaks at any LFC, or
+We group by DE vs "other", and sum up the DA peaks at any LFC,    or
 requiring an LFC of greater than 1, or greater than 2.
 
 ```{r}

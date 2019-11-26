@@ -26,10 +26,12 @@ Imports:
     ggplot2,
     dplyr,
     readr,
-    here
+    utils
 Suggests:
     knitr,
-    rmarkdown
+    rmarkdown,
+    rappdirs,
+    BiocFileCache
 biocViews: Workflow, BasicWorkflow, GeneExpressionWorkflow
 URL: https://github.com/sa-lee/fluentGenomics
 BugReports: https://github.com/sa-lee/fluentGenomics/issues
