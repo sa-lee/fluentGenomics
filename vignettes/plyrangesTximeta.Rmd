@@ -1,6 +1,6 @@
 ---
 title: "Fluent genomics with plyranges and tximeta"
-authors: "Stuart Lee, Di Cook, Michael Lawrence, Michael Love"
+author: "Stuart Lee, Di Cook, Michael Lawrence, Michael Love"
 output:
   rmarkdown::html_document:
     highlight: pygments

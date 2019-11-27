@@ -12,8 +12,6 @@
 #' 
 #' @return the path to the .rds file containing the SummarizedExperiment 
 #' 
-#' @importFrom rappdirs user_cache_dir
-#' @import BiocFileCache
 #' @importFrom readr read_tsv
 #' @importFrom SummarizedExperiment SummarizedExperiment
 #' @importFrom dplyr select mutate
