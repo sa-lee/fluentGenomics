@@ -17,7 +17,7 @@ VignetteBuilder:
     knitr,
     rmarkdown
 Imports:
-    plyranges,
+    plyranges (>= 1.6.4),
     tximeta,
     macrophage,
     SummarizedExperiment,
@@ -26,6 +26,7 @@ Imports:
     ggplot2,
     dplyr,
     readr,
+    tidyr,
     utils
 Suggests:
     knitr,
