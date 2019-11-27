@@ -4,22 +4,27 @@
 [![Travis build status](https://travis-ci.org/sa-lee/fluentGenomics.svg?branch=master)](https://travis-ci.org/sa-lee/fluentGenomics)
 <!-- badges: end -->
 
-The goal of fluentGenomics is to ...
+In *fluentGenomics* we explore the use of the Bioconductor packages plyranges and tximeta through integrating results from an experiment using RNA-seq and ATAC-seq data. Readers will learn how to perform genomic range based operations in a principled way using *plyranges* and how to cleanly import quantification and differential expression data into R using *tximeta*. 
 
 ## Installation
 
-You can install the released version of fluentGenomics from [CRAN](https://CRAN.R-project.org) with:
+Currently, `fluentGenomics` is available only on github,
+install it and associated dependencies with
 
 ``` r
-install.packages("fluentGenomics")
+BiocManager::install('sa-lee/fluentGenomics', 
+                     build_vignettes = TRUE,
+                     dependencies = TRUE)
 ```
 
-## Example
+## Workflow
 
-This is a basic example which shows you how to solve a common problem:
+Once the package has been installed, you can work through
+the vignette directly from the R console with:
 
 ``` r
-library(fluentGenomics)
-## basic example code
+browseVignettes(package = "fluentGenomics")
 ```
+
+Or you can read it online [here]()
 
