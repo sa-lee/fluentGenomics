@@ -44,6 +44,9 @@ cache_atac_se <- function(verbose = FALSE) {
   
   resource <- "macrophage_atac_se"
   
+  # avoid global variable warning in check
+  sample_id <- donor <- condition_name <- chr <- gene_id <- NULL
+  
   res <- BiocFileCache::bfcquery(bfc, resource)
   if (BiocFileCache::bfccount(res) == 0L) {
     if( verbose ) {
