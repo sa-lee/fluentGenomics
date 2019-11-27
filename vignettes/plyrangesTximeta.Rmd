@@ -369,7 +369,7 @@ object is included in the workflow package and is loaded below:
 
 ```{r}
 library(fluentGenomics)
-data(atac_peaks)
+data(peaks)
 peaks
 ```
 
@@ -377,8 +377,7 @@ We filter to the set of peaks with a nominal FDR bound of 1%.
 
 ```{r}
 da_peaks <- peaks %>% 
-  filter(da_padj < .01) %>% 
-  remove_names()
+  filter(da_padj < .01)
 ```
 
 ## Overlap analysis with *plyranges*
