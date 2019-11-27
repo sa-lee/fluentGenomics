@@ -4,6 +4,9 @@
 \alias{retrieve_cache}
 \alias{cache_atac_se}
 \title{Download, retrieve and cache macrophage ATAC seq results}
+\source{
+\url{https://zenodo.org/record/1188300/files/}
+}
 \usage{
 retrieve_cache()
 

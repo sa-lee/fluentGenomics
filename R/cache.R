@@ -9,9 +9,10 @@
 #' @details This code generates the SummarizedExperiment object
 #' used for ATAC seq peaks data used in the vignette.
 #' 
+#' @source \url{https://zenodo.org/record/1188300/files/}
 #' 
 #' @return the path to the .rds file containing the SummarizedExperiment 
-#' 
+#' @importFrom stats relevel
 #' @importFrom readr read_tsv
 #' @importFrom SummarizedExperiment SummarizedExperiment
 #' @importFrom dplyr select mutate
