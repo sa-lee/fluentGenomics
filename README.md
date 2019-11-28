@@ -1,4 +1,4 @@
-# fluentGenomics
+# Fluent genomics with plyranges and tximeta 
 
 <!-- badges: start -->
 [![Travis build status](https://travis-ci.org/sa-lee/fluentGenomics.svg?branch=master)](https://travis-ci.org/sa-lee/fluentGenomics)
