@@ -655,4 +655,6 @@ to FDR percentages applied to both the DE and DA peaks.
 * We relied on the fact that the reference transcriptome was known to
   `tximeta`. What if this had not been the case?
 -->
+
 ## References
+
