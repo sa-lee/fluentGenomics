@@ -20,11 +20,13 @@ vignette: >
 library(fluentGenomics)
 
 retrieve_cache <- FALSE 
-dir <- system.file("extdata", package="macrophage")
+json <- file(system.file("extdata", 
+                         "gencode.v29_salmon_0.12.0.json",
+                         package="macrophage"))
 
 # this allows tximeta to build on travis
 library(tximeta)
-loadLinkedTxome(file.path(dir, "gencode.v29_salmon_0.12.0.json"))
+loadLinkedTxome(json)
 
 # if (requireNamespace("BiocFileCache", quietly = TRUE)) {
 #   bfc <- retrieve_cache()

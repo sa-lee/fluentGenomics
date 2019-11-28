@@ -20,11 +20,11 @@ BiocManager::install('sa-lee/fluentGenomics',
 ## Workflow
 
 Once the package has been installed, you can work through
-the vignette directly from the R console with:
+the vignette directly from R/Rstudio with:
 
 ``` r
 browseVignettes(package = "fluentGenomics")
 ```
 
-Or you can read it online [here]()
+Or you can read it online [here](sa-lee.github.io/fluentGenomics/articles/index.html)
 
