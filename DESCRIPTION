@@ -19,8 +19,8 @@ VignetteBuilder:
 Depends: R (>= 3.6)
 Imports:
     plyranges (>= 1.6.4),
-    tximeta,
-    macrophage,
+    tximeta (>= 1.4.2),
+    macrophage (>= 1.2.0),
     SummarizedExperiment,
     DESeq2,
     limma,
