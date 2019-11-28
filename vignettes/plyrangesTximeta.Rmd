@@ -433,7 +433,7 @@ all_genes <- bind_ranges(de=de_genes,
                          not_de = boot_genes,
                          .id="origin") %>%
   mutate(
-    origin = factor(origin, c("not_de", "de")),
+    origin = factor(origin, c("de", "not_de")),
     resample = ifelse(is.na(resample), 0L, as.integer(resample))
   )
 all_genes

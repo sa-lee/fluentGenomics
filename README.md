@@ -26,5 +26,5 @@ the vignette directly from R/Rstudio with:
 browseVignettes(package = "fluentGenomics")
 ```
 
-Or you can read it online [here](sa-lee.github.io/fluentGenomics/articles/index.html)
+Or you can read it online [here](articles/index.html)
 
