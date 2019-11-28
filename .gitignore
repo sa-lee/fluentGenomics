@@ -1,6 +1,5 @@
 *.gz
 *.txt
-*.html
 *cache
 *files
 *.Rproj
