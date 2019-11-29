@@ -1,7 +1,6 @@
 *.gz
 *.txt
 *cache
-*files
 *.Rproj
 .Rhistory
 .RData
