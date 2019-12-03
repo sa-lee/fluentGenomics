@@ -31,14 +31,16 @@ retrieve_cache <- FALSE
 
 In this workflow, we explore the use of the 
 R/Bioconductor packages *tximeta* and *plyranges* for 
-integrating results from an experiment using RNA-seq and ATAC-seq data. The former package provides an automated
+integrating results from an experiment using RNA-seq and ATAC-seq
+data. The former package provides an automated 
 way of cleanly importing RNA-seq transcript quantification
 data, correctly ensuring the associated transcriptome 
 annotations and metadata are available to the analyst 
 for downstream analysis. The latter package provides a 
 framework for expressing operations on genomic ranges, here it is 
 used for sensitivity analysis and combining results measured along 
-the genome. Throughout the workflow we describe, key Bioconductor data structures and how to work with them. 
+the genome. Throughout the workflow we describe, key Bioconductor data
+structures and how to work with them.
 
 
 # Introduction
@@ -50,20 +52,25 @@ lines from a number of human donors with interferon (IFN)
 gamma,  *Salmonella* infection, or both treatments 
 combined. In the original study, the authors examined 
 gene expression and chromatin accessibility in a subset 
-of 86 successfully differentiated induced pluripotent stem cells (iPSC) lines, and examined baseline quantitative trait loci (QTL) and response QTL for both expression and accessibility. In the original study, it was found that there were expression QTLs that
+of 86 successfully differentiated induced pluripotent stem cells
+(iPSC) lines, and examined baseline quantitative trait loci (QTL) and
+response QTL for both expression and accessibility. In the original
+study, it was found that there were expression QTLs that 
 had an effect on chromatin accessibility in naive macrophage cells 
 upon IFNg stimulation and consequently the variants implicated 
 likely result in changes in binding of cell-specific transcription factors. 
 
 In this workflow, we will perform a much simpler
-analysis than the one found in @alasoo, using their publicly available RNA-seq and ATAC-seq data (ignoring the genotypes). 
+analysis than the one found in @alasoo, using their publicly available
+RNA-seq and ATAC-seq data (ignoring the genotypes).
 We will examine the effect of IFNg stimulation on gene
 expression and chromatin accessibility, and look to see if there is 
 an enrichment of differentially accessible (DA) ATAC-seq peaks in 
 the vicinity of differentially expressed (DE) genes. This is 
 plausible, as the transcriptomic response to IFNg stimulation 
 may be mediated through binding of regulatory proteins to 
-accessible regions, and this binding may increase the accessibility of those regions such that it can be detected by ATAC-seq.
+accessible regions, and this binding may increase the accessibility of
+those regions such that it can be detected by ATAC-seq. 
 
 Throughout the workflow, we will use existing Bioconductor 
 infrastructure to understand these datasets. In particular, we will 
@@ -72,7 +79,8 @@ emphasise the use of the Bioconductor packages *plyranges* and
 transformations of data tied to genomic ranges, e.g. shifts, 
 windows, overlaps, etc. The *plyranges* package is described by 
 @Lee2019, and leverage underlying range operations described by 
-@granges. The second package described by @Love2019-tximeta. is used to read RNA-seq quantification 
+@granges. The second package described by @Love2019-tximeta. is used
+to read RNA-seq quantification  
 into R/Bioconductor, such that the genomic ranges are automatically 
 attached to the quantification data and differential expression 
 results.  
@@ -102,14 +110,16 @@ dir <- "/path/to/quant/files"
 
 where the path is relative to your current R session. However, 
 here in this case we have distributed the files in an R package.
-The relevant directory can be located and associated files can be located  `system.file`.
+The relevant directory can be located and associated files can be
+located  `system.file`. 
 
 ```{r}
 dir <- system.file("extdata", package="macrophage")
 ```
 
 Information about the experiment is contained in the `coldata.csv`
-file. We leverage the `dplyr` and `readr` packages to read this file into R, (we will see later that `plyranges` extends these packages
+file. We leverage the `dplyr` and `readr` packages to read this file
+into R, (we will see later that `plyranges` extends these packages 
 to accommodate genomic ranges). 
 
 ```{r}
@@ -131,14 +141,22 @@ coldata
 ```
 
 After we have read the `coldata.csv` file, we select
-relevant columns from this table and create a new column called `files` and transform the existing `condition` column to a factor with the "naive" cell line as the baseline. The `files`  
+relevant columns from this table and create a new column called
+`files` and transform the existing `condition` column to a factor with
+the "naive" cell line as the baseline. The `files` 
 column points to the quantifications for each observation - 
-these files have been gzipped, but would typically not have the 'gz' ending if used from `salmon` directly. One other thing to note
-is the use of the pipe operator,`%>%`, which can be read as then i.e. first read the data, then select columns, then mutate them. 
+these files have been gzipped, but would typically not have the 'gz'
+ending if used from `salmon` directly. One other thing to note 
+is the use of the pipe operator,`%>%`, which can be read as then
+i.e. first read the data, then select columns, then mutate them.  
 
 Now we have a data frame summarising the experimental design
 and the locations of the quantifications, and are ready for import 
-with *tximeta*. The following lines of code do a lot of work for the analyst: importing the RNA-seq quantification (dropping inferential replicates in this case), locating the relevant reference transcriptome, attaching the transcript ranges to the data, and fetching genome information. The result is stored in 
+with *tximeta*. The following lines of code do a lot of work for the
+analyst: importing the RNA-seq quantification (dropping inferential
+replicates in this case), locating the relevant reference
+transcriptome, attaching the transcript ranges to the data, and
+fetching genome information. The result is stored in
 the Bioconductor data structure called a *SummarizedExperiment*.
 
 ```{r}
@@ -161,7 +179,8 @@ gse <- summarizeToGene(se)
 ## Preliminary RNA-seq DE analysis
 
 We can easily run a differential expression analysis with *DESeq2*
-using the following code chunks [@Love2014]. The design indicates that we want to control for the donor (`line`) and test
+using the following code chunks [@Love2014]. The design indicates that
+we want to control for the donor (`line`) and test 
 for differences in gene expression on the condition. For a
 more comprehensive discussion of DE analysis see @Love2016-f1000 and
 @Law2018-f1000.
@@ -176,7 +195,9 @@ dds <- dds[keep,]
 ```
 
 Below we set the contrasts on the condition variable, indicating
-we are estimating log2 fold changes of IFNg stimulated cell lines against naive cell lines. We are interested in log fold changes greater than 1 at a false discovery rate at of 1%. 
+we are estimating log2 fold changes of IFNg stimulated cell lines
+against naive cell lines. We are interested in log fold changes
+greater than 1 at a false discovery rate at of 1%.
 
 ```{r}
 dds <- DESeq(dds)
@@ -199,8 +220,9 @@ called `gene_id` from the row names of the results. Each
 row now contains the genomic region (`seqnames`, `start`, `end`,
 `strand`) along with corresponding metadata columns (the `gene_id`
 and the results of the test). Note that *tximeta* has correctly identified
-the reference genome as "hg38", this has also been annotated onto the target *GRanges*. This kind of book-keeping is vital once overlap operations
-are performed to ensure that *plyranges* 
+the reference genome as "hg38", this has also been annotated onto the
+target *GRanges*. This kind of book-keeping is vital once overlap
+operations are performed to ensure that *plyranges* 
 
 ```{r}
 suppressPackageStartupMessages(library(plyranges))
@@ -221,7 +243,8 @@ de_genes <- de_genes %>%
 ```
 
 Next we re-run `results` because we don't want to use an 
-`lfcThreshold`  this time. This will extract genes which are not differentially expressed according to the *DESeq2* significance test.
+`lfcThreshold`  this time. This will extract genes which are not
+differentially expressed according to the *DESeq2* significance test. 
 
 ```{r}
 other_genes <- results(dds, 
@@ -249,10 +272,13 @@ For running this section of workflow we need the files:
 Due to the large size of the matrix file, we have cached the 
 data as a `SummarizedExperiment` as part of this workflow package. 
 The following code loads the path to the cached data file, or if
-it is not present will create the cache and generate a `SummarizedExperiment` by downloading the previously mentioned
+it is not present will create the cache and generate a
+`SummarizedExperiment` by downloading the previously mentioned 
 data files for you.
 
-We can then read the cached file and assign it to an object called `atac`. Note that this is not strictly necessary to run, unless you are interested in
+We can then read the cached file and assign it to an object called
+`atac`. Note that this is not strictly necessary to run, unless you
+are interested in 
 exploring the ATAC-seq data further. 
 
 ```{r load-cache, eval = retrieve_cache}
@@ -270,7 +296,8 @@ First, we read in the peak metadata (locations in the genome), and
 convert to a *GRanges* object. The `as_granges()` function
 automatically converts the data.frame into a *GRanges* object,
 from that result, we extract the peak_id column and set
-the genome information to the build "GRCh38". We know this from the [Zenodo entry](https://zenodo.org/record/1188300#.XJOFSlNKiL5)
+the genome information to the build "GRCh38". We know this from the 
+[Zenodo entry](https://zenodo.org/record/1188300#.XJOFSlNKiL5)
 
 ```{r eval=retrieve_cache}
 peaks_df <- read_tsv("ATAC_peak_metadata.txt.gz",
@@ -347,8 +374,10 @@ tt <- topTable(fit, coef=idx, sort.by="none", n=nrow(atac))
 ```
 
 We now take the `rowRanges` of the *SummarizedExperiment* and attach
-the LFC and adjusted p-value from *limma*, so that we can consider the overlap with differential expression. Note that we set the genome build to "hg38"
-and restyle the chromosome information to use the "UCSC" style.
+the LFC and adjusted p-value from *limma*, so that we can consider the
+overlap with differential expression. Note that we set the genome
+build to "hg38" and restyle the chromosome information to use the
+"UCSC" style. 
 
 ```{r, eval = retrieve_cache}
 atac_peaks <- rowRanges(atac) %>%
@@ -382,7 +411,8 @@ da_peaks <- peaks %>%
 ## Overlap analysis with *plyranges*
 
 Now that we have DE genes, genes without strong signal of DE, and DA
-peaks, we can perform our original aim to assess the enrichment of DA peaks near DE genes. 
+peaks, we can perform our original aim to assess the enrichment of DA
+peaks near DE genes.
 
 We've already used *plyranges* a number of times
 above, to `filter`, `mutate` and `select` on *GRanges* objects,
@@ -446,7 +476,8 @@ all_genes <- all_genes %>%
   mutate(width = 1)
 ```
 
-Anchoring by the 5' end of a range will fix the end of negatively stranded ranges, and fix the start of positively stranded ranges..
+Anchoring by the 5' end of a range will fix the end of negatively
+stranded ranges, and fix the start of positively stranded ranges.
 
 We can then repeat the same pattern but this time using `anchor_center()`
 to tell *plyranges* that we are making the TSS the midpoint of a range
@@ -481,8 +512,9 @@ overlap_genes
 ```
 
 Now we can ask, how many DA peaks are near DE genes relative to
-"other" non-DE genes?  A gene may appear more than once, since multiple peaks may overlap a single gene or because we have re-sampled the same gene
-more than once. 
+"other" non-DE genes?  A gene may appear more than once, since
+multiple peaks may overlap a single gene or because we have re-sampled
+the same gene more than once. 
 
 For each gene (that is the combination of chromosome, the start, end
 and strand), and the "origin" (DE vs not-DE) we can compute
