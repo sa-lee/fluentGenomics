@@ -411,7 +411,6 @@ object is included in the workflow package and is loaded below:
 
 ```{r}
 library(fluentGenomics)
-data(peaks)
 peaks
 ```
 
