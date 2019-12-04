@@ -9,6 +9,7 @@ r:
   - bioc-devel
 before_install:
   - tlmgr install index
+  - apt-get install pandoc-citeproc
   
 before_cache: Rscript -e 'remotes::install_cran("pkgdown")'
 deploy:
