@@ -1,6 +1,6 @@
 # R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
 language: r
-sudo: false
+sudo: true
 os:
   - linux
 cache:
@@ -9,7 +9,7 @@ r:
   - bioc-devel
 before_install:
   - tlmgr install index
-  - apt-get install pandoc-citeproc
+  - sudo apt-get install pandoc-citeproc
   
 before_cache: Rscript -e 'remotes::install_cran("pkgdown")'
 deploy:
