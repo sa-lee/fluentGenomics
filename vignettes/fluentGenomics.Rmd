@@ -20,6 +20,20 @@ vignette: >
 library(fluentGenomics)
 retrieve_cache <- FALSE
 
+
+dir <- system.file("extdata", package="macrophage")
+
+library(tximeta)
+makeLinkedTxome(
+  indexDir=file.path(dir, "gencode.v29_salmon_0.12.0"),
+  source="Gencode",
+  organism="Homo sapiens",
+  release="29",
+  genome="GRCh38",
+  fasta="ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_29/gencode.v29.transcripts.fa.gz",
+  gtf=file.path(dir, "gencode.v29.annotation.gtf.gz"), # local version
+  write=FALSE
+)
 # if (requireNamespace("BiocFileCache", quietly = TRUE)) {
 #   bfc <- retrieve_cache()
 #   res <- BiocFileCache::bfcquery(bfc, "macrophage_atac_se")
