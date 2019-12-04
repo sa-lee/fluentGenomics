@@ -196,7 +196,7 @@ into R/Bioconductor, such that the genomic ranges are automatically attached to 
 use a figure -->
 <p>Because <code>tximeta</code> knows the correct reference transcriptome, we can ask <code>tximeta</code> to summarize the transcript-level data to the gene level using the methods of <span class="citation">Soneson, Love, and Robinson (2015)</span>.</p>
 <div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" data-line-number="1">gse &lt;-<span class="st"> </span><span class="kw">summarizeToGene</span>(se)</a></code></pre></div>
-<pre><code>## loading existing TxDb created: 2019-12-04 04:46:03</code></pre>
+<pre><code>## loading existing TxDb created: 2019-12-04 05:40:52</code></pre>
 <pre><code>## Loading required package: GenomicFeatures</code></pre>
 <pre><code>## Loading required package: AnnotationDbi</code></pre>
 <pre><code>## 
@@ -440,30 +440,30 @@ use a figure -->
 <pre><code>## GRanges object with 749 ranges and 3 metadata columns:
 ##         seqnames              ranges strand |            gene_id
 ##            &lt;Rle&gt;           &lt;IRanges&gt;  &lt;Rle&gt; |        &lt;character&gt;
-##     [1]    chr14   50052857-50053569      + |  ENSG00000243038.1
-##     [2]     chr2   53532672-53787610      - | ENSG00000115239.21
-##     [3]    chr21   14818843-15014430      - |  ENSG00000235609.7
-##     [4]    chr19   35523367-35528351      - | ENSG00000189001.10
-##     [5]     chr6 118894220-118909167      + |  ENSG00000111875.7
+##     [1]    chr16   89088375-89164121      + | ENSG00000176715.16
+##     [2]    chr11   86283927-86284668      + |  ENSG00000254783.1
+##     [3]     chr6   31727038-31730617      - |  ENSG00000213722.8
+##     [4]     chrX   37571569-37684463      + | ENSG00000147036.11
+##     [5]     chr8   28767661-28890242      - | ENSG00000104299.14
 ##     ...      ...                 ...    ... .                ...
-##   [745]    chr19   43596392-43601157      + | ENSG00000124444.15
-##   [746]     chr4 102418602-102450010      - |  ENSG00000248161.5
-##   [747]    chr10   14838160-14847018      + |  ENSG00000284024.2
-##   [748]    chr13   79311824-79406477      - | ENSG00000139746.15
-##   [749]     chr5 157785743-157859175      - | ENSG00000113282.13
+##   [745]    chr19   42485076-42485714      - |  ENSG00000269374.1
+##   [746]     chr2   67397319-67412089      + |  ENSG00000143971.8
+##   [747]     chr5 112976702-113020970      + | ENSG00000172795.15
+##   [748]    chr19   34733298-34733837      - |  ENSG00000274104.1
+##   [749]    chr20     1888128-1894374      - |  ENSG00000276649.1
 ##                   de_log2FC           de_padj
 ##                   &lt;numeric&gt;         &lt;numeric&gt;
-##     [1]  -0.632774880753761 0.521975564684806
-##     [2]  -0.109609539126582 0.631102135021299
-##     [3]  0.0134619385559843 0.961676443773232
-##     [4]   0.216056507711512 0.899561389140532
-##     [5] -0.0836501084428537 0.727823630402494
+##     [1]  0.0883185688056134 0.677817325036758
+##     [2]  -0.278999094033877 0.447388026154912
+##     [3]   0.103078047575482 0.715157647224577
+##     [4]    0.70789046813369 0.220161260800496
+##     [5]  -0.108073100475036  0.50065085259782
 ##     ...                 ...               ...
-##   [745]   0.112212448398344 0.656033947986787
-##   [746]   -1.01536218932665 0.217067983557905
-##   [747]  -0.159042927714654 0.454882627136078
-##   [748] -0.0177710974533084 0.899135719717928
-##   [749]  -0.174462240195644 0.317691044686094
+##   [745]   0.277732027627693 0.430776782760329
+##   [746]  -0.110627350026637 0.531931894373728
+##   [747] -0.0573027373516692 0.860974061475304
+##   [748]   0.472112695712188  0.46099083697002
+##   [749] 0.00522089003416244 0.991571521790647
 ##   -------
 ##   seqinfo: 25 sequences (1 circular) from an unspecified genome; no seqlengths</code></pre>
 <p>We can scale this up to create many samples via replicate:</p>
@@ -490,24 +490,24 @@ use a figure -->
 ##      [4]     chr7 150800403-150805120      + |  ENSG00000002933.8
 ##      [5]     chr4   15778275-15853230      + | ENSG00000004468.12
 ##      ...      ...                 ...    ... .                ...
-##   [8235]     chr9 124517275-124771310      - | ENSG00000148200.16
-##   [8236]    chr11 108665025-108940930      + | ENSG00000178105.10
-##   [8237]    chr11     4482646-4493497      + |  ENSG00000196778.3
-##   [8238]     chr7   30010587-30026684      - | ENSG00000106080.10
-##   [8239]    chr22   30576625-30607083      - | ENSG00000100029.17
-##                   de_log2FC              de_padj  resample   origin
-##                   &lt;numeric&gt;            &lt;numeric&gt; &lt;integer&gt; &lt;factor&gt;
-##      [1]   4.98711071929753 1.37057047788478e-13         0       de
-##      [2]   1.92721595380928  3.1747750713955e-05         0       de
-##      [3]    2.9337250105913 2.01310386948312e-11         0       de
-##      [4]   3.16721751137947 1.07359905687254e-08         0       de
-##      [5]   5.40894352968123 4.82904681779634e-18         0       de
-##      ...                ...                  ...       ...      ...
-##   [8235]  0.203655097445471    0.636863126522804        10   not_de
-##   [8236]  0.176356554905285    0.732636255238048        10   not_de
-##   [8237] -0.167709592678972    0.777871602890909        10   not_de
-##   [8238] -0.221471376097723    0.540008070198926        10   not_de
-##   [8239] 0.0754440554121932    0.816976317740198        10   not_de
+##   [8235]    chr16   55760566-55793960      + | ENSG00000228695.10
+##   [8236]     chr9 137007227-137028922      - | ENSG00000107331.16
+##   [8237]     chr9   35056064-35073249      - | ENSG00000165280.15
+##   [8238]    chr12   71663009-71680639      + |  ENSG00000173451.6
+##   [8239]    chr16     4346694-4348648      - |  ENSG00000280063.1
+##                    de_log2FC              de_padj  resample   origin
+##                    &lt;numeric&gt;            &lt;numeric&gt; &lt;integer&gt; &lt;factor&gt;
+##      [1]    4.98711071929753 1.37057047788478e-13         0       de
+##      [2]    1.92721595380928  3.1747750713955e-05         0       de
+##      [3]     2.9337250105913 2.01310386948312e-11         0       de
+##      [4]    3.16721751137947 1.07359905687254e-08         0       de
+##      [5]    5.40894352968123 4.82904681779634e-18         0       de
+##      ...                 ...                  ...       ...      ...
+##   [8235]   0.638702353140594    0.508402790416387        10   not_de
+##   [8236]   -0.15423728143851     0.72188384440227        10   not_de
+##   [8237] -0.0235305688770099    0.875814429612516        10   not_de
+##   [8238]   0.268789749902426    0.508130509835158        10   not_de
+##   [8239]  -0.177111977597586    0.728844923289341        10   not_de
 ##   -------
 ##   seqinfo: 25 sequences (1 circular) from an unspecified genome; no seqlengths</code></pre>
 <p>Now we would like to modify our gene ranges so their width is 10 kilobases on either side of their transcription start site (TSS). There are many ways one could do this but we prefer an approach via the anchoring methods in <em>plyranges</em>. Because there is a mutual dependence between the start, end, width and strand of a <em>GRanges</em> object, we define anchors to fix one of start and end, while modifying the width. As an example to extract just the TSS, we can anchor by the 5’ end of the range and modify the width of the range to equal 1.</p>
@@ -524,7 +524,7 @@ use a figure -->
 <div class="sourceCode" id="cb70"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb70-1" data-line-number="1">overlap_genes &lt;-<span class="st"> </span>all_genes <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb70-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/overlap-joins.html">join_overlap_left</a></span>(da_peaks)</a>
 <a class="sourceLine" id="cb70-3" data-line-number="3">overlap_genes</a></code></pre></div>
-<pre><code>## GRanges object with 27490 ranges and 8 metadata columns:
+<pre><code>## GRanges object with 27633 ranges and 8 metadata columns:
 ##           seqnames              ranges strand |            gene_id
 ##              &lt;Rle&gt;           &lt;IRanges&gt;  &lt;Rle&gt; |        &lt;character&gt;
 ##       [1]     chr1 196641878-196661877      + | ENSG00000000971.15
@@ -533,24 +533,24 @@ use a figure -->
 ##       [4]     chr4   17567192-17587191      + | ENSG00000002549.12
 ##       [5]     chr4   17567192-17587191      + | ENSG00000002549.12
 ##       ...      ...                 ...    ... .                ...
-##   [27486]     chr7   30016684-30036683      - | ENSG00000106080.10
-##   [27487]     chr7   30016684-30036683      - | ENSG00000106080.10
-##   [27488]    chr22   30597083-30617082      - | ENSG00000100029.17
-##   [27489]    chr22   30597083-30617082      - | ENSG00000100029.17
-##   [27490]    chr22   30597083-30617082      - | ENSG00000100029.17
-##                    de_log2FC              de_padj  resample   origin
-##                    &lt;numeric&gt;            &lt;numeric&gt; &lt;integer&gt; &lt;factor&gt;
-##       [1]   4.98711071929753 1.37057047788478e-13         0       de
-##       [2]   1.92721595380928  3.1747750713955e-05         0       de
-##       [3]    2.9337250105913 2.01310386948312e-11         0       de
-##       [4]    2.9337250105913 2.01310386948312e-11         0       de
-##       [5]    2.9337250105913 2.01310386948312e-11         0       de
-##       ...                ...                  ...       ...      ...
-##   [27486] -0.221471376097723    0.540008070198926        10   not_de
-##   [27487] -0.221471376097723    0.540008070198926        10   not_de
-##   [27488] 0.0754440554121932    0.816976317740198        10   not_de
-##   [27489] 0.0754440554121932    0.816976317740198        10   not_de
-##   [27490] 0.0754440554121932    0.816976317740198        10   not_de
+##   [27629]     chr9   35063249-35083248      - | ENSG00000165280.15
+##   [27630]     chr9   35063249-35083248      - | ENSG00000165280.15
+##   [27631]    chr12   71653009-71673008      + |  ENSG00000173451.6
+##   [27632]    chr16     4338648-4358647      - |  ENSG00000280063.1
+##   [27633]    chr16     4338648-4358647      - |  ENSG00000280063.1
+##                     de_log2FC              de_padj  resample   origin
+##                     &lt;numeric&gt;            &lt;numeric&gt; &lt;integer&gt; &lt;factor&gt;
+##       [1]    4.98711071929753 1.37057047788478e-13         0       de
+##       [2]    1.92721595380928  3.1747750713955e-05         0       de
+##       [3]     2.9337250105913 2.01310386948312e-11         0       de
+##       [4]     2.9337250105913 2.01310386948312e-11         0       de
+##       [5]     2.9337250105913 2.01310386948312e-11         0       de
+##       ...                 ...                  ...       ...      ...
+##   [27629] -0.0235305688770099    0.875814429612516        10   not_de
+##   [27630] -0.0235305688770099    0.875814429612516        10   not_de
+##   [27631]   0.268789749902426    0.508130509835158        10   not_de
+##   [27632]  -0.177111977597586    0.728844923289341        10   not_de
+##   [27633]  -0.177111977597586    0.728844923289341        10   not_de
 ##                    peak_id          da_log2FC              da_padj
 ##                &lt;character&gt;          &lt;numeric&gt;            &lt;numeric&gt;
 ##       [1]  ATAC_peak_21236 -0.546582189082724 0.000115273676444232
@@ -559,11 +559,11 @@ use a figure -->
 ##       [4] ATAC_peak_193579 -0.281615137872819 7.99888515457195e-05
 ##       [5] ATAC_peak_193580  0.673705317951604 7.60042918890061e-15
 ##       ...              ...                ...                  ...
-##   [27486] ATAC_peak_246240  0.199453348339899   0.0010107103087861
-##   [27487] ATAC_peak_246244 -0.334370962296005  0.00603463380372217
-##   [27488] ATAC_peak_168647  0.700254164321891 2.44508432270003e-30
-##   [27489] ATAC_peak_168648   1.02287281935847 1.76720208303768e-30
-##   [27490] ATAC_peak_168649 -0.656303404614519  3.5269225221126e-12
+##   [27629] ATAC_peak_276402 -0.477548958919527 9.33639645508677e-07
+##   [27630] ATAC_peak_276403  0.119519949352842 0.000253900868283711
+##   [27631]             &lt;NA&gt;               &lt;NA&gt;                 &lt;NA&gt;
+##   [27632]  ATAC_peak_97466  -1.06568458075408 1.07944941285314e-08
+##   [27633]  ATAC_peak_97469  0.100885846933033  0.00400767112562884
 ##   -------
 ##   seqinfo: 25 sequences (1 circular) from an unspecified genome; no seqlengths</code></pre>
 <p>Now we can ask, how many DA peaks are near DE genes relative to “other” non-DE genes? A gene may appear more than once, since multiple peaks may overlap a single gene or because we have re-sampled the same gene more than once.</p>
@@ -593,14 +593,14 @@ use a figure -->
 ##     origin       any      lfc1      lfc2
 ##   &lt;factor&gt; &lt;numeric&gt; &lt;numeric&gt; &lt;numeric&gt;
 ## 1       de      3416      1097       234
-## 2   not_de    2351.9     427.2      35.3</code></pre>
+## 2   not_de    2367.7     440.7      30.6</code></pre>
 <p>We can see that the enrichment increases for larger LFC threshold:</p>
 <div class="sourceCode" id="cb76"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb76-1" data-line-number="1">overlap_tab <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb76-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span>() <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb76-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">select</a></span>(<span class="op">-</span>origin) <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb76-4" data-line-number="4"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/summarise_all.html">summarise_all</a></span>(<span class="dt">.funs =</span> <span class="op">~</span><span class="kw"><a href="https://rdrr.io/r/base/funprog.html">Reduce</a></span>(<span class="st">"/"</span>, .))</a></code></pre></div>
-<pre><code>##        any     lfc1     lfc2
-## 1 1.452443 2.567884 6.628895</code></pre>
+<pre><code>##       any     lfc1     lfc2
+## 1 1.44275 2.489222 7.647059</code></pre>
 <p>To do this for many thresholds is cumbersome and would create a lot of duplicate code, instead we can construct a grid of 100 thresholds, using the range logFC values in the <code>da_peaks</code> <em>GRanges</em> object:</p>
 <div class="sourceCode" id="cb78"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb78-1" data-line-number="1">thresholds &lt;-<span class="st"> </span>da_peaks <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb78-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">summarise</a></span>(</a>
@@ -628,11 +628,11 @@ use a figure -->
 ##     origin  resample lfc_0.066 lfc_0.118 lfc_0.171 lfc_0.224
 ##   &lt;factor&gt; &lt;integer&gt; &lt;integer&gt; &lt;integer&gt; &lt;integer&gt; &lt;integer&gt;
 ## 1       de         0      3416      3392      3304      3159
-## 2   not_de         1      2305      2245      2131      1974
-## 3   not_de         2      2408      2341      2221      2043
-## 4   not_de         3      2329      2279      2150      1986
-## 5   not_de         4      2340      2303      2166      2025
-## 6   not_de         5      2403      2353      2241      2065</code></pre>
+## 2   not_de         1      2440      2380      2275      2132
+## 3   not_de         2      2367      2308      2208      2039
+## 4   not_de         3      2385      2337      2218      2049
+## 5   not_de         4      2214      2172      2064      1903
+## 6   not_de         5      2393      2343      2235      2086</code></pre>
 <p>Next we can modify the data frame so it is in long form via the <em>tidy</em> package,and average over the re-samples for each threshold. Once again the results from <em>plyranges</em> can be integrated fairly seamlessly with the <em>tidyverse</em> suite of packages:</p>
 <div class="sourceCode" id="cb82"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb82-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(tidyr)</a></code></pre></div>
 <pre><code>## 
