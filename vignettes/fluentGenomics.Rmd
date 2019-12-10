@@ -443,10 +443,11 @@ size <- length(de_genes)
 slice(other_genes, sample.int(n(), size))
 ```
 
-We can scale this up to create many samples via replicate:
+We can repeat this many times to create many samples via replicate:
 
 ```{r}
-set.seed(2099)
+# set a seed for the results
+set.seed(2019-08-02)
 boot_genes <- replicate(10,
                         slice(other_genes, sample.int(n(), size)),
                         simplify = FALSE)
@@ -465,9 +466,11 @@ As the resample column was not present on the DE *GRanges* object, this
 is given a missing value which we recode to a 0 using `mutate()`
 
 ```{r}
-all_genes <- bind_ranges(de=de_genes,
-                         not_de = boot_genes,
-                         .id="origin") %>%
+all_genes <- bind_ranges(
+  de=de_genes,
+  not_de = boot_genes,
+  .id="origin"
+  ) %>%
   mutate(
     origin = factor(origin, c("de", "not_de")),
     resample = ifelse(is.na(resample), 0L, as.integer(resample))
@@ -495,7 +498,7 @@ stranded ranges, and fix the start of positively stranded ranges.
 
 We can then repeat the same pattern but this time using `anchor_center()`
 to tell *plyranges* that we are making the TSS the midpoint of a range
-that has total width of 20kb or 10kb to upstream and downstream of the TSS.  
+that has total width of 20kb or 10kb both upstream and downstream of the TSS.  
 
 ```{r}
 all_genes <-all_genes %>% 
@@ -578,14 +581,14 @@ overlap_tab <- overlap_genes %>%
 overlap_tab
 ```
 
-Then using `summarise_all()` from *dplyr* we divide the rows of the above 
+Then using `summarize_all()` from *dplyr* we divide the rows of the above 
 computation, to see that the relative enrichment increases for a 'larger' LFC:
 
 ```{r}
 overlap_tab %>% 
   as.data.frame() %>% 
   select(-origin) %>% 
-  summarise_all(.funs = ~Reduce("/", .))
+  summarize_all(.funs = ~Reduce("/", .))
 ```
 
 Due to the one-to-many mappings of DE genes to peaks, it is unknown if 
@@ -605,7 +608,7 @@ overlap_genes %>%
     lfc2= sum(abs(da_log2FC) > 2, na.rm=TRUE)
   ) %>% 
   group_by(origin) %>% 
-  summarise(
+  summarize(
     lfc1_gene_count = sum(lfc1 > 0) / n_distinct(resample),
     lfc1_peak_count = sum(lfc1) / n_distinct(resample),
     lfc2_gene_count = sum(lfc2 > 0) / n_distinct(resample),
@@ -613,7 +616,6 @@ overlap_genes %>%
   )
 
 ```
-
 
 To do this for many thresholds is cumbersome and would
 create a lot of duplicate code, 
@@ -629,8 +631,8 @@ count_above_threshold <- function(.data, threshold) {
 }
 ```
 
-The above function will compute the counts for any arbitrary threshold, now we need to apply it over possible LFC thresholds over interest. We use a grid of 
-100 thresholds, using the range of absolute LFC values in the `da_peaks` *GRanges* object:
+The above function will compute the counts for any arbitrary threshold, now we need to apply it over possible LFC thresholds of interest. We choose a grid of 
+one hundred thresholds based on the range of absolute LFC values in the `da_peaks` *GRanges* object:
 
 ```{r}
 thresholds <- da_peaks %>% 
@@ -659,7 +661,7 @@ for each threshold, we apply the same summarisation as before:
 ```{r}
 counts_by_threshold <- counts_by_threshold %>% 
   group_by(origin, threshold) %>% 
-  summarise(
+  summarize(
     gene_count = sum(value > 0) / n_distinct(resample),
     peak_count = sum(value) / n_distinct(resample)
   )
@@ -676,7 +678,8 @@ enrichment <- counts_by_threshold %>%
   summarize(enrichment = Reduce("/", peak_count)) 
 
 enrichment %>% 
-  ggplot(aes(x = threshold, y = enrichment)) + geom_line() +
+  ggplot(aes(x = threshold, y = enrichment)) + 
+  geom_line() +
   labs(x = "logFC threshold", y = "Relative Enrichment")
 ```
 
@@ -690,10 +693,16 @@ check this by plotting the number of DE genes against the number of DA peaks:
 ```{r}
 counts_by_threshold %>% 
   as.data.frame() %>% 
-  ggplot(aes(x = gene_count, y = peak_count, color = threshold)) +
+  ggplot(aes(x = gene_count, 
+             y = peak_count, 
+             color = threshold)) +
   geom_point() +
   scale_color_viridis_c() +
-  facet_wrap(~ origin)
+  facet_wrap(~ origin) +
+  labs(x = "Number of Genes", 
+       y = "Number of Peaks",
+       color = "LFC threshold")
+
 ```
 
 ## Discussion

@@ -1,7 +1,7 @@
 Package: fluentGenomics
 Type: Package
 Title: plyranges and tximeta case study
-Version: 0.0.1
+Version: 0.0.2
 Authors@R: c(
              person(role = c("aut", "cre"), "Stuart", "Lee", email = "stuart.andrew.lee@gmail.com"),
              person(role=c("aut", "ctb"), "Michael", "Love", email = "michaelisaiahlove@gmail.com")
@@ -27,7 +27,6 @@ Imports:
     ggplot2,
     dplyr,
     readr,
-    tidyr,
     utils
 Suggests:
     knitr,
