@@ -712,7 +712,7 @@ counts_by_threshold %>%
 
 ```
 
-## Discussion
+# Discussion
 
 We have shown that using *plyranges* and *tximeta* (with support
 of Bioconductor and *tidyverse* packages) that we can fluently
@@ -738,11 +738,11 @@ TSS to see how it effects enrichment and vary the cut-offs applied
 to FDR percentages applied to both the DE and DA peaks.
 
 
-## Session Info
+# Session Info
 
 ```{r}
 sessionInfo()
 ```
 
-## References
+# References
 
