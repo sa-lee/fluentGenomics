@@ -271,7 +271,7 @@ other_genes <- results(dds,
                     de_padj = padj)
 ```
 
-## ATAC-seq peak DA analysis
+# ATAC-seq peak differential abundance analysis
 
 The ATAC-seq data can be downloaded from the following deposition URL:
 
@@ -301,7 +301,7 @@ path_to_se <- cache_atac_se()
 atac <- readRDS(path_to_se)
 ```
 
-### Generating a *SummarizedExperiment* object
+## Generating a *SummarizedExperiment* object
 
 The following code chunks are unevaluated and describe how the 
 *SummarizedExperiment* has been generated.
@@ -361,7 +361,7 @@ atac <- SummarizedExperiment(list(cqndata=atac_mat),
                              colData=atac_coldata)
 ```
 
-###  Differential Accessibility with limma
+##  Using limma for differential accessibility
 
 We can check the standard deviation over mean plot, 
 to assess for any systematic trends:
@@ -421,7 +421,7 @@ da_peaks <- peaks %>%
   filter(da_padj < .01)
 ```
 
-## Overlap analysis with *plyranges*
+# Finding overlaps with *plyranges*
 
 Now that we have DE genes, genes without strong signal of DE, and DA
 peaks, we can perform our original aim to assess the enrichment of DA
@@ -431,6 +431,8 @@ We've already used *plyranges* a number of times
 above, to `filter`, `mutate` and `select` on *GRanges* objects,
 as well as ensuring the correct genome annotation and style has
 been used, but now we will get into more complicated use cases.
+
+## Down sampling non-differentially expressed genes 
 
 As *plyranges* is built on top of *dplyr* it implements methods for many
 of it's verbs for *GRanges* objects. Here we can use, `slice`
@@ -478,6 +480,8 @@ all_genes <- bind_ranges(
 all_genes
 ``` 
 
+## Expanding genomic coordinates around the transcription start site
+
 Now we would like to modify our gene ranges so their width is 10 kilobases
 on either side of their transcription start site (TSS). There are many ways
 one could do this but we prefer an approach via the anchoring
@@ -506,6 +510,8 @@ all_genes <-all_genes %>%
   mutate(width=2*1e4)
 ```
 
+## Use overlap joins to find relative enrichment
+
 We are now ready to compute overlaps between RNA-seq
 genes (our DE set and bootstrap samples) 
 and the ATAC-seq peaks. In *plyranges*, overlaps are defined as
@@ -515,6 +521,7 @@ that is overlapped by the _right_ *GRanges*. One powerful aspect
 of the overlap joins is that the result maintains all (metadata) columns 
 from each of the _left_ and _right_ ranges which makes downstream summaries
 easy to compute. 
+
 
 To combine the DE genes with the DA peaks, we perform
 a left overlap join.  This returns to us the `all_genes` 
@@ -538,9 +545,9 @@ and strand), and the "origin" (DE vs not-DE) we can compute
 the distinct number of peaks for each gene and the maximum peak based on log
 FC. This is achieved via `reduce_ranges_directed`, which allows
 an aggregation to result in a GRanges object via merging neighboring genomic 
-regions. In this case, we are simply merging ranges via the groups we mentioned 
-above. We also have to account for the number of resamples we have performed
-when counting if there are any peaks, to ensure we do not double count the same
+regions. The use of the directed suffix indicates we're maintaining strand 
+information. In this case, we are simply merging ranges via the groups we
+mentioned  above. We also have to account for the number of resamples we have performed when counting if there are any peaks, to ensure we do not double count the same
 peak:
 
 ```{r}
