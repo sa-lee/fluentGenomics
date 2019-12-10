@@ -1,14 +1,17 @@
 Package: fluentGenomics
 Type: Package
-Title: plyranges and tximeta case study
+Title: A plyranges and tximeta workflow
 Version: 0.0.2
 Authors@R: c(
              person(role = c("aut", "cre"), "Stuart", "Lee", email = "stuart.andrew.lee@gmail.com"),
              person(role=c("aut", "ctb"), "Michael", "Love", email = "michaelisaiahlove@gmail.com")
              )
-Description: An extended case study in overlapping differential expression
-    and differential accessibility using plyranges and tximeta
-    package.
+Description: An extended workflow using the plyranges and tximeta
+    packages for fluent genomic data analysis. Use tximeta to correctly import 
+    RNA-seq transcript  quantifications and summarise them to gene counts for 
+    downstream analysis. Use plyranges for clearly expressing operations
+    over genomic coordinates and to combine results from differential
+    expression and differential accessibility analyses.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
