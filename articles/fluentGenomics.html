@@ -160,7 +160,7 @@ into R/Bioconductor, such that the genomic ranges are automatically attached to 
 ##  9 SAMEA1038… fikt_A fikt… naive      /home/travis/R/Library/macrophage/extdata…
 ## 10 SAMEA1038… fikt_B fikt… IFNg       /home/travis/R/Library/macrophage/extdata…
 ## # … with 14 more rows</code></pre>
-<p>After we have read the <code>coldata.csv</code> file, we select relevant columns from this table and create a new column called <code>files</code> and transform the existing <code>condition</code> column to a factor with the “naive” cell line as the baseline. The <code>files</code> column points to the quantifications for each observation - these files have been gzipped, but would typically not have the ‘gz’ ending if used from <code>salmon</code> directly. One other thing to note is the use of the pipe operator,<code><a href="https://tidyr.tidyverse.org/reference/pipe.html">%&gt;%</a></code>, which can be read as then i.e. first read the data, then select columns, then mutate them.</p>
+<p>After we have read the <code>coldata.csv</code> file, we select relevant columns from this table and create a new column called <code>files</code> and transform the existing <code>condition</code> column to a factor with the “naive” cell line as the baseline. The <code>files</code> column points to the quantifications for each observation - these files have been gzipped, but would typically not have the ‘gz’ ending if used from <code>salmon</code> directly. One other thing to note is the use of the pipe operator,<code><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">%&gt;%</a></code>, which can be read as then i.e. first read the data, then select columns, then mutate them.</p>
 <p>Now we have a data frame summarising the experimental design and the locations of the quantifications, and are ready for import with <em>tximeta</em>. The following lines of code do a lot of work for the analyst: importing the RNA-seq quantification (dropping inferential replicates in this case), locating the relevant reference transcriptome, attaching the transcript ranges to the data, and fetching genome information. The result is stored in the Bioconductor data structure called a <em>SummarizedExperiment</em>.</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(SummarizedExperiment))</a>
 <a class="sourceLine" id="cb11-2" data-line-number="2"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(tximeta)</a>
@@ -196,7 +196,7 @@ into R/Bioconductor, such that the genomic ranges are automatically attached to 
 use a figure -->
 <p>Because <code>tximeta</code> knows the correct reference transcriptome, we can ask <code>tximeta</code> to summarize the transcript-level data to the gene level using the methods of <span class="citation">Soneson, Love, and Robinson (2015)</span>.</p>
 <div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" data-line-number="1">gse &lt;-<span class="st"> </span><span class="kw">summarizeToGene</span>(se)</a></code></pre></div>
-<pre><code>## loading existing TxDb created: 2019-12-04 05:40:52</code></pre>
+<pre><code>## loading existing TxDb created: 2019-12-10 07:18:39</code></pre>
 <pre><code>## Loading required package: GenomicFeatures</code></pre>
 <pre><code>## Loading required package: AnnotationDbi</code></pre>
 <pre><code>## 
@@ -440,36 +440,37 @@ use a figure -->
 <pre><code>## GRanges object with 749 ranges and 3 metadata columns:
 ##         seqnames              ranges strand |            gene_id
 ##            &lt;Rle&gt;           &lt;IRanges&gt;  &lt;Rle&gt; |        &lt;character&gt;
-##     [1]    chr16   89088375-89164121      + | ENSG00000176715.16
-##     [2]    chr11   86283927-86284668      + |  ENSG00000254783.1
-##     [3]     chr6   31727038-31730617      - |  ENSG00000213722.8
-##     [4]     chrX   37571569-37684463      + | ENSG00000147036.11
-##     [5]     chr8   28767661-28890242      - | ENSG00000104299.14
+##     [1]    chr21   14371115-14383484      - |  ENSG00000155304.5
+##     [2]    chr12 123973241-124316024      + | ENSG00000178882.14
+##     [3]     chr6     7540451-7541338      - |  ENSG00000261189.1
+##     [4]     chr6   30006121-30007116      - |  ENSG00000237669.1
+##     [5]     chr1 154924734-154936991      - |  ENSG00000163344.5
 ##     ...      ...                 ...    ... .                ...
-##   [745]    chr19   42485076-42485714      - |  ENSG00000269374.1
-##   [746]     chr2   67397319-67412089      + |  ENSG00000143971.8
-##   [747]     chr5 112976702-113020970      + | ENSG00000172795.15
-##   [748]    chr19   34733298-34733837      - |  ENSG00000274104.1
-##   [749]    chr20     1888128-1894374      - |  ENSG00000276649.1
-##                   de_log2FC           de_padj
-##                   &lt;numeric&gt;         &lt;numeric&gt;
-##     [1]  0.0883185688056134 0.677817325036758
-##     [2]  -0.278999094033877 0.447388026154912
-##     [3]   0.103078047575482 0.715157647224577
-##     [4]    0.70789046813369 0.220161260800496
-##     [5]  -0.108073100475036  0.50065085259782
-##     ...                 ...               ...
-##   [745]   0.277732027627693 0.430776782760329
-##   [746]  -0.110627350026637 0.531931894373728
-##   [747] -0.0573027373516692 0.860974061475304
-##   [748]   0.472112695712188  0.46099083697002
-##   [749] 0.00522089003416244 0.991571521790647
+##   [745]    chr17   82462601-82464255      + |  ENSG00000279744.1
+##   [746]     chr6 161129979-161274061      - | ENSG00000026652.13
+##   [747]     chr6   44246166-44253888      + | ENSG00000096384.19
+##   [748]     chr3   86876388-86991119      - |  ENSG00000206538.8
+##   [749]    chr14   64549902-64589380      + |  ENSG00000165807.7
+##                  de_log2FC           de_padj
+##                  &lt;numeric&gt;         &lt;numeric&gt;
+##     [1]  0.101284501454957 0.771798693378446
+##     [2]   0.40796352815316 0.436281252787391
+##     [3]  0.174251867449551 0.898706588478367
+##     [4] -0.173296002719211  0.83311637653751
+##     [5]  0.169893624055423 0.592360753923637
+##     ...                ...               ...
+##   [745]  -0.22926105902165 0.738993959858183
+##   [746] -0.180568574777471  0.56704245174686
+##   [747] 0.0718443231148747 0.770712293912206
+##   [748] -0.208776985249641 0.750101122328556
+##   [749]  0.374051797475899 0.626787425963629
 ##   -------
 ##   seqinfo: 25 sequences (1 circular) from an unspecified genome; no seqlengths</code></pre>
 <p>We can scale this up to create many samples via replicate:</p>
-<div class="sourceCode" id="cb64"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb64-1" data-line-number="1">boot_genes &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/lapply.html">replicate</a></span>(<span class="dv">10</span>,</a>
-<a class="sourceLine" id="cb64-2" data-line-number="2">                        <span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">slice</a></span>(other_genes, <span class="kw"><a href="https://rdrr.io/r/base/sample.html">sample.int</a></span>(<span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/n.html">n</a></span>(), size)),</a>
-<a class="sourceLine" id="cb64-3" data-line-number="3">                        <span class="dt">simplify =</span> <span class="ot">FALSE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb64"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb64-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span>(<span class="dv">2099</span>)</a>
+<a class="sourceLine" id="cb64-2" data-line-number="2">boot_genes &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/lapply.html">replicate</a></span>(<span class="dv">10</span>,</a>
+<a class="sourceLine" id="cb64-3" data-line-number="3">                        <span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">slice</a></span>(other_genes, <span class="kw"><a href="https://rdrr.io/r/base/sample.html">sample.int</a></span>(<span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/n.html">n</a></span>(), size)),</a>
+<a class="sourceLine" id="cb64-4" data-line-number="4">                        <span class="dt">simplify =</span> <span class="ot">FALSE</span>)</a></code></pre></div>
 <p>This creates a list of <em>GRanges</em> objects as a list, we can bind these together using the <code>bind_ranges</code> function. This function creates a new column called “resample” on the result that identifies each of the input <em>GRanges</em> objects:</p>
 <div class="sourceCode" id="cb65"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb65-1" data-line-number="1">boot_genes &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/ranges-bind.html">bind_ranges</a></span>(boot_genes, <span class="dt">.id =</span> <span class="st">"resample"</span>)</a></code></pre></div>
 <p>Similarly, we can then combine the <code>boot_genes</code> <em>GRanges</em>, with the DE <em>GRanges</em> object. As the resample column was not present on the DE <em>GRanges</em> object, this is given a missing value which we recode to a 0 using <code><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">mutate()</a></code></p>
@@ -490,24 +491,24 @@ use a figure -->
 ##      [4]     chr7 150800403-150805120      + |  ENSG00000002933.8
 ##      [5]     chr4   15778275-15853230      + | ENSG00000004468.12
 ##      ...      ...                 ...    ... .                ...
-##   [8235]    chr16   55760566-55793960      + | ENSG00000228695.10
-##   [8236]     chr9 137007227-137028922      - | ENSG00000107331.16
-##   [8237]     chr9   35056064-35073249      - | ENSG00000165280.15
-##   [8238]    chr12   71663009-71680639      + |  ENSG00000173451.6
-##   [8239]    chr16     4346694-4348648      - |  ENSG00000280063.1
-##                    de_log2FC              de_padj  resample   origin
-##                    &lt;numeric&gt;            &lt;numeric&gt; &lt;integer&gt; &lt;factor&gt;
-##      [1]    4.98711071929753 1.37057047788478e-13         0       de
-##      [2]    1.92721595380928  3.1747750713955e-05         0       de
-##      [3]     2.9337250105913 2.01310386948312e-11         0       de
-##      [4]    3.16721751137947 1.07359905687254e-08         0       de
-##      [5]    5.40894352968123 4.82904681779634e-18         0       de
-##      ...                 ...                  ...       ...      ...
-##   [8235]   0.638702353140594    0.508402790416387        10   not_de
-##   [8236]   -0.15423728143851     0.72188384440227        10   not_de
-##   [8237] -0.0235305688770099    0.875814429612516        10   not_de
-##   [8238]   0.268789749902426    0.508130509835158        10   not_de
-##   [8239]  -0.177111977597586    0.728844923289341        10   not_de
+##   [8235]    chr11   59752578-59754975      - |  ENSG00000254477.2
+##   [8236]    chr19     1876810-1885547      - | ENSG00000129968.15
+##   [8237]    chr18   50878734-50954257      + | ENSG00000082212.12
+##   [8238]     chr1 160997957-161038962      - |  ENSG00000270149.5
+##   [8239]    chr17   28455752-28614197      - |  ENSG00000258472.8
+##                     de_log2FC              de_padj  resample   origin
+##                     &lt;numeric&gt;            &lt;numeric&gt; &lt;integer&gt; &lt;factor&gt;
+##      [1]     4.98711071929753 1.37057047788478e-13         0       de
+##      [2]     1.92721595380928  3.1747750713955e-05         0       de
+##      [3]      2.9337250105913 2.01310386948312e-11         0       de
+##      [4]     3.16721751137947 1.07359905687254e-08         0       de
+##      [5]     5.40894352968123 4.82904681779634e-18         0       de
+##      ...                  ...                  ...       ...      ...
+##   [8235]   -0.079139304552127     0.91869731085397        10   not_de
+##   [8236]   -0.263397975929049    0.229659247995168        10   not_de
+##   [8237] -0.00382090983565518    0.991571521790647        10   not_de
+##   [8238]    0.200972605978732    0.529478237290401        10   not_de
+##   [8239]   0.0931974352744685    0.785799454504345        10   not_de
 ##   -------
 ##   seqinfo: 25 sequences (1 circular) from an unspecified genome; no seqlengths</code></pre>
 <p>Now we would like to modify our gene ranges so their width is 10 kilobases on either side of their transcription start site (TSS). There are many ways one could do this but we prefer an approach via the anchoring methods in <em>plyranges</em>. Because there is a mutual dependence between the start, end, width and strand of a <em>GRanges</em> object, we define anchors to fix one of start and end, while modifying the width. As an example to extract just the TSS, we can anchor by the 5’ end of the range and modify the width of the range to equal 1.</p>
@@ -524,7 +525,7 @@ use a figure -->
 <div class="sourceCode" id="cb70"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb70-1" data-line-number="1">overlap_genes &lt;-<span class="st"> </span>all_genes <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb70-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/overlap-joins.html">join_overlap_left</a></span>(da_peaks)</a>
 <a class="sourceLine" id="cb70-3" data-line-number="3">overlap_genes</a></code></pre></div>
-<pre><code>## GRanges object with 27633 ranges and 8 metadata columns:
+<pre><code>## GRanges object with 27800 ranges and 8 metadata columns:
 ##           seqnames              ranges strand |            gene_id
 ##              &lt;Rle&gt;           &lt;IRanges&gt;  &lt;Rle&gt; |        &lt;character&gt;
 ##       [1]     chr1 196641878-196661877      + | ENSG00000000971.15
@@ -533,24 +534,24 @@ use a figure -->
 ##       [4]     chr4   17567192-17587191      + | ENSG00000002549.12
 ##       [5]     chr4   17567192-17587191      + | ENSG00000002549.12
 ##       ...      ...                 ...    ... .                ...
-##   [27629]     chr9   35063249-35083248      - | ENSG00000165280.15
-##   [27630]     chr9   35063249-35083248      - | ENSG00000165280.15
-##   [27631]    chr12   71653009-71673008      + |  ENSG00000173451.6
-##   [27632]    chr16     4338648-4358647      - |  ENSG00000280063.1
-##   [27633]    chr16     4338648-4358647      - |  ENSG00000280063.1
-##                     de_log2FC              de_padj  resample   origin
-##                     &lt;numeric&gt;            &lt;numeric&gt; &lt;integer&gt; &lt;factor&gt;
-##       [1]    4.98711071929753 1.37057047788478e-13         0       de
-##       [2]    1.92721595380928  3.1747750713955e-05         0       de
-##       [3]     2.9337250105913 2.01310386948312e-11         0       de
-##       [4]     2.9337250105913 2.01310386948312e-11         0       de
-##       [5]     2.9337250105913 2.01310386948312e-11         0       de
-##       ...                 ...                  ...       ...      ...
-##   [27629] -0.0235305688770099    0.875814429612516        10   not_de
-##   [27630] -0.0235305688770099    0.875814429612516        10   not_de
-##   [27631]   0.268789749902426    0.508130509835158        10   not_de
-##   [27632]  -0.177111977597586    0.728844923289341        10   not_de
-##   [27633]  -0.177111977597586    0.728844923289341        10   not_de
+##   [27796]     chr1 161028962-161048961      - |  ENSG00000270149.5
+##   [27797]     chr1 161028962-161048961      - |  ENSG00000270149.5
+##   [27798]     chr1 161028962-161048961      - |  ENSG00000270149.5
+##   [27799]    chr17   28604197-28624196      - |  ENSG00000258472.8
+##   [27800]    chr17   28604197-28624196      - |  ENSG00000258472.8
+##                    de_log2FC              de_padj  resample   origin
+##                    &lt;numeric&gt;            &lt;numeric&gt; &lt;integer&gt; &lt;factor&gt;
+##       [1]   4.98711071929753 1.37057047788478e-13         0       de
+##       [2]   1.92721595380928  3.1747750713955e-05         0       de
+##       [3]    2.9337250105913 2.01310386948312e-11         0       de
+##       [4]    2.9337250105913 2.01310386948312e-11         0       de
+##       [5]    2.9337250105913 2.01310386948312e-11         0       de
+##       ...                ...                  ...       ...      ...
+##   [27796]  0.200972605978732    0.529478237290401        10   not_de
+##   [27797]  0.200972605978732    0.529478237290401        10   not_de
+##   [27798]  0.200972605978732    0.529478237290401        10   not_de
+##   [27799] 0.0931974352744685    0.785799454504345        10   not_de
+##   [27800] 0.0931974352744685    0.785799454504345        10   not_de
 ##                    peak_id          da_log2FC              da_padj
 ##                &lt;character&gt;          &lt;numeric&gt;            &lt;numeric&gt;
 ##       [1]  ATAC_peak_21236 -0.546582189082724 0.000115273676444232
@@ -559,21 +560,22 @@ use a figure -->
 ##       [4] ATAC_peak_193579 -0.281615137872819 7.99888515457195e-05
 ##       [5] ATAC_peak_193580  0.673705317951604 7.60042918890061e-15
 ##       ...              ...                ...                  ...
-##   [27629] ATAC_peak_276402 -0.477548958919527 9.33639645508677e-07
-##   [27630] ATAC_peak_276403  0.119519949352842 0.000253900868283711
-##   [27631]             &lt;NA&gt;               &lt;NA&gt;                 &lt;NA&gt;
-##   [27632]  ATAC_peak_97466  -1.06568458075408 1.07944941285314e-08
-##   [27633]  ATAC_peak_97469  0.100885846933033  0.00400767112562884
+##   [27796]  ATAC_peak_17426  0.462698705683736 9.69878193149109e-11
+##   [27797]  ATAC_peak_17427  0.377286409679233 7.02217071532745e-06
+##   [27798]  ATAC_peak_17428 -0.450459285312325 2.38625352432231e-09
+##   [27799] ATAC_peak_109117 -0.649512099043331 4.92570293120207e-08
+##   [27800] ATAC_peak_109118  -1.26938787281936 2.03749572914536e-18
 ##   -------
 ##   seqinfo: 25 sequences (1 circular) from an unspecified genome; no seqlengths</code></pre>
 <p>Now we can ask, how many DA peaks are near DE genes relative to “other” non-DE genes? A gene may appear more than once, since multiple peaks may overlap a single gene or because we have re-sampled the same gene more than once.</p>
-<p>For each gene (that is the combination of chromosome, the start, end and strand), and the “origin” (DE vs not-DE) we can compute the distinct number of peaks for each gene and the maximum peak based on log FC. We first group_by the relevant variables then summarise (also accounting for the number of re samples in the “not-DE” group). In this case, via summarise we have enough information to reconstruct a <em>GRanges</em> object.</p>
+<p>For each gene (that is the combination of chromosome, the start, end and strand), and the “origin” (DE vs not-DE) we can compute the distinct number of peaks for each gene and the maximum peak based on log FC. This is achieved via <code>reduce_ranges_directed</code>, which allows an aggregation to result in a GRanges object via merging neighboring genomic regions. In this case, we are simply merging ranges via the groups we mentioned above. We also have to account for the number of resamples we have performed when counting if there are any peaks, to ensure we do not double count the same peak:</p>
 <div class="sourceCode" id="cb72"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb72-1" data-line-number="1">any_peaks &lt;-<span class="st"> </span>overlap_genes <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb72-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">group_by</a></span>(seqnames, start, end, strand, gene_id, origin)  <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb72-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">summarise</a></span>(<span class="dt">any =</span> <span class="kw"><a href="https://rdrr.io/r/base/sum.html">sum</a></span>(<span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span>(da_padj)) <span class="op">/</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/n_distinct.html">n_distinct</a></span>(resample),</a>
-<a class="sourceLine" id="cb72-4" data-line-number="4">            <span class="dt">max_logFC =</span> <span class="kw"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span>(da_log2FC))) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb72-5" data-line-number="5"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/ranges-construct.html">as_granges</a></span>()</a></code></pre></div>
-<p>We can then filter genes if there have any peaks and compare the peak fold changes between non-DE and DE genes:</p>
+<a class="sourceLine" id="cb72-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">group_by</a></span>(gene_id, origin)  <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb72-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/ranges-reduce.html">reduce_ranges_directed</a></span>(</a>
+<a class="sourceLine" id="cb72-4" data-line-number="4">    <span class="dt">any =</span> <span class="kw"><a href="https://rdrr.io/r/base/sum.html">sum</a></span>(<span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span>(da_padj)) <span class="op">/</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/n_distinct.html">n_distinct</a></span>(resample),</a>
+<a class="sourceLine" id="cb72-5" data-line-number="5">    <span class="dt">max_logFC =</span> <span class="kw"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span>(da_log2FC))</a>
+<a class="sourceLine" id="cb72-6" data-line-number="6">  ) </a></code></pre></div>
+<p>We can then filter genes if there have any peaks and compare the peak fold changes between non-DE and DE genes using a boxplot:</p>
 <div class="sourceCode" id="cb73"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb73-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(ggplot2)</a>
 <a class="sourceLine" id="cb73-2" data-line-number="2">any_peaks <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb73-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">filter</a></span>(any <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
@@ -581,8 +583,8 @@ use a figure -->
 <a class="sourceLine" id="cb73-5" data-line-number="5"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span>(<span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(origin, max_logFC)) <span class="op">+</span></a>
 <a class="sourceLine" id="cb73-6" data-line-number="6"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/geom_boxplot.html">geom_boxplot</a></span>()</a></code></pre></div>
 <p><img src="fluentGenomics_files/figure-html/unnamed-chunk-29-1.png" width="700"></p>
-<p>We notice that in general, the DE genes have larger DA fold changes relative to the non-DE genes.</p>
-<p>Next we examine how changes in DA LFC alter enrichment for DE genes, that is as how do the number of peaks within DE genes and non-DE genes change as the cutoff DA log-fold increases. We could compute this by arbitrarily chosen thresholds as follows:</p>
+<p>In general, the DE genes have larger DA fold changes relative to the non-DE genes.</p>
+<p>Next we examine how changes in DA LFC alter enrichment for DE genes. First, we want to know how the number of peaks within DE genes and non-DE genes change as we change threshold values on the peak LFC. As an example, we could compute this by arbitrarily chosen LFC thresholds as follows:</p>
 <div class="sourceCode" id="cb74"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb74-1" data-line-number="1">overlap_tab &lt;-<span class="st"> </span>overlap_genes <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb74-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">group_by</a></span>(origin) <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb74-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">summarize</a></span>(<span class="dt">any=</span><span class="kw"><a href="https://rdrr.io/r/base/sum.html">sum</a></span>(<span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span>(da_padj)) <span class="op">/</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/n_distinct.html">n_distinct</a></span>(resample),</a>
@@ -593,71 +595,94 @@ use a figure -->
 ##     origin       any      lfc1      lfc2
 ##   &lt;factor&gt; &lt;numeric&gt; &lt;numeric&gt; &lt;numeric&gt;
 ## 1       de      3416      1097       234
-## 2   not_de    2367.7     440.7      30.6</code></pre>
-<p>We can see that the enrichment increases for larger LFC threshold:</p>
+## 2   not_de    2383.1     451.4        34</code></pre>
+<p>Then using <code><a href="https://dplyr.tidyverse.org/reference/summarise_all.html">summarise_all()</a></code> from <em>dplyr</em> we divide the rows of the above computation, to see that the relative enrichment increases for a ‘larger’ LFC:</p>
 <div class="sourceCode" id="cb76"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb76-1" data-line-number="1">overlap_tab <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb76-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span>() <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb76-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">select</a></span>(<span class="op">-</span>origin) <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb76-4" data-line-number="4"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/summarise_all.html">summarise_all</a></span>(<span class="dt">.funs =</span> <span class="op">~</span><span class="kw"><a href="https://rdrr.io/r/base/funprog.html">Reduce</a></span>(<span class="st">"/"</span>, .))</a></code></pre></div>
-<pre><code>##       any     lfc1     lfc2
-## 1 1.44275 2.489222 7.647059</code></pre>
-<p>To do this for many thresholds is cumbersome and would create a lot of duplicate code, instead we can construct a grid of 100 thresholds, using the range logFC values in the <code>da_peaks</code> <em>GRanges</em> object:</p>
-<div class="sourceCode" id="cb78"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb78-1" data-line-number="1">thresholds &lt;-<span class="st"> </span>da_peaks <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb78-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">summarise</a></span>(</a>
-<a class="sourceLine" id="cb78-3" data-line-number="3">    <span class="dt">bins =</span> <span class="kw"><a href="https://rdrr.io/r/base/Round.html">round</a></span>(</a>
-<a class="sourceLine" id="cb78-4" data-line-number="4">      <span class="kw"><a href="https://rdrr.io/r/base/seq.html">seq</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/Extremes.html">min</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span>(da_log2FC)), </a>
-<a class="sourceLine" id="cb78-5" data-line-number="5">          <span class="kw"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span>(da_log2FC))), </a>
-<a class="sourceLine" id="cb78-6" data-line-number="6">          <span class="dt">length.out =</span> <span class="dv">100</span>), </a>
-<a class="sourceLine" id="cb78-7" data-line-number="7">      <span class="dv">3</span></a>
-<a class="sourceLine" id="cb78-8" data-line-number="8">    )</a>
-<a class="sourceLine" id="cb78-9" data-line-number="9">  )</a></code></pre></div>
-<p>From the thresholds, we can create a list of functions, that contain that will be called on the fold change values:</p>
-<div class="sourceCode" id="cb79"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb79-1" data-line-number="1">fc_fns &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span>(thresholds<span class="op">$</span>bins, </a>
-<a class="sourceLine" id="cb79-2" data-line-number="2">                 <span class="cf">function</span>(b) {</a>
-<a class="sourceLine" id="cb79-3" data-line-number="3">                   <span class="cf">function</span>(foldchange) {</a>
-<a class="sourceLine" id="cb79-4" data-line-number="4">                     <span class="kw"><a href="https://rdrr.io/r/base/sum.html">sum</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span>(foldchange) <span class="op">&gt;</span><span class="st"> </span>b, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb79-5" data-line-number="5">                   }  </a>
-<a class="sourceLine" id="cb79-6" data-line-number="6">                 })</a>
-<a class="sourceLine" id="cb79-7" data-line-number="7"><span class="kw"><a href="https://rdrr.io/r/base/names.html">names</a></span>(fc_fns) &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(<span class="st">"lfc_"</span>, thresholds<span class="op">$</span>bins)</a></code></pre></div>
-<p>We can now compute thresholds over each bin within the origin and re-samples columns using the function <code>summarise_at</code> from <em>dplyr</em>:</p>
-<div class="sourceCode" id="cb80"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb80-1" data-line-number="1">overlap_tab &lt;-<span class="st"> </span>overlap_genes <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb80-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">group_by</a></span>(origin, resample) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb80-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/summarise_all.html">summarize_at</a></span>(<span class="kw"><a href="https://ggplot2.tidyverse.org/reference/vars.html">vars</a></span>(da_log2FC), <span class="dt">.funs =</span> fc_fns)</a>
-<a class="sourceLine" id="cb80-4" data-line-number="4"><span class="kw"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(overlap_tab[,<span class="dv">1</span><span class="op">:</span><span class="dv">6</span>])</a></code></pre></div>
-<pre><code>## DataFrame with 6 rows and 6 columns
-##     origin  resample lfc_0.066 lfc_0.118 lfc_0.171 lfc_0.224
-##   &lt;factor&gt; &lt;integer&gt; &lt;integer&gt; &lt;integer&gt; &lt;integer&gt; &lt;integer&gt;
-## 1       de         0      3416      3392      3304      3159
-## 2   not_de         1      2440      2380      2275      2132
-## 3   not_de         2      2367      2308      2208      2039
-## 4   not_de         3      2385      2337      2218      2049
-## 5   not_de         4      2214      2172      2064      1903
-## 6   not_de         5      2393      2343      2235      2086</code></pre>
-<p>Next we can modify the data frame so it is in long form via the <em>tidy</em> package,and average over the re-samples for each threshold. Once again the results from <em>plyranges</em> can be integrated fairly seamlessly with the <em>tidyverse</em> suite of packages:</p>
-<div class="sourceCode" id="cb82"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb82-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(tidyr)</a></code></pre></div>
-<pre><code>## 
-## Attaching package: 'tidyr'</code></pre>
-<pre><code>## The following object is masked from 'package:S4Vectors':
-## 
-##     expand</code></pre>
-<div class="sourceCode" id="cb85"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb85-1" data-line-number="1">logfc_changes &lt;-<span class="st"> </span>overlap_tab <span class="op">%&gt;%</span><span class="st"> </span></a>
+<pre><code>##        any     lfc1     lfc2
+## 1 1.433427 2.430217 6.882353</code></pre>
+<p>Due to the one-to-many mappings of DE genes to peaks, it is unknown if we have the same number of DE genes participating or less, as we increase the threshold on the peak LFC. This can be accounted for by grouping and aggregating twice. First, the number of peaks that meet the thresholds are computed within each gene, origin and resample group. Second, within the origin column, we compute the total number of peaks that meet the target threshold and the number of genes that have more than zero peaks (again averaging over the number of resamples).</p>
+<div class="sourceCode" id="cb78"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb78-1" data-line-number="1">overlap_genes <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb78-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">group_by</a></span>(gene_id, origin, resample) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb78-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/ranges-reduce.html">reduce_ranges_directed</a></span>(</a>
+<a class="sourceLine" id="cb78-4" data-line-number="4">    <span class="dt">lfc1 =</span><span class="kw"><a href="https://rdrr.io/r/base/sum.html">sum</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span>(da_log2FC) <span class="op">&gt;</span><span class="st"> </span><span class="dv">1</span>, <span class="dt">na.rm=</span><span class="ot">TRUE</span>),</a>
+<a class="sourceLine" id="cb78-5" data-line-number="5">    <span class="dt">lfc2=</span> <span class="kw"><a href="https://rdrr.io/r/base/sum.html">sum</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span>(da_log2FC) <span class="op">&gt;</span><span class="st"> </span><span class="dv">2</span>, <span class="dt">na.rm=</span><span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb78-6" data-line-number="6">  ) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb78-7" data-line-number="7"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">group_by</a></span>(origin) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb78-8" data-line-number="8"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">summarise</a></span>(</a>
+<a class="sourceLine" id="cb78-9" data-line-number="9">    <span class="dt">lfc1_gene_count =</span> <span class="kw"><a href="https://rdrr.io/r/base/sum.html">sum</a></span>(lfc1 <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>) <span class="op">/</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/n_distinct.html">n_distinct</a></span>(resample),</a>
+<a class="sourceLine" id="cb78-10" data-line-number="10">    <span class="dt">lfc1_peak_count =</span> <span class="kw"><a href="https://rdrr.io/r/base/sum.html">sum</a></span>(lfc1) <span class="op">/</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/n_distinct.html">n_distinct</a></span>(resample),</a>
+<a class="sourceLine" id="cb78-11" data-line-number="11">    <span class="dt">lfc2_gene_count =</span> <span class="kw"><a href="https://rdrr.io/r/base/sum.html">sum</a></span>(lfc2 <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>) <span class="op">/</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/n_distinct.html">n_distinct</a></span>(resample),</a>
+<a class="sourceLine" id="cb78-12" data-line-number="12">    <span class="dt">lfc2_peak_count =</span> <span class="kw"><a href="https://rdrr.io/r/base/sum.html">sum</a></span>(lfc2) <span class="op">/</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/n_distinct.html">n_distinct</a></span>(resample)</a>
+<a class="sourceLine" id="cb78-13" data-line-number="13">  )</a></code></pre></div>
+<pre><code>## DataFrame with 2 rows and 5 columns
+##     origin lfc1_gene_count lfc1_peak_count lfc2_gene_count lfc2_peak_count
+##   &lt;factor&gt;       &lt;numeric&gt;       &lt;numeric&gt;       &lt;numeric&gt;       &lt;numeric&gt;
+## 1       de             515            1097             151             234
+## 2   not_de           306.1           451.4            32.2              34</code></pre>
+<p>To do this for many thresholds is cumbersome and would create a lot of duplicate code, instead we create a single function called <code>count_above_threshold</code> that accepts a GRanges object, and computes the peak count that meets the threshold.</p>
+<div class="sourceCode" id="cb80"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb80-1" data-line-number="1">count_above_threshold &lt;-<span class="st"> </span><span class="cf">function</span>(.data, threshold) {</a>
+<a class="sourceLine" id="cb80-2" data-line-number="2">  <span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/ranges-reduce.html">reduce_ranges_directed</a></span>(.data,</a>
+<a class="sourceLine" id="cb80-3" data-line-number="3">                         <span class="dt">threshold =</span> threshold,</a>
+<a class="sourceLine" id="cb80-4" data-line-number="4">                         <span class="dt">value =</span> <span class="kw"><a href="https://rdrr.io/r/base/sum.html">sum</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span>(da_log2FC) <span class="op">&gt;</span><span class="st"> </span>threshold, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb80-5" data-line-number="5">  ) </a>
+<a class="sourceLine" id="cb80-6" data-line-number="6">}</a></code></pre></div>
+<p>The above function will compute the counts for any arbitrary threshold, now we need to apply it over possible LFC thresholds over interest. We use a grid of 100 thresholds, using the range of absolute LFC values in the <code>da_peaks</code> <em>GRanges</em> object:</p>
+<div class="sourceCode" id="cb81"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb81-1" data-line-number="1">thresholds &lt;-<span class="st"> </span>da_peaks <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb81-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">mutate</a></span>(<span class="dt">abs_lfc =</span> <span class="kw"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span>(da_log2FC)) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb81-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/r/base/with.html">with</a></span>(</a>
+<a class="sourceLine" id="cb81-4" data-line-number="4">    <span class="kw"><a href="https://rdrr.io/r/base/seq.html">seq</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/Extremes.html">min</a></span>(abs_lfc), <span class="kw"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span>(abs_lfc), <span class="dt">length.out =</span> <span class="dv">100</span>)</a>
+<a class="sourceLine" id="cb81-5" data-line-number="5">  )</a></code></pre></div>
+<p>The peaks are computed for each value by applying <code>count_above_threshold()</code> on the grouped <em>GRanges</em> object for each threshold and then binding the result. This could be done easily in parallel <code>BiocParallel</code> but here we compute everything serially.</p>
+<div class="sourceCode" id="cb82"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb82-1" data-line-number="1">by_gene_origin &lt;-<span class="st"> </span>overlap_genes <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb82-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">group_by</a></span>(gene_id, origin, resample)</a>
+<a class="sourceLine" id="cb82-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb82-4" data-line-number="4">counts_by_threshold &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/ranges-bind.html">bind_ranges</a></span>(</a>
+<a class="sourceLine" id="cb82-5" data-line-number="5">  <span class="kw"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span>(thresholds, count_above_threshold, <span class="dt">.data =</span> by_gene_origin)</a>
+<a class="sourceLine" id="cb82-6" data-line-number="6">)</a></code></pre></div>
+<p>This creates a very <em>long</em> GRanges object. To compute the peak and gene counts for each threshold, we apply the same summarisation as before:</p>
+<div class="sourceCode" id="cb83"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb83-1" data-line-number="1">counts_by_threshold &lt;-<span class="st"> </span>counts_by_threshold <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb83-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">group_by</a></span>(origin, threshold) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb83-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">summarise</a></span>(</a>
+<a class="sourceLine" id="cb83-4" data-line-number="4">    <span class="dt">gene_count =</span> <span class="kw"><a href="https://rdrr.io/r/base/sum.html">sum</a></span>(value <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>) <span class="op">/</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/n_distinct.html">n_distinct</a></span>(resample),</a>
+<a class="sourceLine" id="cb83-5" data-line-number="5">    <span class="dt">peak_count =</span> <span class="kw"><a href="https://rdrr.io/r/base/sum.html">sum</a></span>(value) <span class="op">/</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/n_distinct.html">n_distinct</a></span>(resample)</a>
+<a class="sourceLine" id="cb83-6" data-line-number="6">  )</a>
+<a class="sourceLine" id="cb83-7" data-line-number="7">counts_by_threshold</a></code></pre></div>
+<pre><code>## DataFrame with 200 rows and 4 columns
+##       origin          threshold gene_count peak_count
+##     &lt;factor&gt;          &lt;numeric&gt;  &lt;numeric&gt;  &lt;numeric&gt;
+## 1         de 0.0658243106359027        727       3416
+## 2         de  0.118483961449043        727       3392
+## 3         de  0.171143612262182        727       3304
+## 4         de  0.223803263075322        724       3160
+## 5         de  0.276462913888462        723       3045
+## ...      ...                ...        ...        ...
+## 196   not_de   5.06849113788419          0          0
+## 197   not_de   5.12115078869733          0          0
+## 198   not_de   5.17381043951047          0          0
+## 199   not_de   5.22647009032361          0          0
+## 200   not_de   5.27912974113675          0          0</code></pre>
+<p>Again we can compute the relative enrichment in LFCs in the same manner as before and visualise how enrichment changes as the threshold value increases:</p>
+<div class="sourceCode" id="cb85"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb85-1" data-line-number="1">enrichment &lt;-<span class="st"> </span>counts_by_threshold <span class="op">%&gt;%</span><span class="st"> </span></a>
 <a class="sourceLine" id="cb85-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span>() <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb85-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html">pivot_longer</a></span>(<span class="op">-</span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(origin, resample), </a>
-<a class="sourceLine" id="cb85-4" data-line-number="4">                      <span class="dt">names_to =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"variable"</span>, <span class="st">"threshold"</span>),</a>
-<a class="sourceLine" id="cb85-5" data-line-number="5">                      <span class="dt">names_sep =</span> <span class="st">"_"</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb85-6" data-line-number="6"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">mutate</a></span>(<span class="dt">threshold =</span> <span class="kw"><a href="https://rdrr.io/r/base/numeric.html">as.numeric</a></span>(threshold)) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb85-7" data-line-number="7"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">group_by</a></span>(origin, threshold) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb85-8" data-line-number="8"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">summarize</a></span>(<span class="dt">value =</span> <span class="kw"><a href="https://rdrr.io/r/base/mean.html">mean</a></span>(value))<span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb85-9" data-line-number="9"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">ungroup</a></span>()</a></code></pre></div>
-<p>And again we can compute the relative enrichment in log fold-changes by grouping by the thresholds and reducing over the number of DA peaks:</p>
-<div class="sourceCode" id="cb86"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb86-1" data-line-number="1">logfc_changes <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb86-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">group_by</a></span>(threshold) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb86-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">summarize</a></span>(<span class="dt">enrichment =</span> <span class="kw"><a href="https://rdrr.io/r/base/funprog.html">Reduce</a></span>(<span class="st">"/"</span>, value)) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb86-4" data-line-number="4"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span>(<span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="dt">x =</span> threshold, <span class="dt">y =</span> enrichment)) <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html">geom_line</a></span>() <span class="op">+</span></a>
-<a class="sourceLine" id="cb86-5" data-line-number="5"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs</a></span>(<span class="dt">x =</span> <span class="st">"logFC threshold"</span>, <span class="dt">y =</span> <span class="st">"Relative Enrichment"</span>)</a></code></pre></div>
+<a class="sourceLine" id="cb85-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">group_by</a></span>(threshold) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb85-4" data-line-number="4"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">summarize</a></span>(<span class="dt">enrichment =</span> <span class="kw"><a href="https://rdrr.io/r/base/funprog.html">Reduce</a></span>(<span class="st">"/"</span>, peak_count)) </a>
+<a class="sourceLine" id="cb85-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb85-6" data-line-number="6">enrichment <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb85-7" data-line-number="7"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span>(<span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="dt">x =</span> threshold, <span class="dt">y =</span> enrichment)) <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html">geom_line</a></span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb85-8" data-line-number="8"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs</a></span>(<span class="dt">x =</span> <span class="st">"logFC threshold"</span>, <span class="dt">y =</span> <span class="st">"Relative Enrichment"</span>)</a></code></pre></div>
 <pre><code>## Warning: Removed 4 rows containing missing values (geom_path).</code></pre>
-<p><img src="fluentGenomics_files/figure-html/unnamed-chunk-36-1.png" width="700"></p>
-<p>We computed the sum of DA peaks near the DE genes, for increasing LFC thresholds on the accessibility change. As we increased the threshold, the number of total peaks went down (likewise the mean number of DA peaks per gene). It is also likely the number of DE genes with a DA peak nearby with such a large change went down, but we didn’t keep track of this, but we could if we modified the above code to additionally group by the gene_id.</p>
+<p><img src="fluentGenomics_files/figure-html/unnamed-chunk-37-1.png" width="700"></p>
+<p>We computed the sum of DA peaks near the DE genes, for increasing LFC thresholds on the accessibility change. As we increased the threshold, the number of total peaks went down (likewise the mean number of DA peaks per gene). It is also likely the number of DE genes with a DA peak nearby with such a large change went down - we can check this by plotting the number of DE genes against the number of DA peaks:</p>
+<div class="sourceCode" id="cb87"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb87-1" data-line-number="1">counts_by_threshold <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb87-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span>() <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb87-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span>(<span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="dt">x =</span> gene_count, <span class="dt">y =</span> peak_count, <span class="dt">color =</span> threshold)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb87-4" data-line-number="4"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb87-5" data-line-number="5"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html">scale_color_viridis_c</a></span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb87-6" data-line-number="6"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html">facet_wrap</a></span>(<span class="op">~</span><span class="st"> </span>origin)</a></code></pre></div>
+<p><img src="fluentGenomics_files/figure-html/unnamed-chunk-38-1.png" width="700"></p>
 </div>
 <div id="discussion" class="section level2">
 <h2 class="hasAnchor">
@@ -665,15 +690,74 @@ use a figure -->
 <p>We have shown that using <em>plyranges</em> and <em>tximeta</em> (with support of Bioconductor and <em>tidyverse</em> packages) that we can fluently iterate through the biological data science workflow: from import, through to modelling, wrangling and visualisation.</p>
 <p>Using <em>tximeta</em>, we have shown that it is straightforward to import RNA-seq quantification data, and that by ensuring the proper metadata is associated with it, we can guard against any mistakes in downstream analyses.</p>
 <p>Using <em>plyranges</em>, we have extended the principles of the <em>tidyverse</em> to genomic ranges, and that by design we can leverage those packages to understand data measured along the genome. We have shown that analyses performed with <em>plyranges</em> clearly and (relatively) concisely express their intent; in most cases the code we have written closely matches it’s description in English and clarifies how the features of a genomic range is being modified.</p>
-<p>There are several further steps that would be interesting to perform in this analysis; for example, we could modify window size around the TSS to see how it effects enrichment and vary the cut-offs applied to FDR percentages applied to both the DE and DA peaks. <!--
-* We specified a fixed-size window for computing overlaps. How could we
-  have looked at various settings of this distance parameter?
-* How would you adapt the code to also consider variations on the
-  thresholds applied to the DE genes (FDR 1%, testing against a null
-  region of |LFC| < 1), and to the FDR cutoff (1%) for the DA peaks?
-* We relied on the fact that the reference transcriptome was known to
-  `tximeta`. What if this had not been the case?
---></p>
+<p>There are several further steps that would be interesting to perform in this analysis; for example, we could modify window size around the TSS to see how it effects enrichment and vary the cut-offs applied to FDR percentages applied to both the DE and DA peaks.</p>
+</div>
+<div id="session-info" class="section level2">
+<h2 class="hasAnchor">
+<a href="#session-info" class="anchor"></a>Session Info</h2>
+<div class="sourceCode" id="cb88"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb88-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo</a></span>()</a></code></pre></div>
+<pre><code>## R Under development (unstable) (2019-12-09 r77545)
+## Platform: x86_64-pc-linux-gnu (64-bit)
+## Running under: Ubuntu 16.04.6 LTS
+## 
+## Matrix products: default
+## BLAS:   /home/travis/R-bin/lib/R/lib/libRblas.so
+## LAPACK: /home/travis/R-bin/lib/R/lib/libRlapack.so
+## 
+## locale:
+##  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+##  [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+##  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+##  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+##  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+## [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+## 
+## attached base packages:
+## [1] parallel  stats4    stats     graphics  grDevices utils     datasets 
+## [8] methods   base     
+## 
+## other attached packages:
+##  [1] ggplot2_3.2.1               plyranges_1.7.6            
+##  [3] DESeq2_1.27.16              GenomicFeatures_1.39.1     
+##  [5] AnnotationDbi_1.49.0        SummarizedExperiment_1.17.0
+##  [7] DelayedArray_0.13.0         BiocParallel_1.21.0        
+##  [9] matrixStats_0.55.0          Biobase_2.47.1             
+## [11] GenomicRanges_1.39.1        GenomeInfoDb_1.23.0        
+## [13] IRanges_2.21.2              S4Vectors_0.25.6           
+## [15] BiocGenerics_0.33.0         readr_1.3.1                
+## [17] dplyr_0.8.3                 tximeta_1.5.6              
+## [19] fluentGenomics_0.0.1       
+## 
+## loaded via a namespace (and not attached):
+##  [1] ProtGenerics_1.19.0      bitops_1.0-6             fs_1.3.1                
+##  [4] bit64_0.9-7              RColorBrewer_1.1-2       progress_1.2.2          
+##  [7] httr_1.4.1               rprojroot_1.3-2          tools_4.0.0             
+## [10] backports_1.1.5          utf8_1.1.4               R6_2.4.1                
+## [13] colorspace_1.4-1         DBI_1.0.0                lazyeval_0.2.2          
+## [16] withr_2.1.2              tidyselect_0.2.5         prettyunits_1.0.2       
+## [19] bit_1.1-14               curl_4.3                 compiler_4.0.0          
+## [22] cli_2.0.0                desc_1.2.0               labeling_0.3            
+## [25] rtracklayer_1.47.0       scales_1.1.0             genefilter_1.69.0       
+## [28] askpass_1.1              rappdirs_0.3.1           pkgdown_1.4.1           
+## [31] stringr_1.4.0            digest_0.6.23            Rsamtools_2.3.2         
+## [34] rmarkdown_1.18           XVector_0.27.0           pkgconfig_2.0.3         
+## [37] htmltools_0.4.0          dbplyr_1.4.2             ensembldb_2.11.2        
+## [40] rlang_0.4.2              RSQLite_2.1.4            farver_2.0.1            
+## [43] jsonlite_1.6             RCurl_1.95-4.12          magrittr_1.5            
+## [46] GenomeInfoDbData_1.2.2   Matrix_1.2-18            munsell_0.5.0           
+## [49] Rcpp_1.0.3               fansi_0.4.0              lifecycle_0.1.0         
+## [52] stringi_1.4.3            yaml_2.2.0               MASS_7.3-51.4           
+## [55] zlibbioc_1.33.0          BiocFileCache_1.11.4     grid_4.0.0              
+## [58] blob_1.2.0               crayon_1.3.4             lattice_0.20-38         
+## [61] Biostrings_2.55.3        splines_4.0.0            annotate_1.65.0         
+## [64] hms_0.5.2                locfit_1.5-9.1           zeallot_0.1.0           
+## [67] knitr_1.26               pillar_1.4.2             geneplotter_1.65.0      
+## [70] biomaRt_2.43.0           XML_3.98-1.20            glue_1.3.1              
+## [73] evaluate_0.14            vctrs_0.2.0              gtable_0.3.0            
+## [76] openssl_1.4.1            purrr_0.3.3              assertthat_0.2.1        
+## [79] xfun_0.11                xtable_1.8-4             AnnotationFilter_1.11.0 
+## [82] viridisLite_0.3.0        survival_3.1-8           tibble_2.1.3            
+## [85] GenomicAlignments_1.23.1 memoise_1.1.0            tximport_1.15.5</code></pre>
 </div>
 <div id="references" class="section level2 unnumbered">
 <h2 class="hasAnchor">
@@ -738,6 +822,7 @@ use a figure -->
       <li><a href="#atac-seq-peak-da-analysis">ATAC-seq peak DA analysis</a></li>
       <li><a href="#overlap-analysis-with-plyranges">Overlap analysis with <em>plyranges</em></a></li>
       <li><a href="#discussion">Discussion</a></li>
+      <li><a href="#session-info">Session Info</a></li>
       <li><a href="#references">References</a></li>
       </ul>
 </li>
