@@ -23,8 +23,17 @@ Once the package has been installed, you can work through
 the vignette directly from R/Rstudio with:
 
 ``` r
-browseVignettes(package = "fluentGenomics")
+vignette("fluentGenomics")
 ```
 
-Or you can read it online [here](articles/index.html)
+Or you can read it online 
+[here](https://sa-lee.github.io/fluentGenomics/articles/fluentGenomics.html)/
 
+## Course
+
+You can use the package as course material directly with the `usethis`
+package:
+
+```{r}
+usethis::use_course("sa-lee/fluentGenomics")
+```
