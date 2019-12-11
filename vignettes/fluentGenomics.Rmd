@@ -1,6 +1,7 @@
 ---
 title: "Fluent genomics with plyranges and tximeta"
 author: "Stuart Lee, Di Cook, Michael Lawrence, Michael Love"
+abstract: "In this workflow, we use the R/Bioconductor packages *tximeta* and *plyranges* for integrating results from an experiment using RNA-seq and ATAC-seq data. The *tximeta* package provides an automated way of importing RNA-seq transcript quantifications. It does this by creating a *SummarizedExperiment* object that knows the correct reference transcriptome and the metadata associated with the quantification software. Since the quantifications are transformed into a *SummarizedExperiment* object, they are ready for downstream analysis using many other Bioconductor packages. The *plyranges* package provides a framework for expressing operations on genomic coordinates such as finding overlaps and performing aggregations and genomic arithmetic. Here it is used to perform sensistivity analysis on the results of a differential expression and differential accessibility analysis with respect to their genomic context." 
 output:
   rmarkdown::html_document:
     highlight: pygments
@@ -19,8 +20,6 @@ vignette: >
 # if not we won't update it
 library(fluentGenomics)
 retrieve_cache <- FALSE
-
-
 dir <- system.file("extdata", package="macrophage")
 
 library(tximeta)
@@ -40,21 +39,6 @@ makeLinkedTxome(
 #   retrieve_cache <- BiocFileCache::bfccount(res) == 1L 
 # }
 ```
-
-# Abstract 
-
-In this workflow, we explore the use of the 
-R/Bioconductor packages *tximeta* and *plyranges* for 
-integrating results from an experiment using RNA-seq and ATAC-seq
-data. The former package provides an automated 
-way of cleanly importing RNA-seq transcript quantification
-data, correctly ensuring the associated transcriptome 
-annotations and metadata are available to the analyst 
-for downstream analysis. The latter package provides a 
-framework for expressing operations on genomic ranges, here it is 
-used for sensitivity analysis and combining results measured along 
-the genome. Throughout the workflow we describe, key Bioconductor data
-structures and how to work with them.
 
 
 # Introduction
@@ -651,13 +635,13 @@ thresholds <- da_peaks %>%
 
 The peaks are computed for each value by applying `count_above_threshold()`
 on the grouped *GRanges* object for each threshold and then binding the result.
-This could be done easily in parallel `BiocParallel` but here we
+This could be done easily in parallel with `BiocParallel` but here we
 compute everything serially. 
 ```{r}
 by_gene_origin <- overlap_genes %>% 
   group_by(gene_id, origin, resample)
 
-counts_by_threshold <- bind_ranges(
+all_thresholds <- bind_ranges(
   lapply(thresholds, count_above_threshold, .data = by_gene_origin)
 )
 ```
@@ -666,7 +650,7 @@ This creates a very *long* GRanges object. To compute the peak and gene counts
 for each threshold, we apply the same summarisation as before:
 
 ```{r}
-counts_by_threshold <- counts_by_threshold %>% 
+counts_by_threshold <- all_thresholds %>% 
   group_by(origin, threshold) %>% 
   summarize(
     gene_count = sum(value > 0) / n_distinct(resample),
