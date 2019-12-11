@@ -196,7 +196,7 @@ into R/Bioconductor, such that the genomic ranges are automatically attached to 
 use a figure -->
 <p>Because <code>tximeta</code> knows the correct reference transcriptome, we can ask <code>tximeta</code> to summarize the transcript-level data to the gene level using the methods of <span class="citation">Soneson, Love, and Robinson (2015)</span>.</p>
 <div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" data-line-number="1">gse &lt;-<span class="st"> </span><span class="kw">summarizeToGene</span>(se)</a></code></pre></div>
-<pre><code>## loading existing TxDb created: 2019-12-10 23:01:04</code></pre>
+<pre><code>## loading existing TxDb created: 2019-12-10 23:54:17</code></pre>
 <pre><code>## Loading required package: GenomicFeatures</code></pre>
 <pre><code>## Loading required package: AnnotationDbi</code></pre>
 <pre><code>## 
@@ -444,30 +444,30 @@ use a figure -->
 <pre><code>## GRanges object with 749 ranges and 3 metadata columns:
 ##         seqnames              ranges strand |            gene_id
 ##            &lt;Rle&gt;           &lt;IRanges&gt;  &lt;Rle&gt; |        &lt;character&gt;
-##     [1]     chr8   42175233-42207724      - | ENSG00000104368.17
-##     [2]    chr12   57010000-57028883      - | ENSG00000166863.11
-##     [3]    chr10   49942033-49974850      + | ENSG00000204152.10
-##     [4]    chr20   36236459-36270918      + | ENSG00000131043.11
-##     [5]     chr3   81489699-81762161      - | ENSG00000114480.12
+##     [1]     chr3   52401013-52410350      - |  ENSG00000163930.9
+##     [2]     chr9   95442980-95517057      - | ENSG00000185920.15
+##     [3]    chr18   11688956-11885685      + | ENSG00000141404.15
+##     [4]     chr5 178711592-178730702      - | ENSG00000169131.12
+##     [5]     chr6 125219962-125302078      - | ENSG00000111906.17
 ##     ...      ...                 ...    ... .                ...
-##   [745]    chr10 131900644-131959834      + | ENSG00000175470.19
-##   [746]     chr3 129893811-129918575      + |  ENSG00000271270.6
-##   [747]    chr16   89575768-89597246      + | ENSG00000178773.14
-##   [748]     chr9   19108375-19149290      - |  ENSG00000147872.9
-##   [749]     chr3 184249650-184259585      + |  ENSG00000284753.1
+##   [745]     chr2   65203502-65227605      - |  ENSG00000273763.2
+##   [746]     chr1 211382803-211435333      + | ENSG00000153363.12
+##   [747]    chr10 125784980-125823285      - | ENSG00000188690.13
+##   [748]     chr4 109692004-109692703      + |  ENSG00000273447.1
+##   [749]     chr2 157318625-157327713      - | ENSG00000136541.14
 ##                  de_log2FC           de_padj
 ##                  &lt;numeric&gt;         &lt;numeric&gt;
-##     [1]  0.440953913243898 0.618330136573145
-##     [2] -0.887486445479955 0.338785060331261
-##     [3] 0.0254661790803955 0.936362517634592
-##     [4]  0.101249545005078 0.314396036906921
-##     [5] -0.193762481860964 0.346845206129492
+##     [1] 0.0865674600850431 0.466912968747676
+##     [2] -0.220227184455671 0.645556261463299
+##     [3] -0.202226386636726  0.84391317168134
+##     [4] 0.0796186999569802 0.705736619856469
+##     [5]  0.069232048830907 0.744561907477837
 ##     ...                ...               ...
-##   [745] 0.0942288909491717 0.505085081649603
-##   [746] -0.153750014706219 0.775812078517168
-##   [747]  0.584881832133777 0.274753269880032
-##   [748] -0.157579592859634 0.738144620929457
-##   [749] -0.061650346731119  0.90127122609949
+##   [745]  0.139425678207326  0.85724177700199
+##   [746]  0.124211410137129 0.694719286950421
+##   [747]  0.129882292501636 0.579198802850143
+##   [748] -0.319231195947937 0.693503925590927
+##   [749]  0.690948403210354 0.218682959703725
 ##   -------
 ##   seqinfo: 25 sequences (1 circular) from an unspecified genome; no seqlengths</code></pre>
 <p>We can repeat this many times to create many samples via replicate:</p>
