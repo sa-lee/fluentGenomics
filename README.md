@@ -27,7 +27,7 @@ vignette("fluentGenomics")
 ```
 
 Or you can read it online 
-[here](https://sa-lee.github.io/fluentGenomics/articles/fluentGenomics.html)/
+[here](https://sa-lee.github.io/fluentGenomics/articles/fluentGenomics.html)
 
 ## Course
 
