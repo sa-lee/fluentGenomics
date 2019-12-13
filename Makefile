@@ -1,5 +1,6 @@
 f1000paper:
-	Rscript --quiet _render.R "BiocWorkflowTools::f1000_article"
+	Rscript --quiet _render.R
 
-htmlpaper:
-	Rscript --quiet _render.R "rmarkdown::html_document"
+install:
+	Rscript --quiet -e "devtools::install()"
+	

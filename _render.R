@@ -17,10 +17,8 @@ if (Sys.getenv("RSTUDIO") != "1" && Sys.info()['sysname'] == "Darwin") {
 }
 
 
-formats <- commandArgs(trailingOnly = TRUE)
-if (length(formats) == 0) {
-  formats <- "rmarkdown::html_document"
-}
 
-for (fmt in formats)
-  rmarkdown::render(paper, fmt, output_dir = "./docs/", quiet = FALSE)
+rmarkdown::render(paper, 
+                  "BiocWorkflowTools::f1000_article", 
+                  output_dir = "./docs/", 
+                  quiet = FALSE)
