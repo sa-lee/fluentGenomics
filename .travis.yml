@@ -8,6 +8,7 @@ cache:
 r:
   - bioc-devel
 before_install:
+  - sudo apt-get update
   - tlmgr install index
   - sudo apt-get install pandoc-citeproc
   
