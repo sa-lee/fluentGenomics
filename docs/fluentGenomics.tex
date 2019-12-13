@@ -1,0 +1,1462 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode=true}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+  9pt,
+  a4paper,
+]{extarticle}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provides euro and other symbols
+\else % if luatex or xelatex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  pdftitle={Fluent genomics with plyranges and tximeta},
+  pdfauthor={Stuart Lee, Di Cook, Michael Lawrence, Michael Love},
+  hidelinks,
+}
+\urlstyle{same} % disable monospaced font for URLs
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{longtable,booktabs}
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+  \let\oldparagraph\paragraph
+  \renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+  \let\oldsubparagraph\subparagraph
+  \renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+
+% https://github.com/rstudio/rmarkdown/issues/337
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
+
+% https://github.com/rstudio/rmarkdown/pull/252
+\usepackage{titling}
+\setlength{\droptitle}{-2em}
+
+\pretitle{\vspace{\droptitle}\centering\huge}
+\posttitle{\par}
+
+\preauthor{\centering\large\emph}
+\postauthor{\par}
+
+\predate{\centering\large\emph}
+\postdate{\par}
+\usepackage[]{natbib}
+\bibliographystyle{plainnat}
+
+\title{Fluent genomics with plyranges and tximeta}
+\author{Stuart Lee, Di Cook, Michael Lawrence, Michael Love}
+\date{}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+In this workflow, we use the R/Bioconductor packages \emph{tximeta} and \emph{plyranges} for integrating results from an experiment using RNA-seq and ATAC-seq data. The \emph{tximeta} package provides an automated way of importing RNA-seq transcript quantifications. It does this by creating a \emph{SummarizedExperiment} object that knows the correct reference transcriptome and the metadata associated with the quantification software. Since the quantifications are transformed into a \emph{SummarizedExperiment} object, they are ready for downstream analysis using many other Bioconductor packages. The \emph{plyranges} package provides a framework for expressing operations on genomic coordinates such as finding overlaps and performing aggregations and genomic arithmetic. Here it is used to perform sensitivity analysis on the results of a differential expression and differential accessibility analysis with respect to their genomic context.
+\end{abstract}
+
+\hypertarget{introduction}{%
+\section{Introduction}\label{introduction}}
+
+To begin we will examine a subset of the RNA-seq and ATAC-seq data from \citet{alasoo}
+- \href{https://doi.org/10.1038/s41588-018-0046-7}{doi: 10.1038/s41588-018-0046-7}.
+The experiment involved treatment of macrophage cell lines from a number of
+human donors with interferon (IFN) gamma, \emph{Salmonella} infection, or both
+treatments combined. In the original study, the authors examined gene
+expression and chromatin accessibility in a subset of 86 successfully
+differentiated induced pluripotent stem cells (iPSC) lines, and examined
+baseline quantitative trait loci (QTL) and response QTL for both expression and
+accessibility. In the original study, it was found that there were expression
+QTLs that had an effect on chromatin accessibility in naive macrophage cells
+upon IFNg stimulation and consequently the variants implicated likely result in
+changes in binding of cell-specific transcription factors.
+
+In this workflow, we will perform a much simpler analysis than the one found in
+\citet{alasoo}, using their publicly available RNA-seq and ATAC-seq data (ignoring the
+genotypes). We will examine the effect of IFNg stimulation on gene expression
+and chromatin accessibility, and look to see if there is an enrichment of
+differentially accessible (DA) ATAC-seq peaks in the vicinity of differentially
+expressed (DE) genes. This is plausible, as the transcriptomic response to IFNg
+stimulation may be mediated through binding of regulatory proteins to
+accessible regions, and this binding may increase the accessibility of those
+regions such that it can be detected by ATAC-seq.
+
+Throughout the workflow, we will use existing Bioconductor infrastructure to
+understand these datasets. In particular, we will emphasize the use of the
+Bioconductor packages \emph{plyranges} and \emph{tximeta}. The first package is be used
+to perform easily-readable transformations of data tied to genomic ranges, e.g.
+shifts, windows, overlaps, etc. The \emph{plyranges} package is described by
+\citet{Lee2019}, and leverage underlying range operations described by \citet{granges}. The
+second package described by \citet{Love2019-tximeta} is used to read RNA-seq
+quantification into R/Bioconductor, such that the genomic ranges are
+automatically attached to the quantification data and differential expression
+results.
+
+\hypertarget{experimental-data}{%
+\subsection{Experimental Data}\label{experimental-data}}
+
+The data used in this workflow is available from two packages: the \emph{macrophage}
+Bioconductor ExperimentData package and from this workflow package
+\emph{fluentGenomics} directly.
+
+The \emph{fluentGenomics} package contains functionality to download and generate a
+cached \emph{SummarizedExperiment} object from the normalized ATAC-seq data provided
+by \citet{alasooZenodo}. This object contains all 145 ATAC-seq samples across all
+experimental conditions as analyzed by \citet{alasoo}. The data can be also be
+downloaded directly from the
+\href{https://zenodo.org/record/1188300\#.XIAhXlNKjOQ}{Zenodo} deposition.
+
+The following code loads the path to the cached data file, or if it is not
+present will create the cache and generate a \emph{SummarizedExperiment} using the
+the \emph{BiocFileCache} package \citep{bcfilecache}.
+
+We can then read the cached file and assign it to an object called \texttt{atac}. Note
+that this step is not strictly necessary to run the workflow.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(fluentGenomics)}
+\NormalTok{path_to_se <-}\StringTok{ }\KeywordTok{cache_atac_se}\NormalTok{()}
+\NormalTok{atac <-}\StringTok{ }\KeywordTok{readRDS}\NormalTok{(path_to_se)}
+\end{Highlighting}
+\end{Shaded}
+
+A precise description of how we obtained this \emph{SummarizedExperiment} object can
+be found in section \ref{atac}.
+
+The \emph{macrophage} package contains RNA-seq quantification from 24 RNA-seq
+samples, a subset of the RNA-seq samples generated and analyzed by \citet{alasoo}. The
+paired-end reads were quantified using \emph{Salmon} \citep{salmon}, using the Gencode 29
+human reference transcripts \citep{gencode}. For more details on quantification, and
+the exact code used, consult the vignette of the
+\href{http://bioconductor.org/packages/macrophage}{macrophage} package. The package
+also contains the \texttt{Snakemake} file that was used to distribute the \emph{Salmon}
+quantification jobs on a cluster \citep{snakemake}.
+
+\hypertarget{rna-seq-data-analysis}{%
+\section{RNA-seq data analysis}\label{rna-seq-data-analysis}}
+
+\hypertarget{easy-rna-seq-data-import-with-tximeta}{%
+\subsection{\texorpdfstring{Easy RNA-seq data import with \emph{tximeta}}{Easy RNA-seq data import with tximeta}}\label{easy-rna-seq-data-import-with-tximeta}}
+
+First, we specify a directory \texttt{dir}, where the quantification files are stored.
+You could simply specify this directory with:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{dir <-}\StringTok{ "/path/to/quant/files"}
+\end{Highlighting}
+\end{Shaded}
+
+where the path is relative to your current R session. However, here in this
+case we have distributed the files in the \emph{macrophage} package. The relevant
+directory can be located and associated files can be located \texttt{system.file}.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{dir <-}\StringTok{ }\KeywordTok{system.file}\NormalTok{(}\StringTok{"extdata"}\NormalTok{, }\DataTypeTok{package=}\StringTok{"macrophage"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Information about the experiment is contained in the \texttt{coldata.csv} file. We
+leverage the \emph{dplyr} and \emph{readr} packages (as part of the \emph{tidyverse}) to read
+this file into R \citep{tidyverse}. We will see later that \emph{plyranges} extends these
+packages to accommodate genomic ranges.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(dplyr)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Attaching package: 'dplyr'
+\end{verbatim}
+
+\begin{verbatim}
+## The following objects are masked from 'package:stats':
+## 
+##     filter, lag
+\end{verbatim}
+
+\begin{verbatim}
+## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(readr)}
+\NormalTok{colfile <-}\StringTok{ }\KeywordTok{file.path}\NormalTok{(dir, }\StringTok{"coldata.csv"}\NormalTok{)}
+\NormalTok{coldata <-}\StringTok{ }\KeywordTok{read_csv}\NormalTok{(colfile) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{select}\NormalTok{(}
+\NormalTok{    names,}
+    \DataTypeTok{id =}\NormalTok{ sample_id,}
+    \DataTypeTok{line =}\NormalTok{ line_id,}
+    \DataTypeTok{condition =}\NormalTok{ condition_name}
+\NormalTok{  ) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}
+    \DataTypeTok{files =} \KeywordTok{file.path}\NormalTok{(dir, }\StringTok{"quants"}\NormalTok{, names, }\StringTok{"quant.sf.gz"}\NormalTok{),}
+    \DataTypeTok{condition =} \KeywordTok{relevel}\NormalTok{(}\KeywordTok{factor}\NormalTok{(condition), }\StringTok{"naive"}\NormalTok{)}
+\NormalTok{  )}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Parsed with column specification:
+## cols(
+##   names = col_character(),
+##   sample_id = col_character(),
+##   line_id = col_character(),
+##   replicate = col_double(),
+##   condition_name = col_character(),
+##   macrophage_harvest = col_character(),
+##   salmonella_date = col_character(),
+##   ng_ul_mean = col_double(),
+##   rna_extraction = col_character(),
+##   rna_submit = col_character(),
+##   library_pool = col_character(),
+##   chemistry = col_character(),
+##   rna_auto = col_double()
+## )
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{coldata}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 24 x 5
+##    names      id     line  condition  files                                     
+##    <chr>      <chr>  <chr> <fct>      <chr>                                     
+##  1 SAMEA1038… diku_A diku… naive      /Library/Frameworks/R.framework/Versions/…
+##  2 SAMEA1038… diku_B diku… IFNg       /Library/Frameworks/R.framework/Versions/…
+##  3 SAMEA1038… diku_C diku… SL1344     /Library/Frameworks/R.framework/Versions/…
+##  4 SAMEA1038… diku_D diku… IFNg_SL13… /Library/Frameworks/R.framework/Versions/…
+##  5 SAMEA1038… eiwy_A eiwy… naive      /Library/Frameworks/R.framework/Versions/…
+##  6 SAMEA1038… eiwy_B eiwy… IFNg       /Library/Frameworks/R.framework/Versions/…
+##  7 SAMEA1038… eiwy_C eiwy… SL1344     /Library/Frameworks/R.framework/Versions/…
+##  8 SAMEA1038… eiwy_D eiwy… IFNg_SL13… /Library/Frameworks/R.framework/Versions/…
+##  9 SAMEA1038… fikt_A fikt… naive      /Library/Frameworks/R.framework/Versions/…
+## 10 SAMEA1038… fikt_B fikt… IFNg       /Library/Frameworks/R.framework/Versions/…
+## # … with 14 more rows
+\end{verbatim}
+
+After we have read the \texttt{coldata.csv} file, we select relevant columns from this
+table and create a new column called \texttt{files} and transform the existing
+\texttt{condition} column to a factor with the ``naive'' cell line as the baseline. The
+\texttt{files} column points to the quantifications for each observation - these files
+have been gzipped, but would typically not have the `gz' ending if used from
+\texttt{salmon} directly. One other thing to note is the use of the pipe
+operator,\texttt{\%\textgreater{}\%}, which can be read as then i.e.~first read the data, then select
+columns, then mutate them.
+
+Now we have a data frame summarizing the experimental design and the locations
+of the quantifications, and are ready for import with \emph{tximeta}. The following
+lines of code do a lot of work for the analyst: importing the RNA-seq
+quantification (dropping inferential replicates in this case), locating the
+relevant reference transcriptome, attaching the transcript ranges to the data,
+and fetching genome information. The result is stored in the Bioconductor data
+structure called a \emph{SummarizedExperiment}.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{suppressPackageStartupMessages}\NormalTok{(}\KeywordTok{library}\NormalTok{(SummarizedExperiment))}
+\KeywordTok{library}\NormalTok{(tximeta)}
+\NormalTok{se <-}\StringTok{ }\KeywordTok{tximeta}\NormalTok{(coldata, }\DataTypeTok{dropInfReps=}\OtherTok{TRUE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## importing quantifications
+\end{verbatim}
+
+\begin{verbatim}
+## reading in files with read_tsv
+\end{verbatim}
+
+\begin{verbatim}
+## 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 
+## found matching linked transcriptome:
+## [ GENCODE - Homo sapiens - release 29 ]
+## loading existing TxDb created: 2019-11-22 01:02:58
+## Loading required package: GenomicFeatures
+## Loading required package: AnnotationDbi
+## 
+## Attaching package: 'AnnotationDbi'
+## 
+## The following object is masked from 'package:dplyr':
+## 
+##     select
+## 
+## loading existing transcript ranges created: 2019-11-22 01:06:45
+## fetching genome info for GENCODE
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{se}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## class: RangedSummarizedExperiment 
+## dim: 205870 24 
+## metadata(6): tximetaInfo quantInfo ... txomeInfo txdbInfo
+## assays(3): counts abundance length
+## rownames(205870): ENST00000456328.2 ENST00000450305.2 ...
+##   ENST00000387460.2 ENST00000387461.2
+## rowData names(3): tx_id gene_id tx_name
+## colnames(24): SAMEA103885102 SAMEA103885347 ... SAMEA103885308
+##   SAMEA103884949
+## colData names(4): names id line condition
+\end{verbatim}
+
+The \emph{tximeta} package can be used without an internet connection, in this
+case the linked transcriptome can be created directly from a salmon
+index and gtf.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{makeLinkedTxome}\NormalTok{(}
+  \DataTypeTok{indexDir=}\KeywordTok{file.path}\NormalTok{(dir, }\StringTok{"gencode.v29_salmon_0.12.0"}\NormalTok{),}
+  \DataTypeTok{source=}\StringTok{"Gencode"}\NormalTok{,}
+  \DataTypeTok{organism=}\StringTok{"Homo sapiens"}\NormalTok{,}
+  \DataTypeTok{release=}\StringTok{"29"}\NormalTok{,}
+  \DataTypeTok{genome=}\StringTok{"GRCh38"}\NormalTok{,}
+  \DataTypeTok{fasta=}\StringTok{"ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_29/gencode.v29.transcripts.fa.gz"}\NormalTok{,}
+  \DataTypeTok{gtf=}\KeywordTok{file.path}\NormalTok{(dir, }\StringTok{"gencode.v29.annotation.gtf.gz"}\NormalTok{), }\CommentTok{# local version}
+  \DataTypeTok{write=}\OtherTok{FALSE}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Because \emph{tximeta} knows the correct reference transcriptome, we can ask
+\emph{tximeta} to summarize the transcript-level data to the gene level using the
+methods of \citet{Soneson2015}.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{gse <-}\StringTok{ }\KeywordTok{summarizeToGene}\NormalTok{(se)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## loading existing TxDb created: 2019-11-22 01:02:58
+\end{verbatim}
+
+\begin{verbatim}
+## obtaining transcript-to-gene mapping from TxDb
+\end{verbatim}
+
+\begin{verbatim}
+## loading existing gene ranges created: 2019-11-23 02:30:13
+\end{verbatim}
+
+\begin{verbatim}
+## summarizing abundance
+\end{verbatim}
+
+\begin{verbatim}
+## summarizing counts
+\end{verbatim}
+
+\begin{verbatim}
+## summarizing length
+\end{verbatim}
+
+\hypertarget{preliminary-rna-seq-de-analysis}{%
+\subsection{Preliminary RNA-seq DE analysis}\label{preliminary-rna-seq-de-analysis}}
+
+We can easily run a differential expression analysis with \emph{DESeq2} using the
+following code chunks \citep{Love2014}. The design indicates that we want to control
+for the donor (\texttt{line}) and test for differences in gene expression on the
+condition. For a more comprehensive discussion of DE analysis see
+\citet{Love2016-f1000} and \citet{Law2018-f1000}.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(DESeq2)}
+\NormalTok{dds <-}\StringTok{ }\KeywordTok{DESeqDataSet}\NormalTok{(gse, }\OperatorTok{~}\NormalTok{line }\OperatorTok{+}\StringTok{ }\NormalTok{condition)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## using counts and average transcript lengths from tximeta
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in DESeqDataSet(gse, ~line + condition): some variables in design
+## formula are characters, converting to factors
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# filter out lowly expressed genes}
+\CommentTok{# at least 10 counts in at least 6 samples}
+\NormalTok{keep <-}\StringTok{ }\KeywordTok{rowSums}\NormalTok{(}\KeywordTok{counts}\NormalTok{(dds) }\OperatorTok{>=}\StringTok{ }\DecValTok{10}\NormalTok{) }\OperatorTok{>=}\StringTok{ }\DecValTok{6}
+\NormalTok{dds <-}\StringTok{ }\NormalTok{dds[keep,]}
+\end{Highlighting}
+\end{Shaded}
+
+Below we set the contrasts on the condition variable, indicating we are
+estimating log2 fold changes of IFNg stimulated cell lines against naive cell
+lines. We are interested in log fold changes greater than 1 at a false
+discovery rate at of 1\%.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{dds <-}\StringTok{ }\KeywordTok{DESeq}\NormalTok{(dds)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## estimating size factors
+\end{verbatim}
+
+\begin{verbatim}
+## using 'avgTxLength' from assays(dds), correcting for library size
+\end{verbatim}
+
+\begin{verbatim}
+## estimating dispersions
+\end{verbatim}
+
+\begin{verbatim}
+## gene-wise dispersion estimates
+\end{verbatim}
+
+\begin{verbatim}
+## mean-dispersion relationship
+\end{verbatim}
+
+\begin{verbatim}
+## final dispersion estimates
+\end{verbatim}
+
+\begin{verbatim}
+## fitting model and testing
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{res <-}\StringTok{ }\KeywordTok{results}\NormalTok{(dds,}
+               \DataTypeTok{contrast=}\KeywordTok{c}\NormalTok{(}\StringTok{"condition"}\NormalTok{,}\StringTok{"IFNg"}\NormalTok{,}\StringTok{"naive"}\NormalTok{),}
+               \DataTypeTok{lfcThreshold=}\DecValTok{1}\NormalTok{, }\DataTypeTok{alpha=}\FloatTok{0.01}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+To see the results of the expression analysis, we can generate a summary table
+and an MA plot:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{summary}\NormalTok{(res)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## out of 17806 with nonzero total read count
+## adjusted p-value < 0.01
+## LFC > 1.00 (up)    : 502, 2.8%
+## LFC < -1.00 (down) : 247, 1.4%
+## outliers [1]       : 0, 0%
+## low counts [2]     : 0, 0%
+## (mean count < 3)
+## [1] see 'cooksCutoff' argument of ?results
+## [2] see 'independentFiltering' argument of ?results
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{DESeq2}\OperatorTok{::}\KeywordTok{plotMA}\NormalTok{(res, }\DataTypeTok{ylim=}\KeywordTok{c}\NormalTok{(}\OperatorTok{-}\DecValTok{10}\NormalTok{,}\DecValTok{10}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\includegraphics{/Users/lee.s/fluentGenomics/docs/fluentGenomics_files/figure-latex/unnamed-chunk-9-1} \end{center}
+
+We now output the results as a \emph{GRanges} object, due to the conventions of
+\emph{plyranges} we construct a new column called \texttt{gene\_id} from the row names of
+the results. Each row now contains the genomic region (\texttt{seqnames}, \texttt{start},
+\texttt{end}, \texttt{strand}) along with corresponding metadata columns (the \texttt{gene\_id} and
+the results of the test). Note that \emph{tximeta} has correctly identified the
+reference genome as ``hg38'', this has also been annotated onto the target
+\emph{GRanges}. This kind of book-keeping is vital once overlap operations are
+performed to ensure that \emph{plyranges}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{suppressPackageStartupMessages}\NormalTok{(}\KeywordTok{library}\NormalTok{(plyranges))}
+\NormalTok{de_genes <-}\StringTok{ }\KeywordTok{results}\NormalTok{(dds,}
+                    \DataTypeTok{contrast=}\KeywordTok{c}\NormalTok{(}\StringTok{"condition"}\NormalTok{,}\StringTok{"IFNg"}\NormalTok{,}\StringTok{"naive"}\NormalTok{),}
+                    \DataTypeTok{lfcThreshold=}\DecValTok{1}\NormalTok{,}
+                    \DataTypeTok{format=}\StringTok{"GRanges"}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{names_to_column}\NormalTok{(}\StringTok{"gene_id"}\NormalTok{)}
+\NormalTok{de_genes}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## GRanges object with 17806 ranges and 7 metadata columns:
+##           seqnames              ranges strand |            gene_id
+##              <Rle>           <IRanges>  <Rle> |        <character>
+##       [1]     chrX 100627109-100639991      - | ENSG00000000003.14
+##       [2]    chr20   50934867-50958555      - | ENSG00000000419.12
+##       [3]     chr1 169849631-169894267      - | ENSG00000000457.13
+##       [4]     chr1 169662007-169854080      + | ENSG00000000460.16
+##       [5]     chr1   27612064-27635277      - | ENSG00000000938.12
+##       ...      ...                 ...    ... .                ...
+##   [17802]    chr10   84167228-84172093      - |  ENSG00000285972.1
+##   [17803]     chr6   63572012-63583587      + |  ENSG00000285976.1
+##   [17804]    chr16   57177349-57181390      + |  ENSG00000285979.1
+##   [17805]     chr8 103398658-103501895      - |  ENSG00000285982.1
+##   [17806]    chr10   12563151-12567351      + |  ENSG00000285994.1
+##                   baseMean     log2FoldChange              lfcSE
+##                  <numeric>          <numeric>          <numeric>
+##       [1] 171.570646163445 -0.282245015065582  0.300571026277417
+##       [2] 967.751278980391 0.0391222756936352 0.0859707605047955
+##       [3] 682.432885098654    1.2846178585311  0.196906721741941
+##       [4] 262.963397841117  -1.47187616421189  0.218691645887265
+##       [5] 2660.10225731917  0.675478091290521  0.236053041372838
+##       ...              ...                ...                ...
+##   [17802] 10.0474624496157  0.548451844773876  0.444318686394084
+##   [17803] 4586.34616821518 -0.033929582570062  0.188004977365846
+##   [17804] 14.2965310090402  0.312347650582085  0.522699844356108
+##   [17805] 27.7629588245413  0.994518742790125   1.58237312176743
+##   [17806] 6.60408582708505   0.25399752352481    0.5957511892896
+##                        stat             pvalue              padj
+##                   <numeric>          <numeric>         <numeric>
+##       [1]                 0                  1                 1
+##       [2]                 0                  1                 1
+##       [3]  1.44544511235177  0.148332899695748                 1
+##       [4] -2.15772377722715 0.0309493141635637 0.409727500369082
+##       [5]                 0                  1                 1
+##       ...               ...                ...               ...
+##   [17802]                 0                  1                 1
+##   [17803]                 0                  1                 1
+##   [17804]                 0                  1                 1
+##   [17805]                 0                  1                 1
+##   [17806]                 0                  1                 1
+##   -------
+##   seqinfo: 25 sequences (1 circular) from hg38 genome
+\end{verbatim}
+
+From this, we can restrict the results where that meet our FDR threshold and
+select (and rename) the metadata columns we're interested in:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{de_genes <-}\StringTok{ }\NormalTok{de_genes }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{filter}\NormalTok{(padj }\OperatorTok{<}\StringTok{ }\FloatTok{0.01}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{select}\NormalTok{(gene_id, }\DataTypeTok{de_log2FC =}\NormalTok{ log2FoldChange, }\DataTypeTok{de_padj =}\NormalTok{ padj)}
+\end{Highlighting}
+\end{Shaded}
+
+Next we re-run \texttt{results} because we don't want to use an \texttt{lfcThreshold} this
+time. This will extract genes which are not differentially expressed according
+to the \emph{DESeq2} significance test.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{other_genes <-}\StringTok{ }\KeywordTok{results}\NormalTok{(dds,}
+                       \DataTypeTok{contrast=}\KeywordTok{c}\NormalTok{(}\StringTok{"condition"}\NormalTok{,}\StringTok{"IFNg"}\NormalTok{,}\StringTok{"naive"}\NormalTok{),}
+                       \DataTypeTok{format=}\StringTok{"GRanges"}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{filter}\NormalTok{(pvalue }\OperatorTok{>}\StringTok{ }\FloatTok{0.1}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{names_to_column}\NormalTok{(}\StringTok{"gene_id"}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{  }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{select}\NormalTok{(gene_id,}
+                    \DataTypeTok{de_log2FC =}\NormalTok{ log2FoldChange,}
+                    \DataTypeTok{de_padj =}\NormalTok{ padj)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{atac}{%
+\section{ATAC-seq peak differential abundance analysis}\label{atac}}
+
+The following section describes the process we have used for generating a
+\emph{GRanges} object of differential peaks from that ATAC-seq data in \citet{alasoo}.
+
+The code chunks for the remainder of this section are not run.
+
+\hypertarget{generating-a-summarizedexperiment-object}{%
+\subsection{\texorpdfstring{Generating a \emph{SummarizedExperiment} object}{Generating a SummarizedExperiment object}}\label{generating-a-summarizedexperiment-object}}
+
+The \emph{SummarizedExperiment} object containing ATAC-seq peaks can be created from
+the following tab-delimited files found in \citep{alasooZenodo}:
+
+\begin{itemize}
+\item
+  The annotated peaks: \texttt{ATAC\_peak\_metadata.txt.gz} (5.6M)
+\item
+  The sample metadata: \texttt{ATAC\_sample\_metadata.txt.gz} (\textless1M)
+\item
+  The matrix of normalized read counts: \texttt{ATAC\_cqn\_matrix.txt.gz} (109M)
+\end{itemize}
+
+First, we read in the peak metadata (locations in the genome), and convert to a
+\emph{GRanges} object. The \texttt{as\_granges()} function automatically converts the
+data.frame into a \emph{GRanges} object, from that result, we extract the peak\_id
+column and set the genome information to the build ``GRCh38''. We know this from
+the \href{https://zenodo.org/record/1188300\#.XJOFSlNKiL5}{Zenodo entry}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{peaks_df <-}\StringTok{ }\KeywordTok{read_tsv}\NormalTok{(}\StringTok{"ATAC_peak_metadata.txt.gz"}\NormalTok{,}
+  \DataTypeTok{col_types =} \KeywordTok{c}\NormalTok{(}\StringTok{"cidciicdc"}\NormalTok{)}
+\NormalTok{)}
+
+\NormalTok{peaks_gr <-}\StringTok{ }\NormalTok{peaks_df }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{as_granges}\NormalTok{(}\DataTypeTok{seqnames =}\NormalTok{ chr) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{select}\NormalTok{(}\DataTypeTok{peak_id=}\NormalTok{gene_id) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{set_genome_info}\NormalTok{(}\DataTypeTok{genome =} \StringTok{"GRCh38"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+We also read in the sample metadata:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{atac_coldata <-}\StringTok{ }\KeywordTok{read_tsv}\NormalTok{(}\StringTok{"ATAC_sample_metadata.txt.gz"}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{ }\KeywordTok{select}\NormalTok{(}
+\NormalTok{    sample_id,}
+\NormalTok{    donor,}
+    \DataTypeTok{condition =}\NormalTok{ condition_name}
+\NormalTok{  ) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{condition =} \KeywordTok{relevel}\NormalTok{(}\KeywordTok{factor}\NormalTok{(condition), }\StringTok{"naive"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+The ATAC-seq data has already been normalized with \emph{cqn} \citep{Hansen2012} and log2
+transformed. Loading the \emph{cqn}-normalized matrix of log2 transformed read
+counts takes \textasciitilde30 seconds and loads an object of \textasciitilde370 Mb. We set the column
+names so the first row contains the rownames of the matrix, and the remaining
+columns are matched to the sample identifiers.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{atac_mat <-}\StringTok{ }\KeywordTok{read_tsv}\NormalTok{(}\StringTok{"ATAC_cqn_matrix.txt.gz"}\NormalTok{,}
+                     \DataTypeTok{skip =} \DecValTok{1}\NormalTok{,}
+                     \DataTypeTok{col_names =}\KeywordTok{c}\NormalTok{(}\StringTok{"rownames"}\NormalTok{, atac_coldata[[}\StringTok{"sample_id"}\NormalTok{]]))}
+\NormalTok{rownames <-}\StringTok{ }\NormalTok{atac_mat[[}\StringTok{"rownames"}\NormalTok{]]}
+\NormalTok{atac_mat <-}\StringTok{ }\KeywordTok{as.matrix}\NormalTok{(atac_mat[,}\OperatorTok{-}\DecValTok{1}\NormalTok{])}
+\KeywordTok{rownames}\NormalTok{(atac_mat) <-}\StringTok{ }\NormalTok{rownames}
+\end{Highlighting}
+\end{Shaded}
+
+Finally, we then combine the data, and two pieces of metadata into a
+\emph{SummarizedExperiment}:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{atac <-}\StringTok{ }\KeywordTok{SummarizedExperiment}\NormalTok{(}\KeywordTok{list}\NormalTok{(}\DataTypeTok{cqndata=}\NormalTok{atac_mat),}
+                             \DataTypeTok{rowRanges=}\NormalTok{peaks_gr,}
+                             \DataTypeTok{colData=}\NormalTok{atac_coldata)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{using-limma-for-differential-accessibility}{%
+\subsection{Using limma for differential accessibility}\label{using-limma-for-differential-accessibility}}
+
+For assessing differential accessibility, we run \emph{limma} \citep{Smyth2004}, and
+generate the a summary of log fold changes and adjusted p-values for the peaks:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(limma)}
+\NormalTok{design <-}\StringTok{ }\KeywordTok{model.matrix}\NormalTok{(}\OperatorTok{~}\NormalTok{donor }\OperatorTok{+}\StringTok{ }\NormalTok{condition, }\KeywordTok{colData}\NormalTok{(atac))}
+\NormalTok{fit <-}\StringTok{ }\KeywordTok{lmFit}\NormalTok{(}\KeywordTok{assay}\NormalTok{(atac), design)}
+\NormalTok{fit <-}\StringTok{ }\KeywordTok{eBayes}\NormalTok{(fit)}
+\NormalTok{idx <-}\StringTok{ }\KeywordTok{which}\NormalTok{(}\KeywordTok{colnames}\NormalTok{(fit}\OperatorTok{$}\NormalTok{coefficients) }\OperatorTok{==}\StringTok{ "conditionIFNg"}\NormalTok{)}
+\NormalTok{tt <-}\StringTok{ }\KeywordTok{topTable}\NormalTok{(fit, }\DataTypeTok{coef=}\NormalTok{idx, }\DataTypeTok{sort.by=}\StringTok{"none"}\NormalTok{, }\DataTypeTok{n=}\KeywordTok{nrow}\NormalTok{(atac))}
+\end{Highlighting}
+\end{Shaded}
+
+We now take the \texttt{rowRanges} of the \emph{SummarizedExperiment} and attach the LFC
+and adjusted p-value from \emph{limma}, so that we can consider the overlap with
+differential expression. Note that we set the genome build to ``hg38'' and
+restyle the chromosome information to use the ``UCSC'' style.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{atac_peaks <-}\StringTok{ }\KeywordTok{rowRanges}\NormalTok{(atac) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{remove_names}\NormalTok{() }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}
+    \DataTypeTok{da_log2FC =}\NormalTok{ tt}\OperatorTok{$}\NormalTok{logFC,}
+    \DataTypeTok{da_padj =}\NormalTok{ tt}\OperatorTok{$}\NormalTok{adj.P.Val}
+\NormalTok{  ) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{set_genome_info}\NormalTok{(}\DataTypeTok{genome =} \StringTok{"hg38"}\NormalTok{)}
+
+\KeywordTok{seqlevelsStyle}\NormalTok{(atac_peaks) <-}\StringTok{ "UCSC"}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{finding-overlaps-with-plyranges}{%
+\section{\texorpdfstring{Finding overlaps with \emph{plyranges}}{Finding overlaps with plyranges}}\label{finding-overlaps-with-plyranges}}
+
+We have already used \emph{plyranges} a number of times above, to \texttt{filter}, \texttt{mutate}
+and \texttt{select} on \emph{GRanges} objects, as well as ensuring the correct genome
+annotation and style has been used.
+
+The final \emph{GRanges} object containing the DA peaks is included in the workflow
+package and is loaded below:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(fluentGenomics)}
+\NormalTok{peaks}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## GRanges object with 296220 ranges and 3 metadata columns:
+##            seqnames              ranges strand |          peak_id
+##               <Rle>           <IRanges>  <Rle> |      <character>
+##        [1]     chr1          9979-10668      * |      ATAC_peak_1
+##        [2]     chr1         10939-11473      * |      ATAC_peak_2
+##        [3]     chr1         15505-15729      * |      ATAC_peak_3
+##        [4]     chr1         21148-21481      * |      ATAC_peak_4
+##        [5]     chr1         21864-22067      * |      ATAC_peak_5
+##        ...      ...                 ...    ... .              ...
+##   [296216]     chrX 155896572-155896835      * | ATAC_peak_296216
+##   [296217]     chrX 155958507-155958646      * | ATAC_peak_296217
+##   [296218]     chrX 156016760-156016975      * | ATAC_peak_296218
+##   [296219]     chrX 156028551-156029422      * | ATAC_peak_296219
+##   [296220]     chrX 156030135-156030785      * | ATAC_peak_296220
+##                     da_log2FC              da_padj
+##                     <numeric>            <numeric>
+##        [1]  0.266185396736073 9.10672732956434e-05
+##        [2]   0.32217712436691 2.03434717570469e-05
+##        [3] -0.574159538548115 3.41707743345703e-08
+##        [4]  -1.14706617895329 8.22298606986521e-26
+##        [5] -0.896143162633654 4.79452571676397e-11
+##        ...                ...                  ...
+##   [296216] -0.834628897017445  1.3354605397165e-11
+##   [296217] -0.147537281935847    0.313014754316915
+##   [296218] -0.609732301631964 3.62338775135558e-09
+##   [296219] -0.347678474957794 6.94823191242968e-06
+##   [296220]  0.492442459200901 7.07663984067763e-13
+##   -------
+##   seqinfo: 23 sequences from hg38 genome; no seqlengths
+\end{verbatim}
+
+For the overlap analysis, we filter these to have a nominal FDR bound of 1\$.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{da_peaks <-}\StringTok{ }\NormalTok{peaks }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{filter}\NormalTok{(da_padj }\OperatorTok{<}\StringTok{ }\FloatTok{0.01}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+We now have \emph{GRanges} objects that contain DE genes, genes without strong
+signal of DE, and DA peaks. We are ready to perform our original aim and answer
+the question: is there an enrichment of DA ATAC-seq peaks in the vicinity of DE
+genes?
+
+\hypertarget{down-sampling-non-differentially-expressed-genes}{%
+\subsection{Down sampling non-differentially expressed genes}\label{down-sampling-non-differentially-expressed-genes}}
+
+As \emph{plyranges} is built on top of \emph{dplyr} it implements methods for many of
+it's verbs for \emph{GRanges} objects. Here we can use, \texttt{slice} to randomly sample
+the rows of the \texttt{other\_genes}. The \texttt{sample.int} function will generate random
+samples of size equal to the number of DE-genes from the number of rows in
+\texttt{other\_genes}:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{size <-}\StringTok{ }\KeywordTok{length}\NormalTok{(de_genes)}
+\KeywordTok{slice}\NormalTok{(other_genes, }\KeywordTok{sample.int}\NormalTok{(}\KeywordTok{n}\NormalTok{(), size))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## GRanges object with 749 ranges and 3 metadata columns:
+##         seqnames              ranges strand |            gene_id
+##            <Rle>           <IRanges>  <Rle> |        <character>
+##     [1]    chr19   38305104-38317273      - | ENSG00000167645.16
+##     [2]    chr13   28136843-28138193      - |  ENSG00000261485.1
+##     [3]    chr16   30005509-30023270      - | ENSG00000149927.17
+##     [4]    chr12   93569814-93583487      + | ENSG00000120833.13
+##     [5]     chr3 196942623-196943540      + |  ENSG00000270170.1
+##     ...      ...                 ...    ... .                ...
+##   [745]     chr4     3293028-3439913      + | ENSG00000159788.19
+##   [746]     chr7 136868669-137020255      + | ENSG00000181072.11
+##   [747]     chr1   52408282-52553487      - | ENSG00000134744.13
+##   [748]     chr1 151057758-151068497      + |  ENSG00000213190.3
+##   [749]     chr7   73799542-73832693      + |  ENSG00000189143.9
+##                   de_log2FC           de_padj
+##                   <numeric>         <numeric>
+##     [1]  0.0894169863614203 0.673964024873103
+##     [2]   0.101469364974571 0.866147321843728
+##     [3]  -0.367345181342742 0.231211898429002
+##     [4]    -1.0373144736655 0.245444443040838
+##     [5] -0.0952338905472705 0.726351201875343
+##     ...                 ...               ...
+##   [745]   0.098708840818052 0.784260551476201
+##   [746]   -0.33990904090709 0.630755273068105
+##   [747]   -0.18085917807803 0.557398918580241
+##   [748]  -0.241652202094357 0.643538470327656
+##   [749]   0.251542163399026  0.70981543903439
+##   -------
+##   seqinfo: 25 sequences (1 circular) from hg38 genome
+\end{verbatim}
+
+We can repeat this many times to create many samples via replicate:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# set a seed for the results}
+\KeywordTok{set.seed}\NormalTok{(}\DecValTok{2019-08-02}\NormalTok{)}
+\NormalTok{boot_genes <-}\StringTok{ }\KeywordTok{replicate}\NormalTok{(}\DecValTok{10}\NormalTok{,}
+                        \KeywordTok{slice}\NormalTok{(other_genes, }\KeywordTok{sample.int}\NormalTok{(}\KeywordTok{n}\NormalTok{(), size)),}
+                        \DataTypeTok{simplify =} \OtherTok{FALSE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+This creates a list of \emph{GRanges} objects as a list, we can bind these together
+using the \texttt{bind\_ranges} function. This function creates a new column called
+``resample'' on the result that identifies each of the input \emph{GRanges} objects:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{boot_genes <-}\StringTok{ }\KeywordTok{bind_ranges}\NormalTok{(boot_genes, }\DataTypeTok{.id =} \StringTok{"resample"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Similarly, we can then combine the \texttt{boot\_genes} \emph{GRanges}, with the DE
+\emph{GRanges} object. As the resample column was not present on the DE \emph{GRanges}
+object, this is given a missing value which we recode to a 0 using \texttt{mutate()}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{all_genes <-}\StringTok{ }\KeywordTok{bind_ranges}\NormalTok{(}
+  \DataTypeTok{de=}\NormalTok{de_genes,}
+  \DataTypeTok{not_de =}\NormalTok{ boot_genes,}
+  \DataTypeTok{.id=}\StringTok{"origin"}
+\NormalTok{  ) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}
+    \DataTypeTok{origin =} \KeywordTok{factor}\NormalTok{(origin, }\KeywordTok{c}\NormalTok{(}\StringTok{"de"}\NormalTok{, }\StringTok{"not_de"}\NormalTok{)),}
+    \DataTypeTok{resample =} \KeywordTok{ifelse}\NormalTok{(}\KeywordTok{is.na}\NormalTok{(resample), 0L, }\KeywordTok{as.integer}\NormalTok{(resample))}
+\NormalTok{  )}
+\NormalTok{all_genes}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## GRanges object with 8239 ranges and 5 metadata columns:
+##          seqnames              ranges strand |            gene_id
+##             <Rle>           <IRanges>  <Rle> |        <character>
+##      [1]     chr1 196651878-196747504      + | ENSG00000000971.15
+##      [2]     chr6   46129993-46146699      + |  ENSG00000001561.6
+##      [3]     chr4   17577192-17607972      + | ENSG00000002549.12
+##      [4]     chr7 150800403-150805120      + |  ENSG00000002933.8
+##      [5]     chr4   15778275-15853230      + | ENSG00000004468.12
+##      ...      ...                 ...    ... .                ...
+##   [8235]     chr3   72749277-72861914      - | ENSG00000144736.13
+##   [8236]    chr17   29566052-29573157      + | ENSG00000167543.15
+##   [8237]     chr7 129225023-129430211      + | ENSG00000158467.16
+##   [8238]     chr2   24029340-24049575      - | ENSG00000163026.11
+##   [8239]    chr16     1826941-1840207      + | ENSG00000180185.11
+##                   de_log2FC              de_padj  resample   origin
+##                   <numeric>            <numeric> <integer> <factor>
+##      [1]   4.98711071930695 1.37057050625117e-13         0       de
+##      [2]   1.92721595378787  3.1747750217733e-05         0       de
+##      [3]   2.93372501059128  2.0131038573066e-11         0       de
+##      [4]   3.16721751137972 1.07359906028984e-08         0       de
+##      [5]   5.40894352968188 4.82904694023763e-18         0       de
+##      ...                ...                  ...       ...      ...
+##   [8235] -0.324057975853188    0.531385106367204        10   not_de
+##   [8236] 0.0582048743660616    0.681056515870893        10   not_de
+##   [8237]  0.284556421479042    0.378275048382877        10   not_de
+##   [8238] -0.130576070173704    0.601621121971093        10   not_de
+##   [8239]  0.173903843804872    0.568644093307946        10   not_de
+##   -------
+##   seqinfo: 25 sequences (1 circular) from hg38 genome
+\end{verbatim}
+
+\hypertarget{expanding-genomic-coordinates-around-the-transcription-start-site}{%
+\subsection{Expanding genomic coordinates around the transcription start site}\label{expanding-genomic-coordinates-around-the-transcription-start-site}}
+
+Now we would like to modify our gene ranges so their width is 10 kilobases on
+either side of their transcription start site (TSS). There are many ways one
+could do this but we prefer an approach via the anchoring methods in
+\emph{plyranges}. Because there is a mutual dependence between the start, end, width
+and strand of a \emph{GRanges} object, we define anchors to fix one of start and
+end, while modifying the width. As an example to extract just the TSS, we can
+anchor by the 5' end of the range and modify the width of the range to equal 1.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{all_genes <-}\StringTok{ }\NormalTok{all_genes }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{anchor_5p}\NormalTok{() }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{width =} \DecValTok{1}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Anchoring by the 5' end of a range will fix the end of negatively stranded
+ranges, and fix the start of positively stranded ranges.
+
+We can then repeat the same pattern but this time using \texttt{anchor\_center()} to
+tell \emph{plyranges} that we are making the TSS the midpoint of a range that has
+total width of 20kb or 10kb both upstream and downstream of the TSS.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{all_genes <-all_genes }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{anchor_center}\NormalTok{() }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{width=}\DecValTok{2}\OperatorTok{*}\FloatTok{1e4}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{use-overlap-joins-to-find-relative-enrichment}{%
+\subsection{Use overlap joins to find relative enrichment}\label{use-overlap-joins-to-find-relative-enrichment}}
+
+We are now ready to compute overlaps between RNA-seq genes (our DE set and
+bootstrap samples) and the ATAC-seq peaks. In \emph{plyranges}, overlaps are defined
+as joins between two \emph{GRanges} objects: a \emph{left} and a \emph{right} \emph{GRanges}
+object. In an overlap join, a match is any range on the \emph{left} \emph{GRanges} that
+is overlapped by the \emph{right} \emph{GRanges}. One powerful aspect of the overlap
+joins is that the result maintains all (metadata) columns from each of the
+\emph{left} and \emph{right} ranges which makes downstream summaries easy to compute.
+
+To combine the DE genes with the DA peaks, we perform a left overlap join. This
+returns to us the \texttt{all\_genes} ranges (potentially with duplication), but with
+the metadata columns from those overlapping DA peaks. For any gene that has no
+overlaps, the DA peak columns will have \texttt{NA}'s.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{overlap_genes <-}\StringTok{ }\NormalTok{all_genes }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{join_overlap_left}\NormalTok{(da_peaks)}
+\NormalTok{overlap_genes}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## GRanges object with 27591 ranges and 8 metadata columns:
+##           seqnames              ranges strand |            gene_id
+##              <Rle>           <IRanges>  <Rle> |        <character>
+##       [1]     chr1 196641878-196661877      + | ENSG00000000971.15
+##       [2]     chr6   46119993-46139992      + |  ENSG00000001561.6
+##       [3]     chr4   17567192-17587191      + | ENSG00000002549.12
+##       [4]     chr4   17567192-17587191      + | ENSG00000002549.12
+##       [5]     chr4   17567192-17587191      + | ENSG00000002549.12
+##       ...      ...                 ...    ... .                ...
+##   [27587]    chr17   29556052-29576051      + | ENSG00000167543.15
+##   [27588]     chr7 129215023-129235022      + | ENSG00000158467.16
+##   [27589]     chr2   24039575-24059574      - | ENSG00000163026.11
+##   [27590]    chr16     1816941-1836940      + | ENSG00000180185.11
+##   [27591]    chr16     1816941-1836940      + | ENSG00000180185.11
+##                    de_log2FC              de_padj  resample   origin
+##                    <numeric>            <numeric> <integer> <factor>
+##       [1]   4.98711071930695 1.37057050625117e-13         0       de
+##       [2]   1.92721595378787  3.1747750217733e-05         0       de
+##       [3]   2.93372501059128  2.0131038573066e-11         0       de
+##       [4]   2.93372501059128  2.0131038573066e-11         0       de
+##       [5]   2.93372501059128  2.0131038573066e-11         0       de
+##       ...                ...                  ...       ...      ...
+##   [27587] 0.0582048743660616    0.681056515870893        10   not_de
+##   [27588]  0.284556421479042    0.378275048382877        10   not_de
+##   [27589] -0.130576070173704    0.601621121971093        10   not_de
+##   [27590]  0.173903843804872    0.568644093307946        10   not_de
+##   [27591]  0.173903843804872    0.568644093307946        10   not_de
+##                    peak_id          da_log2FC              da_padj
+##                <character>          <numeric>            <numeric>
+##       [1]  ATAC_peak_21236 -0.546582189082724 0.000115273676444232
+##       [2] ATAC_peak_231183   1.45329684862127  9.7322474682763e-17
+##       [3] ATAC_peak_193578  0.222371496904895 3.00939005719989e-11
+##       [4] ATAC_peak_193579 -0.281615137872819 7.99888515457195e-05
+##       [5] ATAC_peak_193580  0.673705317951604 7.60042918890061e-15
+##       ...              ...                ...                  ...
+##   [27587] ATAC_peak_109304  0.211750928531232  0.00111289505290053
+##   [27588] ATAC_peak_255700  0.177364068655037 5.25384772617076e-09
+##   [27589] ATAC_peak_133247 -0.266265981992122  1.0155043266685e-07
+##   [27590]  ATAC_peak_97065 -0.405271356218346 1.28054921946532e-05
+##   [27591]  ATAC_peak_97067  0.289105317951603 5.87369828076092e-07
+##   -------
+##   seqinfo: 25 sequences (1 circular) from hg38 genome
+\end{verbatim}
+
+Now we can ask, how many DA peaks are near DE genes relative to ``other'' non-DE
+genes? A gene may appear more than once, since multiple peaks may overlap a
+single gene or because we have re-sampled the same gene more than once.
+
+For each gene (that is the combination of chromosome, the start, end and
+strand), and the ``origin'' (DE vs not-DE) we can compute the distinct number of
+peaks for each gene and the maximum peak based on log FC. This is achieved via
+\texttt{reduce\_ranges\_directed}, which allows an aggregation to result in a GRanges
+object via merging neighboring genomic regions. The use of the directed suffix
+indicates we're maintaining strand information. In this case, we are simply
+merging ranges via the groups we mentioned above. We also have to account for
+the number of resamples we have performed when counting if there are any peaks,
+to ensure we do not double count the same peak:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{any_peaks <-}\StringTok{ }\NormalTok{overlap_genes }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{group_by}\NormalTok{(gene_id, origin)  }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{reduce_ranges_directed}\NormalTok{(}
+    \DataTypeTok{any =} \KeywordTok{sum}\NormalTok{(}\OperatorTok{!}\KeywordTok{is.na}\NormalTok{(da_padj)) }\OperatorTok{/}\StringTok{ }\KeywordTok{n_distinct}\NormalTok{(resample),}
+    \DataTypeTok{max_logFC =} \KeywordTok{max}\NormalTok{(}\KeywordTok{abs}\NormalTok{(da_log2FC))}
+\NormalTok{  )}
+\end{Highlighting}
+\end{Shaded}
+
+We can then filter genes if there have any peaks and compare the peak fold
+changes between non-DE and DE genes using a boxplot:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(ggplot2)}
+\NormalTok{any_peaks }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{filter}\NormalTok{(any }\OperatorTok{>}\StringTok{ }\DecValTok{0}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{as.data.frame}\NormalTok{() }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{ggplot}\NormalTok{(}\KeywordTok{aes}\NormalTok{(origin, max_logFC)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_boxplot}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\includegraphics{/Users/lee.s/fluentGenomics/docs/fluentGenomics_files/figure-latex/unnamed-chunk-29-1} \end{center}
+
+In general, the DE genes have larger DA fold changes relative to the non-DE
+genes.
+
+Next we examine how changes in DA LFC alter enrichment for DE genes. First, we
+want to know how the number of peaks within DE genes and non-DE genes change as
+we change threshold values on the peak LFC. As an example, we could compute
+this by arbitrarily chosen LFC thresholds as follows:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{overlap_tab <-}\StringTok{ }\NormalTok{overlap_genes }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{group_by}\NormalTok{(origin) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{summarize}\NormalTok{(}\DataTypeTok{any=}\KeywordTok{sum}\NormalTok{(}\OperatorTok{!}\KeywordTok{is.na}\NormalTok{(da_padj)) }\OperatorTok{/}\StringTok{ }\KeywordTok{n_distinct}\NormalTok{(resample),}
+            \DataTypeTok{lfc1 =}\KeywordTok{sum}\NormalTok{(}\KeywordTok{abs}\NormalTok{(da_log2FC) }\OperatorTok{>}\StringTok{ }\DecValTok{1}\NormalTok{, }\DataTypeTok{na.rm=}\OtherTok{TRUE}\NormalTok{)}\OperatorTok{/}\StringTok{ }\KeywordTok{n_distinct}\NormalTok{(resample),}
+            \DataTypeTok{lfc2=} \KeywordTok{sum}\NormalTok{(}\KeywordTok{abs}\NormalTok{(da_log2FC) }\OperatorTok{>}\StringTok{ }\DecValTok{2}\NormalTok{, }\DataTypeTok{na.rm=}\OtherTok{TRUE}\NormalTok{)}\OperatorTok{/}\StringTok{ }\KeywordTok{n_distinct}\NormalTok{(resample))}
+\NormalTok{overlap_tab}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## DataFrame with 2 rows and 4 columns
+##     origin       any      lfc1      lfc2
+##   <factor> <numeric> <numeric> <numeric>
+## 1       de      3416      1097       234
+## 2   not_de    2362.3     443.8      32.3
+\end{verbatim}
+
+Then using \texttt{summarize\_all()} from \emph{dplyr} we divide the rows of the above
+computation, to see that the relative enrichment increases for a `larger' LFC:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{overlap_tab }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{as.data.frame}\NormalTok{() }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{select}\NormalTok{(}\OperatorTok{-}\NormalTok{origin) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{summarize_all}\NormalTok{(}\DataTypeTok{.funs =} \OperatorTok{~}\KeywordTok{Reduce}\NormalTok{(}\StringTok{"/"}\NormalTok{, .))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##        any     lfc1     lfc2
+## 1 1.446048 2.471834 7.244582
+\end{verbatim}
+
+Due to the one-to-many mappings of DE genes to peaks, it is unknown if we have
+the same number of DE genes participating or less, as we increase the threshold
+on the peak LFC. This can be accounted for by grouping and aggregating twice.
+First, the number of peaks that meet the thresholds are computed within each
+gene, origin and resample group. Second, within the origin column, we compute
+the total number of peaks that meet the target threshold and the number of
+genes that have more than zero peaks (again averaging over the number of
+resamples).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{overlap_genes }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{group_by}\NormalTok{(gene_id, origin, resample) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{reduce_ranges_directed}\NormalTok{(}
+    \DataTypeTok{lfc1 =}\KeywordTok{sum}\NormalTok{(}\KeywordTok{abs}\NormalTok{(da_log2FC) }\OperatorTok{>}\StringTok{ }\DecValTok{1}\NormalTok{, }\DataTypeTok{na.rm=}\OtherTok{TRUE}\NormalTok{),}
+    \DataTypeTok{lfc2=} \KeywordTok{sum}\NormalTok{(}\KeywordTok{abs}\NormalTok{(da_log2FC) }\OperatorTok{>}\StringTok{ }\DecValTok{2}\NormalTok{, }\DataTypeTok{na.rm=}\OtherTok{TRUE}\NormalTok{)}
+\NormalTok{  ) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{group_by}\NormalTok{(origin) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{summarize}\NormalTok{(}
+    \DataTypeTok{lfc1_gene_count =} \KeywordTok{sum}\NormalTok{(lfc1 }\OperatorTok{>}\StringTok{ }\DecValTok{0}\NormalTok{) }\OperatorTok{/}\StringTok{ }\KeywordTok{n_distinct}\NormalTok{(resample),}
+    \DataTypeTok{lfc1_peak_count =} \KeywordTok{sum}\NormalTok{(lfc1) }\OperatorTok{/}\StringTok{ }\KeywordTok{n_distinct}\NormalTok{(resample),}
+    \DataTypeTok{lfc2_gene_count =} \KeywordTok{sum}\NormalTok{(lfc2 }\OperatorTok{>}\StringTok{ }\DecValTok{0}\NormalTok{) }\OperatorTok{/}\StringTok{ }\KeywordTok{n_distinct}\NormalTok{(resample),}
+    \DataTypeTok{lfc2_peak_count =} \KeywordTok{sum}\NormalTok{(lfc2) }\OperatorTok{/}\StringTok{ }\KeywordTok{n_distinct}\NormalTok{(resample)}
+\NormalTok{  )}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## DataFrame with 2 rows and 5 columns
+##     origin lfc1_gene_count lfc1_peak_count lfc2_gene_count lfc2_peak_count
+##   <factor>       <numeric>       <numeric>       <numeric>       <numeric>
+## 1       de             515            1097             151             234
+## 2   not_de           301.4           443.8            30.4            32.3
+\end{verbatim}
+
+To do this for many thresholds is cumbersome and would create a lot of
+duplicate code, instead we create a single function called
+\texttt{count\_above\_threshold} that accepts a GRanges object, and computes the peak
+count that meets the threshold.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{count_above_threshold <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(.data, threshold) \{}
+  \KeywordTok{reduce_ranges_directed}\NormalTok{(.data,}
+                         \DataTypeTok{threshold =}\NormalTok{ threshold,}
+                         \DataTypeTok{value =} \KeywordTok{sum}\NormalTok{(}\KeywordTok{abs}\NormalTok{(da_log2FC) }\OperatorTok{>}\StringTok{ }\NormalTok{threshold, }\DataTypeTok{na.rm =} \OtherTok{TRUE}\NormalTok{)}
+\NormalTok{  )}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+The above function will compute the counts for any arbitrary threshold, now we
+need to apply it over possible LFC thresholds of interest. We choose a grid of
+one hundred thresholds based on the range of absolute LFC values in the
+\texttt{da\_peaks} \emph{GRanges} object:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{thresholds <-}\StringTok{ }\NormalTok{da_peaks }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{abs_lfc =} \KeywordTok{abs}\NormalTok{(da_log2FC)) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{with}\NormalTok{(}
+    \KeywordTok{seq}\NormalTok{(}\KeywordTok{min}\NormalTok{(abs_lfc), }\KeywordTok{max}\NormalTok{(abs_lfc), }\DataTypeTok{length.out =} \DecValTok{100}\NormalTok{)}
+\NormalTok{  )}
+\end{Highlighting}
+\end{Shaded}
+
+The peaks are computed for each value by applying \texttt{count\_above\_threshold()} on
+the grouped \emph{GRanges} object for each threshold and then binding the result.
+This could be done easily in parallel with \texttt{BiocParallel} but here we compute
+everything serially.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{by_gene_origin <-}\StringTok{ }\NormalTok{overlap_genes }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{group_by}\NormalTok{(gene_id, origin, resample)}
+
+\NormalTok{all_thresholds <-}\StringTok{ }\KeywordTok{bind_ranges}\NormalTok{(}
+  \KeywordTok{lapply}\NormalTok{(thresholds, count_above_threshold, }\DataTypeTok{.data =}\NormalTok{ by_gene_origin)}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+This creates a very \emph{long} GRanges object. To compute the peak and gene counts
+for each threshold, we apply the same summarization as before:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{counts_by_threshold <-}\StringTok{ }\NormalTok{all_thresholds }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{group_by}\NormalTok{(origin, threshold) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{summarize}\NormalTok{(}
+    \DataTypeTok{gene_count =} \KeywordTok{sum}\NormalTok{(value }\OperatorTok{>}\StringTok{ }\DecValTok{0}\NormalTok{) }\OperatorTok{/}\StringTok{ }\KeywordTok{n_distinct}\NormalTok{(resample),}
+    \DataTypeTok{peak_count =} \KeywordTok{sum}\NormalTok{(value) }\OperatorTok{/}\StringTok{ }\KeywordTok{n_distinct}\NormalTok{(resample)}
+\NormalTok{  )}
+\NormalTok{counts_by_threshold}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## DataFrame with 200 rows and 4 columns
+##       origin          threshold gene_count peak_count
+##     <factor>          <numeric>  <numeric>  <numeric>
+## 1         de 0.0658243106359027        727       3416
+## 2         de  0.118483961449043        727       3392
+## 3         de  0.171143612262182        727       3304
+## 4         de  0.223803263075322        724       3160
+## 5         de  0.276462913888462        723       3045
+## ...      ...                ...        ...        ...
+## 196   not_de   5.06849113788419          0          0
+## 197   not_de   5.12115078869733          0          0
+## 198   not_de   5.17381043951047          0          0
+## 199   not_de   5.22647009032361          0          0
+## 200   not_de   5.27912974113675          0          0
+\end{verbatim}
+
+Again we can compute the relative enrichment in LFCs in the same manner as
+before and visualize how enrichment changes as the threshold value increases:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{enrichment <-}\StringTok{ }\NormalTok{counts_by_threshold }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{as.data.frame}\NormalTok{() }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{group_by}\NormalTok{(threshold) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{summarize}\NormalTok{(}\DataTypeTok{enrichment =} \KeywordTok{Reduce}\NormalTok{(}\StringTok{"/"}\NormalTok{, peak_count))}
+
+\NormalTok{enrichment }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{ggplot}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ threshold, }\DataTypeTok{y =}\NormalTok{ enrichment)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_line}\NormalTok{() }\OperatorTok{+}
+\StringTok{  }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{x =} \StringTok{"logFC threshold"}\NormalTok{, }\DataTypeTok{y =} \StringTok{"Relative Enrichment"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: Removed 4 rows containing missing values (geom_path).
+\end{verbatim}
+
+\begin{center}\includegraphics{/Users/lee.s/fluentGenomics/docs/fluentGenomics_files/figure-latex/unnamed-chunk-37-1} \end{center}
+
+We computed the sum of DA peaks near the DE genes, for increasing LFC
+thresholds on the accessibility change. As we increased the threshold, the
+number of total peaks went down (likewise the mean number of DA peaks per
+gene). It is also likely the number of DE genes with a DA peak nearby with such
+a large change went down - we can check this by plotting the number of DE genes
+against the number of DA peaks:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{counts_by_threshold }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{as.data.frame}\NormalTok{() }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{ggplot}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ gene_count,}
+             \DataTypeTok{y =}\NormalTok{ peak_count,}
+             \DataTypeTok{color =}\NormalTok{ threshold)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_point}\NormalTok{() }\OperatorTok{+}
+\StringTok{  }\KeywordTok{scale_color_viridis_c}\NormalTok{() }\OperatorTok{+}
+\StringTok{  }\KeywordTok{facet_wrap}\NormalTok{(}\OperatorTok{~}\StringTok{ }\NormalTok{origin) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{x =} \StringTok{"Number of Genes"}\NormalTok{,}
+       \DataTypeTok{y =} \StringTok{"Number of Peaks"}\NormalTok{,}
+       \DataTypeTok{color =} \StringTok{"LFC threshold"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\includegraphics{/Users/lee.s/fluentGenomics/docs/fluentGenomics_files/figure-latex/unnamed-chunk-38-1} \end{center}
+
+\hypertarget{discussion}{%
+\section{Discussion}\label{discussion}}
+
+We have shown that using \emph{plyranges} and \emph{tximeta} (with support of
+Bioconductor and \emph{tidyverse} packages) that we can fluently iterate through the
+biological data science workflow: from import, through to modeling, wrangling
+and visualization.
+
+Using \emph{tximeta}, we have shown that it is straightforward to import RNA-seq
+quantification data, and that by ensuring the proper metadata is associated
+with it, we can guard against any mistakes in downstream analyses.
+
+Using \emph{plyranges}, we have extended the principles of the \emph{tidyverse} to
+genomic ranges, and that by design we can leverage those packages to understand
+data measured along the genome. We have shown that analyses performed with
+\emph{plyranges} clearly and (relatively) concisely express their intent; in most
+cases the code we have written closely matches it's description in English and
+clarifies how the features of a genomic range is being modified.
+
+There are several further steps that would be interesting to perform in this
+analysis; for example, we could modify window size around the TSS to see how it
+effects enrichment and vary the cut-offs applied to FDR percentages applied to
+both the DE and DA peaks.
+
+\hypertarget{software-availability}{%
+\section{Software Availability}\label{software-availability}}
+
+The workflow materials, including this article can be fully reproduced
+following the instructions found at the Github repository
+\href{https://github.com/sa-lee/fluentGenomics}{sa-lee/fluentGenomics}. Moreover,
+the workflow and all downstream dependencies can be installed
+
+This article and the analyses were performed with R \citep{baser} using the
+\emph{rmarkdown} \citep{rmarkdown}, \emph{knitr} \citep{knitr, xie2015} and \emph{BiocWorkflowTools}
+\citep{bcworkflowtools} packages.
+
+\hypertarget{session-info}{%
+\subsection{Session Info}\label{session-info}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{sessionInfo}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## R version 3.6.1 (2019-07-05)
+## Platform: x86_64-apple-darwin15.6.0 (64-bit)
+## Running under: macOS Mojave 10.14.6
+## 
+## Matrix products: default
+## BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib
+## LAPACK: /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRlapack.dylib
+## 
+## locale:
+## [1] en_AU.UTF-8/en_AU.UTF-8/en_AU.UTF-8/C/en_AU.UTF-8/en_AU.UTF-8
+## 
+## attached base packages:
+## [1] parallel  stats4    stats     graphics  grDevices utils     datasets 
+## [8] methods   base     
+## 
+## other attached packages:
+##  [1] ggplot2_3.2.1.9000          plyranges_1.7.6            
+##  [3] DESeq2_1.26.0               GenomicFeatures_1.38.0     
+##  [5] AnnotationDbi_1.48.0        SummarizedExperiment_1.16.0
+##  [7] DelayedArray_0.12.0         BiocParallel_1.20.0        
+##  [9] matrixStats_0.55.0          Biobase_2.46.0             
+## [11] GenomicRanges_1.38.0        GenomeInfoDb_1.22.0        
+## [13] IRanges_2.20.1              S4Vectors_0.24.1           
+## [15] BiocGenerics_0.32.0         readr_1.3.1                
+## [17] dplyr_0.8.3                 tximeta_1.4.2              
+## [19] fluentGenomics_0.0.3       
+## 
+## loaded via a namespace (and not attached):
+##   [1] colorspace_1.4-1         htmlTable_1.13.3         XVector_0.26.0          
+##   [4] base64enc_0.1-3          fs_1.3.1                 rstudioapi_0.10         
+##   [7] farver_2.0.1             bit64_0.9-7              fansi_0.4.0             
+##  [10] xml2_1.2.2               splines_3.6.1            tximport_1.14.0         
+##  [13] geneplotter_1.64.0       knitr_1.26               zeallot_0.1.0           
+##  [16] Formula_1.2-3            jsonlite_1.6             Rsamtools_2.2.1         
+##  [19] annotate_1.64.0          cluster_2.1.0            dbplyr_1.4.2            
+##  [22] compiler_3.6.1           httr_1.4.1               backports_1.1.5         
+##  [25] assertthat_0.2.1         Matrix_1.2-18            lazyeval_0.2.2          
+##  [28] cli_2.0.0                acepack_1.4.1            htmltools_0.4.0         
+##  [31] prettyunits_1.0.2        tools_3.6.1              gtable_0.3.0            
+##  [34] glue_1.3.1               GenomeInfoDbData_1.2.2   rappdirs_0.3.1          
+##  [37] BiocWorkflowTools_1.12.0 Rcpp_1.0.3               vctrs_0.2.0             
+##  [40] Biostrings_2.54.0        rtracklayer_1.46.0       xfun_0.11               
+##  [43] stringr_1.4.0            lifecycle_0.1.0          ensembldb_2.10.2        
+##  [46] XML_3.98-1.20            zlibbioc_1.32.0          scales_1.1.0            
+##  [49] hms_0.5.2                ProtGenerics_1.18.0      AnnotationFilter_1.10.0 
+##  [52] RColorBrewer_1.1-2       yaml_2.2.0               curl_4.3                
+##  [55] memoise_1.1.0            gridExtra_2.3            biomaRt_2.42.0          
+##  [58] rpart_4.1-15             hunspell_3.0             latticeExtra_0.6-28     
+##  [61] stringi_1.4.3            RSQLite_2.1.4            genefilter_1.68.0       
+##  [64] checkmate_1.9.4          rlang_0.4.2              pkgconfig_2.0.3         
+##  [67] commonmark_1.7           bitops_1.0-6             evaluate_0.14           
+##  [70] lattice_0.20-38          purrr_0.3.3              labeling_0.3            
+##  [73] GenomicAlignments_1.22.1 htmlwidgets_1.5.1        bit_1.1-14              
+##  [76] tidyselect_0.2.5         magrittr_1.5             bookdown_0.16           
+##  [79] R6_2.4.1                 spelling_2.1             Hmisc_4.3-0             
+##  [82] DBI_1.0.0                withr_2.1.2              pillar_1.4.2            
+##  [85] foreign_0.8-72           survival_3.1-8           RCurl_1.95-4.12         
+##  [88] nnet_7.3-12              tibble_2.1.3             crayon_1.3.4            
+##  [91] utf8_1.1.4               BiocFileCache_1.10.2     rmarkdown_1.18          
+##  [94] progress_1.2.2           usethis_1.5.1            locfit_1.5-9.1          
+##  [97] grid_3.6.1               data.table_1.12.6        blob_1.2.0              
+## [100] git2r_0.26.1             digest_0.6.23            xtable_1.8-4            
+## [103] openssl_1.4.1            munsell_0.5.0            viridisLite_0.3.0       
+## [106] askpass_1.1
+\end{verbatim}
+
+\hypertarget{author-contributions}{%
+\subsection{Author Contributions}\label{author-contributions}}
+
+SL, DC, MIL and ML wrote the workflow.
+
+\hypertarget{competing-interests}{%
+\subsection{Competing interests}\label{competing-interests}}
+
+The authors declare that they have no competing interests.
+
+\hypertarget{funding}{%
+\subsection{Funding}\label{funding}}
+
+SL is supported by an Australian Government Research Training Program (RTP)
+scholarship with a top up scholarship from CSL Limited.
+
+\textbf{I confirm that the funders had no role in study design, data collection and
+analysis, decision to publish, or preparation of the manuscript.}
+
+\hypertarget{acknowledgements}{%
+\subsection{Acknowledgements}\label{acknowledgements}}
+
+The authors would like to thank all participants of the Bioconductor 2019 and
+BiocAsia 2019 conferences who attended and provided feedback on early versions
+of this workflow paper.
+
+\renewcommand\refname{References}
+  \bibliography{/Library/Frameworks/R.framework/Versions/3.6/Resources/library/fluentGenomics/vignettes/library.bib}
+
+\end{document}

@@ -17,6 +17,7 @@ Gencode
 Github
 GRanges
 GRCh
+gtf
 gz
 gzipped
 hg
@@ -33,6 +34,7 @@ macrophage
 pluripotent
 plyranges
 quantifications
+readr
 recode
 rmarkdown
 rmu
