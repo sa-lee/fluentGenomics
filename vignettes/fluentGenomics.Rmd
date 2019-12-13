@@ -1,7 +1,7 @@
 ---
 title: "Fluent genomics with plyranges and tximeta"
 author: "Stuart Lee, Di Cook, Michael Lawrence, Michael Love"
-abstract: "In this workflow, we use the R/Bioconductor packages *tximeta* and *plyranges* for integrating results from an experiment using RNA-seq and ATAC-seq data. The *tximeta* package provides an automated way of importing RNA-seq transcript quantifications. It does this by creating a *SummarizedExperiment* object that knows the correct reference transcriptome and the metadata associated with the quantification software. Since the quantifications are transformed into a *SummarizedExperiment* object, they are ready for downstream analysis using many other Bioconductor packages. The *plyranges* package provides a framework for expressing operations on genomic coordinates such as finding overlaps and performing aggregations and genomic arithmetic. Here it is used to perform sensistivity analysis on the results of a differential expression and differential accessibility analysis with respect to their genomic context."
+abstract: "In this workflow, we use the R/Bioconductor packages *tximeta* and *plyranges* for integrating results from an experiment using RNA-seq and ATAC-seq data. The *tximeta* package provides an automated way of importing RNA-seq transcript quantifications. It does this by creating a *SummarizedExperiment* object that knows the correct reference transcriptome and the metadata associated with the quantification software. Since the quantifications are transformed into a *SummarizedExperiment* object, they are ready for downstream analysis using many other Bioconductor packages. The *plyranges* package provides a framework for expressing operations on genomic coordinates such as finding overlaps and performing aggregations and genomic arithmetic. Here it is used to perform sensitivity analysis on the results of a differential expression and differential accessibility analysis with respect to their genomic context."
 output:
   rmarkdown::html_document:
     highlight: pygments
@@ -67,7 +67,7 @@ accessible regions, and this binding may increase the accessibility of those
 regions such that it can be detected by ATAC-seq.
 
 Throughout the workflow, we will use existing Bioconductor infrastructure to
-understand these datasets. In particular, we will emphasise the use of the
+understand these datasets. In particular, we will emphasize the use of the
 Bioconductor packages *plyranges* and *tximeta*. The first package is be used
 to perform easily-readable transformations of data tied to genomic ranges, e.g.
 shifts, windows, overlaps, etc. The *plyranges* package is described by
@@ -83,18 +83,9 @@ The data used in this workflow is available from two packages: the *macrophage*
 Bioconductor ExperimentData package and from this workflow package
 *fluentGenomics* directly.
 
-The *macrophage* package contains RNA-seq quantification from 24 RNA-seq
-samples, a subset of the RNA-seq samples generated and analyzed by @alasoo. The
-paired-end reads were quantified using *Salmon* [@salmon], using the Gencode 29
-human reference transcripts [@gencode]. For more details on quantification, and
-the exact code used, consult the vignette of the
-[macrophage](http://bioconductor.org/packages/macrophage) package. The package
-also contains the `Snakemake` file that was used to distribute the *Salmon*
-quantification jobs on a cluster [@snakemake].
-
 The *fluentGenomics* package contains functionality to download and generate a
-cached *SummarizedExperiment* object from the normalised ATAC-seq data provided
-by @alasooZenodo. This object contains all 145 ATAC-seq samples accross all
+cached *SummarizedExperiment* object from the normalized ATAC-seq data provided
+by @alasooZenodo. This object contains all 145 ATAC-seq samples across all
 experimental conditions as analyzed by @alasoo. The data can be also be
 downloaded directly from the
 [Zenodo](https://zenodo.org/record/1188300#.XIAhXlNKjOQ) deposition.
@@ -115,6 +106,15 @@ atac <- readRDS(path_to_se)
 A precise description of how we obtained this *SummarizedExperiment* object can
 be found in section \@ref(atac).
 
+The *macrophage* package contains RNA-seq quantification from 24 RNA-seq
+samples, a subset of the RNA-seq samples generated and analyzed by @alasoo. The
+paired-end reads were quantified using *Salmon* [@salmon], using the Gencode 29
+human reference transcripts [@gencode]. For more details on quantification, and
+the exact code used, consult the vignette of the
+[macrophage](http://bioconductor.org/packages/macrophage) package. The package
+also contains the `Snakemake` file that was used to distribute the *Salmon*
+quantification jobs on a cluster [@snakemake].
+
 
 # RNA-seq data analysis
 
@@ -128,17 +128,17 @@ dir <- "/path/to/quant/files"
 ```
 
 where the path is relative to your current R session. However, here in this
-case we have distributed the files in an R package. The relevant directory can
-be located and associated files can be located `system.file`.
+case we have distributed the files in the *macrophage* package. The relevant
+directory can be located and associated files can be located `system.file`.
 
 ```{r}
 dir <- system.file("extdata", package="macrophage")
 ```
 
 Information about the experiment is contained in the `coldata.csv` file. We
-leverage the `dplyr` and `readr` packages to read this file into R, (we will
-see later that `plyranges` extends these packages to accommodate genomic
-ranges).
+leverage the *dplyr* and *readr* packages (as part of the *tidyverse*) to read
+this file into R [@tidyverse]. We will see later that *plyranges* extends these
+packages to accommodate genomic ranges.
 
 ```{r}
 library(dplyr)
@@ -167,7 +167,7 @@ have been gzipped, but would typically not have the 'gz' ending if used from
 operator,`%>%`, which can be read as then i.e. first read the data, then select
 columns, then mutate them.
 
-Now we have a data frame summarising the experimental design and the locations
+Now we have a data frame summarizing the experimental design and the locations
 of the quantifications, and are ready for import with *tximeta*. The following
 lines of code do a lot of work for the analyst: importing the RNA-seq
 quantification (dropping inferential replicates in this case), locating the
@@ -183,8 +183,25 @@ se
 ```
 <!-- should we describe the data structure in more detail, or use a figure -->
 
-Because `tximeta` knows the correct reference transcriptome, we can ask
-`tximeta` to summarize the transcript-level data to the gene level using the
+The *tximeta* package can be used without an internet connection, in this
+case the linked transcriptome can be created directly from a salmon
+index and gtf. 
+
+```{r, eval = FALSE}
+makeLinkedTxome(
+  indexDir=file.path(dir, "gencode.v29_salmon_0.12.0"),
+  source="Gencode",
+  organism="Homo sapiens",
+  release="29",
+  genome="GRCh38",
+  fasta="ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_29/gencode.v29.transcripts.fa.gz",
+  gtf=file.path(dir, "gencode.v29.annotation.gtf.gz"), # local version
+  write=FALSE
+)
+```
+
+Because *tximeta* knows the correct reference transcriptome, we can ask
+*tximeta* to summarize the transcript-level data to the gene level using the
 methods of @Soneson2015.
 
 ```{r}
@@ -272,12 +289,15 @@ other_genes <- results(dds,
 
 # ATAC-seq peak differential abundance analysis {#atac}
 
+The following section describes the process we have used for generating a
+*GRanges* object of differential peaks from that ATAC-seq data in @alasoo.
+
+The code chunks for the remainder of this section are not run.
 
 ## Generating a *SummarizedExperiment* object
 
-The following code chunks are unevaluated and describe how the
-*SummarizedExperiment* object containing ATAC-seq peaks can be created from the
-following tab-delimited files in [@alasooZenodo]:
+The *SummarizedExperiment* object containing ATAC-seq peaks can be created from
+the following tab-delimited files found in [@alasooZenodo]:
 
 * The annotated peaks: `ATAC_peak_metadata.txt.gz` (5.6M)
 * The sample metadata: `ATAC_sample_metadata.txt.gz` (<1M)
@@ -375,32 +395,32 @@ atac_peaks <- rowRanges(atac) %>%
 seqlevelsStyle(atac_peaks) <- "UCSC"
 ```
 
-The evaluation of the above chunks is optional and merely describes the process
-we have used for generating a *GRanges* object of differential peaks. This
-object is included in the workflow package and is loaded below:
+# Finding overlaps with *plyranges*
+
+We have already used *plyranges* a number of times above, to `filter`, `mutate`
+and `select` on *GRanges* objects, as well as ensuring the correct genome
+annotation and style has been used.
+
+The final *GRanges* object containing the DA peaks is included in the workflow
+package and is loaded below:
 
 ```{r}
 library(fluentGenomics)
 peaks
 ```
 
-We filter to the set of peaks with a nominal FDR bound of 1%.
+For the overlap analysis, we filter these to have a nominal FDR bound of 1$.
 
 ```{r}
 da_peaks <- peaks %>%
-  filter(da_padj < .01)
+  filter(da_padj < 0.01)
 ```
 
-# Finding overlaps with *plyranges*
 
-Now that we have DE genes, genes without strong signal of DE, and DA peaks, we
-can perform our original aim to assess the enrichment of DA peaks near DE
-genes.
-
-We've already used *plyranges* a number of times above, to `filter`, `mutate`
-and `select` on *GRanges* objects, as well as ensuring the correct genome
-annotation and style has been used, but now we will get into more complicated
-use cases.
+We now have *GRanges* objects that contain DE genes, genes without strong
+signal of DE, and DA peaks. We are ready to perform our original aim and answer
+the question: is there an enrichment of DA ATAC-seq peaks in the vicinity of DE
+genes?
 
 ## Down sampling non-differentially expressed genes
 
@@ -630,7 +650,7 @@ all_thresholds <- bind_ranges(
 ```
 
 This creates a very *long* GRanges object. To compute the peak and gene counts
-for each threshold, we apply the same summarisation as before:
+for each threshold, we apply the same summarization as before:
 
 ```{r}
 counts_by_threshold <- all_thresholds %>%
@@ -643,7 +663,7 @@ counts_by_threshold
 ```
 
 Again we can compute the relative enrichment in LFCs in the same manner as
-before and visualise how enrichment changes as the threshold value increases:
+before and visualize how enrichment changes as the threshold value increases:
 ```{r}
 enrichment <- counts_by_threshold %>%
   as.data.frame() %>%
@@ -682,8 +702,8 @@ counts_by_threshold %>%
 
 We have shown that using *plyranges* and *tximeta* (with support of
 Bioconductor and *tidyverse* packages) that we can fluently iterate through the
-biological data science workflow: from import, through to modelling, wrangling
-and visualisation.
+biological data science workflow: from import, through to modeling, wrangling
+and visualization.
 
 Using *tximeta*, we have shown that it is straightforward to import RNA-seq
 quantification data, and that by ensuring the proper metadata is associated
@@ -707,7 +727,7 @@ both the DE and DA peaks.
 The workflow materials, including this article can be fully reproduced
 following the instructions found at the Github repository
 [sa-lee/fluentGenomics](https://github.com/sa-lee/fluentGenomics). Moreover,
-the workflow and all dowstream dependencies can be installed
+the workflow and all downstream dependencies can be installed
 
 This article and the analyses were performed with R [@baser] using the
 *rmarkdown* [@rmarkdown], *knitr* [@knitr; @xie2015] and *BiocWorkflowTools*
@@ -716,15 +736,13 @@ This article and the analyses were performed with R [@baser] using the
 
 ## Session Info
 
-
-
 ```{r}
 sessionInfo()
 ```
 
 ## Author Contributions
 
-SL, MIL and ML wrote the workflow. DC provided advice on the design
+SL, DC, MIL and ML wrote the workflow.
 
 ## Competing interests
 
@@ -732,7 +750,7 @@ The authors declare that they have no competing interests.
 
 ## Funding
 
-SL is supported by an Australian Goverment Research Training Program (RTP)
+SL is supported by an Australian Government Research Training Program (RTP)
 scholarship with a top up scholarship from CSL Limited.
 
 <!-- other authors to fill in here -->
