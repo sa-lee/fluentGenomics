@@ -77,17 +77,46 @@ quantification into R/Bioconductor, such that the genomic ranges are
 automatically attached to the quantification data and differential expression
 results.
 
-# Data Import and Exploratory Analysis
+## Experimental Data
 
-We begin by loading the RNA-seq data contained in the Bioconductor Experiment
-Data package, *macrophage*. The package contains RNA-seq quantification from 24
-RNA-seq samples, a subset of the RNA-seq samples generated and analyzed by
-@alasoo. The paired-end reads were quantified using *Salmon* [@salmon], using
-the Gencode 29 human reference transcripts [@gencode]. For more details on
-quantification, and the exact code used, consult the vignette of the
+The data used in this workflow is available from two packages: the *macrophage*
+Bioconductor ExperimentData package and from this workflow package
+*fluentGenomics* directly.
+
+The *macrophage* package contains RNA-seq quantification from 24 RNA-seq
+samples, a subset of the RNA-seq samples generated and analyzed by @alasoo. The
+paired-end reads were quantified using *Salmon* [@salmon], using the Gencode 29
+human reference transcripts [@gencode]. For more details on quantification, and
+the exact code used, consult the vignette of the
 [macrophage](http://bioconductor.org/packages/macrophage) package. The package
 also contains the `Snakemake` file that was used to distribute the *Salmon*
 quantification jobs on a cluster [@snakemake].
+
+The *fluentGenomics* package contains functionality to download and generate a
+cached *SummarizedExperiment* object from the normalised ATAC-seq data provided
+by @alasooZenodo. This object contains all 145 ATAC-seq samples accross all
+experimental conditions as analyzed by @alasoo. The data can be also be
+downloaded directly from the
+[Zenodo](https://zenodo.org/record/1188300#.XIAhXlNKjOQ) deposition.
+
+The following code loads the path to the cached data file, or if it is not
+present will create the cache and generate a *SummarizedExperiment* using the
+the *BiocFileCache* package [@bcfilecache].
+
+We can then read the cached file and assign it to an object called `atac`. Note
+that this step is not strictly necessary to run the workflow.
+
+```{r load-cache, eval = retrieve_cache}
+library(fluentGenomics)
+path_to_se <- cache_atac_se()
+atac <- readRDS(path_to_se)
+```
+
+A precise description of how we obtained this *SummarizedExperiment* object can
+be found in section \@ref(atac).
+
+
+# RNA-seq data analysis
 
 ## Easy RNA-seq data import with *tximeta*
 
@@ -241,38 +270,18 @@ other_genes <- results(dds,
                     de_padj = padj)
 ```
 
-# ATAC-seq peak differential abundance analysis
+# ATAC-seq peak differential abundance analysis {#atac}
 
-The ATAC-seq data can be downloaded from the following deposition URL:
-
-<https://zenodo.org/record/1188300#.XIAhXlNKjOQ>
-
-For running this section of workflow we need the files:
-
-* `ATAC_cqn_matrix.txt.gz` (109M)
-* `ATAC_sample_metadata.txt.gz` (<1M)
-* `ATAC_peak_metadata.txt.gz` (5.6M)
-
-Due to the large size of the matrix file, we have cached the data as a
-`SummarizedExperiment` as part of this workflow package.  The following code
-loads the path to the cached data file, or if it is not present will create the
-cache and generate a `SummarizedExperiment` by downloading the previously
-mentioned data files for you.
-
-We can then read the cached file and assign it to an object called `atac`. Note
-that this is not strictly necessary to run, unless you are interested in
-exploring the ATAC-seq data further.
-
-```{r load-cache, eval = retrieve_cache}
-library(fluentGenomics)
-path_to_se <- cache_atac_se()
-atac <- readRDS(path_to_se)
-```
 
 ## Generating a *SummarizedExperiment* object
 
 The following code chunks are unevaluated and describe how the
-*SummarizedExperiment* has been generated.
+*SummarizedExperiment* object containing ATAC-seq peaks can be created from the
+following tab-delimited files in [@alasooZenodo]:
+
+* The annotated peaks: `ATAC_peak_metadata.txt.gz` (5.6M)
+* The sample metadata: `ATAC_sample_metadata.txt.gz` (<1M)
+* The matrix of normalized read counts: `ATAC_cqn_matrix.txt.gz` (109M)
 
 First, we read in the peak metadata (locations in the genome), and convert to a
 *GRanges* object. The `as_granges()` function automatically converts the
@@ -280,7 +289,7 @@ data.frame into a *GRanges* object, from that result, we extract the peak_id
 column and set the genome information to the build "GRCh38". We know this from
 the [Zenodo entry](https://zenodo.org/record/1188300#.XJOFSlNKiL5)
 
-```{r eval=retrieve_cache}
+```{r eval=FALSE}
 peaks_df <- read_tsv("ATAC_peak_metadata.txt.gz",
   col_types = c("cidciicdc")
 )
@@ -293,7 +302,7 @@ peaks_gr <- peaks_df %>%
 
 We also read in the sample metadata:
 
-```{r eval=retrieve_cache}
+```{r eval=FALSE}
 atac_coldata <- read_tsv("ATAC_sample_metadata.txt.gz") %>%
  select(
     sample_id,
@@ -309,7 +318,7 @@ counts takes ~30 seconds and loads an object of ~370 Mb. We set the column
 names so the first row contains the rownames of the matrix, and the remaining
 columns are matched to the sample identifiers.
 
-```{r eval=retrieve_cache}
+```{r eval=FALSE}
 atac_mat <- read_tsv("ATAC_cqn_matrix.txt.gz",
                      skip = 1,
                      col_names =c("rownames", atac_coldata[["sample_id"]]))
@@ -317,7 +326,6 @@ rownames <- atac_mat[["rownames"]]
 atac_mat <- as.matrix(atac_mat[,-1])
 rownames(atac_mat) <- rownames
 ```
-
 
 Finally, we then combine the data, and two pieces of metadata into a
 *SummarizedExperiment*:
@@ -330,16 +338,13 @@ atac <- SummarizedExperiment(list(cqndata=atac_mat),
 
 ##  Using limma for differential accessibility
 
-We can check the standard deviation over mean plot, to assess for any
-systematic trends:
+<!-- We can check the standard deviation over mean plot, to assess for any -->
+<!-- systematic trends: -->
 
-```{r, eval = retrieve_cache}
-library(ggplot2)
-mv <- data.frame(rmu = rowMeans(assay(atac)),
-                 rvar = rowVars(assay(atac)))
-ggplot(data =mv , aes(x = rmu, y = sqrt(rvar))) +
-  geom_hex()
-```
+<!-- ```{r, eval = retrieve_cache} --> <!-- library(ggplot2) --> <!-- mv <-
+data.frame(rmu = rowMeans(assay(atac)), --> <!-- rvar = rowVars(assay(atac)))
+--> <!-- ggplot(data =mv , aes(x = rmu, y = sqrt(rvar))) + --> <!-- geom_hex()
+--> <!-- ``` -->
 
 For assessing differential accessibility, we run *limma* [@Smyth2004], and
 generate the a summary of log fold changes and adjusted p-values for the peaks:
@@ -485,10 +490,10 @@ joins is that the result maintains all (metadata) columns from each of the
 _left_ and _right_ ranges which makes downstream summaries easy to compute.
 
 
-To combine the DE genes with the DA peaks, we perform a left overlap join.
-This returns to us the `all_genes` ranges (potentially with duplication), but
-with the metadata columns from those overlapping DA peaks.  For any gene that
-has no overlaps, the DA peak columns will have `NA`'s.
+To combine the DE genes with the DA peaks, we perform a left overlap join. This
+returns to us the `all_genes` ranges (potentially with duplication), but with
+the metadata columns from those overlapping DA peaks.  For any gene that has no
+overlaps, the DA peak columns will have `NA`'s.
 
 ```{r}
 overlap_genes <- all_genes %>%
@@ -701,9 +706,12 @@ both the DE and DA peaks.
 
 The workflow materials, including this article can be fully reproduced
 following the instructions found at the Github repository
-[sa-lee/fluentGenomics](https://github.com/sa-lee/fluentGenomics). This
-workflow was written in R [@baser] using the *rmarkdown*, *knitr* and
-*BiocWorkflowTools* packages [@rmarkdown; @knitr; @xie2015; @bcworkflowtools].
+[sa-lee/fluentGenomics](https://github.com/sa-lee/fluentGenomics). Moreover,
+the workflow and all dowstream dependencies can be installed
+
+This article and the analyses were performed with R [@baser] using the
+*rmarkdown* [@rmarkdown], *knitr* [@knitr; @xie2015] and *BiocWorkflowTools*
+[@bcworkflowtools] packages.
 
 
 ## Session Info
