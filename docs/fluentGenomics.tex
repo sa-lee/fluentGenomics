@@ -39,7 +39,7 @@
 \IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
 \hypersetup{
   pdftitle={Fluent genomics with plyranges and tximeta},
-  pdfauthor={Stuart Lee, Di Cook, Michael Lawrence, Michael Love},
+  pdfkeywords={genomics, data analysis, workflow, RNA sequencing, ATAC sequencing},
   hidelinks,
 }
 \urlstyle{same} % disable monospaced font for URLs
@@ -136,7 +136,6 @@
 \bibliographystyle{plainnat}
 
 \title{Fluent genomics with plyranges and tximeta}
-\author{Stuart Lee, Di Cook, Michael Lawrence, Michael Love}
 \date{}
 
 \begin{document}
@@ -568,7 +567,7 @@ and an MA plot:
 \end{Highlighting}
 \end{Shaded}
 
-\begin{center}\includegraphics{/Users/lee.s/fluentGenomics/docs/fluentGenomics_files/figure-latex/unnamed-chunk-9-1} \end{center}
+\begin{center}\includegraphics{fluentGenomics_files/figure-latex/unnamed-chunk-9-1} \end{center}
 
 We now output the results as a \emph{GRanges} object, due to the conventions of
 \emph{plyranges} we construct a new column called \texttt{gene\_id} from the row names of
@@ -867,30 +866,30 @@ samples of size equal to the number of DE-genes from the number of rows in
 ## GRanges object with 749 ranges and 3 metadata columns:
 ##         seqnames              ranges strand |            gene_id
 ##            <Rle>           <IRanges>  <Rle> |        <character>
-##     [1]     chr6   96521595-96555276      + |  ENSG00000014123.9
-##     [2]    chr12   66188879-66254622      + | ENSG00000090376.10
-##     [3]     chr3   44729596-44737083      + | ENSG00000186446.11
-##     [4]     chr7 157138913-157269372      + | ENSG00000009335.17
-##     [5]     chr7     6577434-6589374      + | ENSG00000136247.14
+##     [1]    chr13   30617693-30660770      + | ENSG00000132952.11
+##     [2]     chr7   97116590-97181763      + |  ENSG00000196636.7
+##     [3]     chr1 246566444-246668584      + | ENSG00000162852.13
+##     [4]    chr11   17074654-17074744      - |  ENSG00000272034.1
+##     [5]    chr18   56597208-56651600      - | ENSG00000091164.12
 ##     ...      ...                 ...    ... .                ...
-##   [745]    chr16   30378106-30400108      + | ENSG00000180035.12
-##   [746]    chr19   19865886-19894674      + |  ENSG00000256771.3
-##   [747]     chrX 119871487-119876662      + |  ENSG00000125356.6
-##   [748]     chr2 113705011-113756823      - | ENSG00000115084.13
-##   [749]    chr11 119206276-119313926      + |  ENSG00000110395.6
-##                   de_log2FC           de_padj
-##                   <numeric>         <numeric>
-##     [1]   0.157288238952329 0.393474621468054
-##     [2]   0.192675255367846 0.638575038094171
-##     [3]   0.294974004663957 0.677850298147425
-##     [4]  0.0541851010739642 0.688618637431238
-##     [5]  -0.168092883269452 0.412214659609548
-##     ...                 ...               ...
-##   [745]  -0.253169808554397 0.437374379292198
-##   [746]  -0.288346936786858 0.321576385838034
-##   [747] -0.0656250155572518 0.660307119203159
-##   [748]  0.0920937558644995  0.78240487118216
-##   [749]   0.111941856478517 0.649460473096424
+##   [745]     chr4   39546330-39639090      - | ENSG00000163683.11
+##   [746]    chr12 119667753-119681630      + | ENSG00000111725.10
+##   [747]    chr22   23145326-23164350      + | ENSG00000100228.12
+##   [748]    chr20   50081124-50153637      - | ENSG00000124208.16
+##   [749]    chr20   34546854-34560345      + | ENSG00000101460.12
+##                  de_log2FC           de_padj
+##                  <numeric>         <numeric>
+##     [1]  0.240857897144378 0.267882161326421
+##     [2] -0.356770613153358  0.39166989132091
+##     [3] -0.232921761605664 0.320692013098524
+##     [4] -0.363827579276255 0.594896887010985
+##     [5]   0.15469578801595 0.405494516710019
+##     ...                ...               ...
+##   [745]  0.158811507403144 0.479660675710822
+##   [746] -0.125768142610492  0.43913964113845
+##   [747]  0.736742604866884 0.219123768665844
+##   [748] -0.109756051477111 0.954933618513156
+##   [749] -0.275588922376342 0.489748212045929
 ##   -------
 ##   seqinfo: 25 sequences (1 circular) from hg38 genome
 \end{verbatim}
@@ -1110,7 +1109,7 @@ changes between non-DE and DE genes using a boxplot:
 \end{Highlighting}
 \end{Shaded}
 
-\begin{center}\includegraphics{/Users/lee.s/fluentGenomics/docs/fluentGenomics_files/figure-latex/unnamed-chunk-29-1} \end{center}
+\begin{center}\includegraphics{fluentGenomics_files/figure-latex/unnamed-chunk-29-1} \end{center}
 
 In general, the DE genes have larger DA fold changes relative to the non-DE
 genes.
@@ -1291,7 +1290,7 @@ before and visualize how enrichment changes as the threshold value increases:
 ## Warning: Removed 4 rows containing missing values (geom_path).
 \end{verbatim}
 
-\begin{center}\includegraphics{/Users/lee.s/fluentGenomics/docs/fluentGenomics_files/figure-latex/unnamed-chunk-37-1} \end{center}
+\begin{center}\includegraphics{fluentGenomics_files/figure-latex/unnamed-chunk-37-1} \end{center}
 
 We computed the sum of DA peaks near the DE genes, for increasing LFC
 thresholds on the accessibility change. As we increased the threshold, the
@@ -1316,7 +1315,7 @@ against the number of DA peaks:
 \end{Highlighting}
 \end{Shaded}
 
-\begin{center}\includegraphics{/Users/lee.s/fluentGenomics/docs/fluentGenomics_files/figure-latex/unnamed-chunk-38-1} \end{center}
+\begin{center}\includegraphics{fluentGenomics_files/figure-latex/unnamed-chunk-38-1} \end{center}
 
 \hypertarget{discussion}{%
 \section{Discussion}\label{discussion}}
