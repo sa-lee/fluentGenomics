@@ -1,6 +1,6 @@
 ---
 title: "Fluent genomics with plyranges and tximeta"
-author: "Stuart Lee, Di Cook, Michael Lawrence, Michael Love"
+author: "Stuart Lee, Michael Lawrence, Michael Love"
 abstract: "In this workflow, we use the R/Bioconductor packages *tximeta* and *plyranges* for integrating results from an experiment using RNA-seq and ATAC-seq data. The *tximeta* package provides an automated way of importing RNA-seq transcript quantifications. It does this by creating a *SummarizedExperiment* object that knows the correct reference transcriptome and the metadata associated with the quantification software. Since the quantifications are transformed into a *SummarizedExperiment* object, they are ready for downstream analysis using many other Bioconductor packages. The *plyranges* package provides a framework for expressing operations on genomic coordinates such as finding overlaps and performing aggregations and genomic arithmetic. Here it is used to perform sensitivity analysis on the results of a differential expression and differential accessibility analysis with respect to their genomic context."
 output:
   rmarkdown::html_document:
