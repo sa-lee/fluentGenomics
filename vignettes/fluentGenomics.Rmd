@@ -742,7 +742,7 @@ sessionInfo()
 
 ## Author Contributions
 
-SL, DC, MIL and ML wrote the workflow.
+All authors contributed to the writing and development of the workflow.
 
 ## Competing interests
 
