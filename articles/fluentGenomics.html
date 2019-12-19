@@ -71,7 +71,7 @@
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1>Fluent genomics with plyranges and tximeta</h1>
-                        <h4 class="author">Stuart Lee, Di Cook, Michael Lawrence, Michael Love</h4>
+                        <h4 class="author">Stuart Lee, Michael Lawrence, Michael Love</h4>
             
       
       <small class="dont-index">Source: <a href="https://github.com/sa-lee/fluentGenomics/blob/master/vignettes/fluentGenomics.Rmd"><code>vignettes/fluentGenomics.Rmd</code></a></small>
@@ -82,7 +82,7 @@
     
         <div class="abstract">
       <p class="abstract">Abstract</p>
-      In this workflow, we use the R/Bioconductor packages <em>tximeta</em> and <em>plyranges</em> for integrating results from an experiment using RNA-seq and ATAC-seq data. The <em>tximeta</em> package provides an automated way of importing RNA-seq transcript quantifications. It does this by creating a <em>SummarizedExperiment</em> object that knows the correct reference transcriptome and the metadata associated with the quantification software. Since the quantifications are transformed into a <em>SummarizedExperiment</em> object, they are ready for downstream analysis using many other Bioconductor packages. The <em>plyranges</em> package provides a framework for expressing operations on genomic coordinates such as finding overlaps and performing aggregations and genomic arithmetic. Here it is used to perform sensitivity analysis on the results of a differential expression and differential accessibility analysis with respect to their genomic context.
+      We construct a simple workflow for fluent genomics data analysis using the R/Biocondcutor ecosystem. This involves three core steps: <strong>import</strong> the data into an appropriate abstraction, <strong>model</strong> the data with respect to the biological questions of interest, and <strong>transform</strong> the results with respect to their underlying genomic coordinates. Here we show how to implement these steps to integrate published RNA-seq and ATAC-seq experiments on macrophage cell lines. Using <em>tximeta</em>, we <strong>import</strong> RNA-seq transcript quantifications into an analysis-ready data structure, called the <em>SummarizedExperiment</em>, that contains the correct reference transcriptome and provenance of the quantifaction sofware. Using <em>SummarizedExperiment</em>s to represent the ATAC-seq and RNA-seq data, we <strong>model</strong> differentially accessible (DA) chromatin peaks and differentially expressed (DE) genes with existing Bioconductor packages. Using <em>plyranges</em> we then <strong>transform</strong> the results to see if there is an enrichment of DE genes nearby DA peaks by finding overlaps and aggregating over log-fold change thresholds. The combination of these packages and their integration with the Bioconductor ecosystem provides a coherent framework for analysts to iteratively and reproducibly explore their biological data.
     </div>
     
 <div id="introduction" class="section level1">
@@ -216,7 +216,7 @@
 <a class="sourceLine" id="cb21-10" data-line-number="10">)</a></code></pre></div>
 <p>Because <em>tximeta</em> knows the correct reference transcriptome, we can ask <em>tximeta</em> to summarize the transcript-level data to the gene level using the methods of <span class="citation">Soneson, Love, and Robinson (2015)</span>.</p>
 <div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" data-line-number="1">gse &lt;-<span class="st"> </span><span class="kw">summarizeToGene</span>(se)</a></code></pre></div>
-<pre><code>## loading existing TxDb created: 2019-12-14 04:12:58</code></pre>
+<pre><code>## loading existing TxDb created: 2019-12-19 04:38:55</code></pre>
 <pre><code>## Loading required package: GenomicFeatures</code></pre>
 <pre><code>## Loading required package: AnnotationDbi</code></pre>
 <pre><code>## 
@@ -278,45 +278,32 @@
 <a class="sourceLine" id="cb49-6" data-line-number="6"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/ranges-names.html">names_to_column</a></span>(<span class="st">"gene_id"</span>)</a>
 <a class="sourceLine" id="cb49-7" data-line-number="7">de_genes</a></code></pre></div>
 <pre><code>## GRanges object with 17806 ranges and 7 metadata columns:
-##           seqnames              ranges strand |            gene_id
-##              &lt;Rle&gt;           &lt;IRanges&gt;  &lt;Rle&gt; |        &lt;character&gt;
-##       [1]     chrX 100627109-100639991      - | ENSG00000000003.14
-##       [2]    chr20   50934867-50958555      - | ENSG00000000419.12
-##       [3]     chr1 169849631-169894267      - | ENSG00000000457.13
-##       [4]     chr1 169662007-169854080      + | ENSG00000000460.16
-##       [5]     chr1   27612064-27635277      - | ENSG00000000938.12
-##       ...      ...                 ...    ... .                ...
-##   [17802]    chr10   84167228-84172093      - |  ENSG00000285972.1
-##   [17803]     chr6   63572012-63583587      + |  ENSG00000285976.1
-##   [17804]    chr16   57177349-57181390      + |  ENSG00000285979.1
-##   [17805]     chr8 103398658-103501895      - |  ENSG00000285982.1
-##   [17806]    chr10   12563151-12567351      + |  ENSG00000285994.1
-##                   baseMean      log2FoldChange              lfcSE
-##                  &lt;numeric&gt;           &lt;numeric&gt;          &lt;numeric&gt;
-##       [1] 171.570646163445  -0.282245015065521  0.300571026288651
-##       [2] 967.751278980391  0.0391222756953146 0.0859707606346762
-##       [3] 682.432885098654    1.28461785853056  0.196906721817837
-##       [4] 262.963397841117   -1.47187616421402  0.218691645957828
-##       [5] 2660.10225731917    0.67547809128805  0.236053041422432
-##       ...              ...                 ...                ...
-##   [17802] 10.0474624496157   0.548451844819667  0.444318686657861
-##   [17803] 4586.34616821518 -0.0339295825700987  0.188004977442805
-##   [17804] 14.2965310090402   0.312347650662048  0.522699844568795
-##   [17805] 27.7629588245413   0.994518742790123   1.58237312176743
-##   [17806] 6.60408582708505   0.253997523538382  0.595751189489266
-##                        stat             pvalue              padj
-##                   &lt;numeric&gt;          &lt;numeric&gt;         &lt;numeric&gt;
-##       [1]                 0                  1                 1
-##       [2]                 0                  1                 1
-##       [3]   1.4454451117919  0.148332899852907                 1
-##       [4] -2.15772377654068 0.0309493142169672 0.409727501076073
-##       [5]                 0                  1                 1
-##       ...               ...                ...               ...
-##   [17802]                 0                  1                 1
-##   [17803]                 0                  1                 1
-##   [17804]                 0                  1                 1
-##   [17805]                 0                  1                 1
-##   [17806]                 0                  1                 1
+##           seqnames              ranges strand |            gene_id   baseMean
+##              &lt;Rle&gt;           &lt;IRanges&gt;  &lt;Rle&gt; |        &lt;character&gt;  &lt;numeric&gt;
+##       [1]     chrX 100627109-100639991      - | ENSG00000000003.14    171.571
+##       [2]    chr20   50934867-50958555      - | ENSG00000000419.12    967.751
+##       [3]     chr1 169849631-169894267      - | ENSG00000000457.13    682.433
+##       [4]     chr1 169662007-169854080      + | ENSG00000000460.16    262.963
+##       [5]     chr1   27612064-27635277      - | ENSG00000000938.12   2660.102
+##       ...      ...                 ...    ... .                ...        ...
+##   [17802]    chr10   84167228-84172093      - |  ENSG00000285972.1   10.04746
+##   [17803]     chr6   63572012-63583587      + |  ENSG00000285976.1 4586.34617
+##   [17804]    chr16   57177349-57181390      + |  ENSG00000285979.1   14.29653
+##   [17805]     chr8 103398658-103501895      - |  ENSG00000285982.1   27.76296
+##   [17806]    chr10   12563151-12567351      + |  ENSG00000285994.1    6.60409
+##           log2FoldChange     lfcSE      stat    pvalue      padj
+##                &lt;numeric&gt; &lt;numeric&gt; &lt;numeric&gt; &lt;numeric&gt; &lt;numeric&gt;
+##       [1]     -0.2822450 0.3005710   0.00000 1.0000000  1.000000
+##       [2]      0.0391223 0.0859708   0.00000 1.0000000  1.000000
+##       [3]      1.2846179 0.1969067   1.44545 0.1483329  1.000000
+##       [4]     -1.4718762 0.2186916  -2.15772 0.0309493  0.409728
+##       [5]      0.6754781 0.2360530   0.00000 1.0000000  1.000000
+##       ...            ...       ...       ...       ...       ...
+##   [17802]      0.5484518  0.444319         0         1         1
+##   [17803]     -0.0339296  0.188005         0         1         1
+##   [17804]      0.3123477  0.522700         0         1         1
+##   [17805]      0.9945187  1.582373         0         1         1
+##   [17806]      0.2539975  0.595751         0         1         1
 ##   -------
 ##   seqinfo: 25 sequences (1 circular) from an unspecified genome; no seqlengths</code></pre>
 <p>From this, we can restrict the results where that meet our FDR threshold and select (and rename) the metadata columns we’re interested in:</p>
@@ -420,32 +407,32 @@ data.frame(rmu = rowMeans(assay(atac)), -->
 <div class="sourceCode" id="cb59"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb59-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(fluentGenomics)</a>
 <a class="sourceLine" id="cb59-2" data-line-number="2">peaks</a></code></pre></div>
 <pre><code>## GRanges object with 296220 ranges and 3 metadata columns:
-##            seqnames              ranges strand |          peak_id
-##               &lt;Rle&gt;           &lt;IRanges&gt;  &lt;Rle&gt; |      &lt;character&gt;
-##        [1]     chr1          9979-10668      * |      ATAC_peak_1
-##        [2]     chr1         10939-11473      * |      ATAC_peak_2
-##        [3]     chr1         15505-15729      * |      ATAC_peak_3
-##        [4]     chr1         21148-21481      * |      ATAC_peak_4
-##        [5]     chr1         21864-22067      * |      ATAC_peak_5
-##        ...      ...                 ...    ... .              ...
-##   [296216]     chrX 155896572-155896835      * | ATAC_peak_296216
-##   [296217]     chrX 155958507-155958646      * | ATAC_peak_296217
-##   [296218]     chrX 156016760-156016975      * | ATAC_peak_296218
-##   [296219]     chrX 156028551-156029422      * | ATAC_peak_296219
-##   [296220]     chrX 156030135-156030785      * | ATAC_peak_296220
-##                     da_log2FC              da_padj
-##                     &lt;numeric&gt;            &lt;numeric&gt;
-##        [1]  0.266185396736073 9.10672732956434e-05
-##        [2]   0.32217712436691 2.03434717570469e-05
-##        [3] -0.574159538548115 3.41707743345703e-08
-##        [4]  -1.14706617895329 8.22298606986521e-26
-##        [5] -0.896143162633654 4.79452571676397e-11
-##        ...                ...                  ...
-##   [296216] -0.834628897017445  1.3354605397165e-11
-##   [296217] -0.147537281935847    0.313014754316915
-##   [296218] -0.609732301631964 3.62338775135558e-09
-##   [296219] -0.347678474957794 6.94823191242968e-06
-##   [296220]  0.492442459200901 7.07663984067763e-13
+##            seqnames              ranges strand |          peak_id da_log2FC
+##               &lt;Rle&gt;           &lt;IRanges&gt;  &lt;Rle&gt; |      &lt;character&gt; &lt;numeric&gt;
+##        [1]     chr1          9979-10668      * |      ATAC_peak_1  0.266185
+##        [2]     chr1         10939-11473      * |      ATAC_peak_2  0.322177
+##        [3]     chr1         15505-15729      * |      ATAC_peak_3 -0.574160
+##        [4]     chr1         21148-21481      * |      ATAC_peak_4 -1.147066
+##        [5]     chr1         21864-22067      * |      ATAC_peak_5 -0.896143
+##        ...      ...                 ...    ... .              ...       ...
+##   [296216]     chrX 155896572-155896835      * | ATAC_peak_296216 -0.834629
+##   [296217]     chrX 155958507-155958646      * | ATAC_peak_296217 -0.147537
+##   [296218]     chrX 156016760-156016975      * | ATAC_peak_296218 -0.609732
+##   [296219]     chrX 156028551-156029422      * | ATAC_peak_296219 -0.347678
+##   [296220]     chrX 156030135-156030785      * | ATAC_peak_296220  0.492442
+##                da_padj
+##              &lt;numeric&gt;
+##        [1] 9.10673e-05
+##        [2] 2.03435e-05
+##        [3] 3.41708e-08
+##        [4] 8.22299e-26
+##        [5] 4.79453e-11
+##        ...         ...
+##   [296216] 1.33546e-11
+##   [296217] 3.13015e-01
+##   [296218] 3.62339e-09
+##   [296219] 6.94823e-06
+##   [296220] 7.07664e-13
 ##   -------
 ##   seqinfo: 23 sequences from hg38 genome; no seqlengths</code></pre>
 <p>For the overlap analysis, we filter these to have a nominal FDR bound of 1$.</p>
@@ -459,32 +446,32 @@ data.frame(rmu = rowMeans(assay(atac)), -->
 <div class="sourceCode" id="cb62"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb62-1" data-line-number="1">size &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/length.html">length</a></span>(de_genes)</a>
 <a class="sourceLine" id="cb62-2" data-line-number="2"><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">slice</a></span>(other_genes, <span class="kw"><a href="https://rdrr.io/r/base/sample.html">sample.int</a></span>(<span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/n.html">n</a></span>(), size))</a></code></pre></div>
 <pre><code>## GRanges object with 749 ranges and 3 metadata columns:
-##         seqnames              ranges strand |            gene_id
-##            &lt;Rle&gt;           &lt;IRanges&gt;  &lt;Rle&gt; |        &lt;character&gt;
-##     [1]     chr1 175010789-175023425      - |  ENSG00000120333.4
-##     [2]    chr10   23201916-23344845      - | ENSG00000179133.13
-##     [3]    chr16         14381-18068      - |  ENSG00000234769.7
-##     [4]     chr7   76959835-77043775      + |  ENSG00000265479.6
-##     [5]     chr7   44200968-44214294      + |  ENSG00000106636.7
-##     ...      ...                 ...    ... .                ...
-##   [745]     chr3   44578223-44599694      + |  ENSG00000144792.9
-##   [746]     chr4     1982714-2041903      - | ENSG00000185049.14
-##   [747]    chr17     4948092-4957131      + | ENSG00000108515.17
-##   [748]     chr5 129904472-130186634      + |  ENSG00000198108.3
-##   [749]    chr14   60971451-60981358      - |  ENSG00000126814.6
-##                   de_log2FC           de_padj
-##                   &lt;numeric&gt;         &lt;numeric&gt;
-##     [1]   0.101516955578968 0.489715917718053
-##     [2]  0.0563966621060268 0.933790462345539
-##     [3]  0.0133716032752675 0.983811779787429
-##     [4] -0.0788514234201102  0.73767809984852
-##     [5]  0.0206801447443088 0.891167380378379
-##     ...                 ...               ...
-##   [745]  -0.441177823002312 0.261188779714323
-##   [746] -0.0594316510738933 0.788347417025489
-##   [747] -0.0749266631925999 0.838917913558544
-##   [748]  -0.226498999868804 0.478351869998784
-##   [749]  -0.227746825710191 0.463738536511958
+##         seqnames              ranges strand |            gene_id   de_log2FC
+##            &lt;Rle&gt;           &lt;IRanges&gt;  &lt;Rle&gt; |        &lt;character&gt;   &lt;numeric&gt;
+##     [1]     chr9 113038380-113056759      - | ENSG00000136866.13   0.0306453
+##     [2]    chr12   49576840-49577505      - |  ENSG00000257964.1   0.7566695
+##     [3]    chr10 122930903-122954403      - | ENSG00000119965.12   0.2106246
+##     [4]     chr2 231453531-231483641      - | ENSG00000115053.15  -0.2452909
+##     [5]     chr2   86020216-86106155      - | ENSG00000068654.15   0.1436471
+##     ...      ...                 ...    ... .                ...         ...
+##   [745]     chr5 141199582-141203779      + |  ENSG00000197479.6  0.14738819
+##   [746]     chr1 202007945-202017188      + | ENSG00000163435.15 -0.26010640
+##   [747]     chr8   24384285-24406013      + | ENSG00000134028.14  0.00748631
+##   [748]     chr8   37843268-37849904      - | ENSG00000104221.12  0.02375891
+##   [749]    chr13 100603927-100675093      - | ENSG00000125247.15 -0.41221757
+##           de_padj
+##         &lt;numeric&gt;
+##     [1]  0.959116
+##     [2]  0.710467
+##     [3]  0.250238
+##     [4]  0.303128
+##     [5]  0.710223
+##     ...       ...
+##   [745]  0.881435
+##   [746]  0.767468
+##   [747]  0.992606
+##   [748]  0.940139
+##   [749]  0.280014
 ##   -------
 ##   seqinfo: 25 sequences (1 circular) from an unspecified genome; no seqlengths</code></pre>
 <p>We can repeat this many times to create many samples via replicate:</p>
@@ -507,32 +494,32 @@ data.frame(rmu = rowMeans(assay(atac)), -->
 <a class="sourceLine" id="cb66-9" data-line-number="9">  )</a>
 <a class="sourceLine" id="cb66-10" data-line-number="10">all_genes</a></code></pre></div>
 <pre><code>## GRanges object with 8239 ranges and 5 metadata columns:
-##          seqnames              ranges strand |            gene_id
-##             &lt;Rle&gt;           &lt;IRanges&gt;  &lt;Rle&gt; |        &lt;character&gt;
-##      [1]     chr1 196651878-196747504      + | ENSG00000000971.15
-##      [2]     chr6   46129993-46146699      + |  ENSG00000001561.6
-##      [3]     chr4   17577192-17607972      + | ENSG00000002549.12
-##      [4]     chr7 150800403-150805120      + |  ENSG00000002933.8
-##      [5]     chr4   15778275-15853230      + | ENSG00000004468.12
-##      ...      ...                 ...    ... .                ...
-##   [8235]     chr3   72749277-72861914      - | ENSG00000144736.13
-##   [8236]    chr17   29566052-29573157      + | ENSG00000167543.15
-##   [8237]     chr7 129225023-129430211      + | ENSG00000158467.16
-##   [8238]     chr2   24029340-24049575      - | ENSG00000163026.11
-##   [8239]    chr16     1826941-1840207      + | ENSG00000180185.11
-##                   de_log2FC              de_padj  resample   origin
-##                   &lt;numeric&gt;            &lt;numeric&gt; &lt;integer&gt; &lt;factor&gt;
-##      [1]   4.98711071929753 1.37057047788478e-13         0       de
-##      [2]   1.92721595380928  3.1747750713955e-05         0       de
-##      [3]    2.9337250105913 2.01310386948312e-11         0       de
-##      [4]   3.16721751137947 1.07359905687254e-08         0       de
-##      [5]   5.40894352968123 4.82904681779634e-18         0       de
-##      ...                ...                  ...       ...      ...
-##   [8235] -0.324057975853256    0.531385106280333        10   not_de
-##   [8236] 0.0582048743676746    0.681056516727239        10   not_de
-##   [8237]  0.284556421478987    0.378275048248545        10   not_de
-##   [8238] -0.130576070177018    0.601621122384955        10   not_de
-##   [8239]  0.173903843805343    0.568644093540838        10   not_de
+##          seqnames              ranges strand |            gene_id  de_log2FC
+##             &lt;Rle&gt;           &lt;IRanges&gt;  &lt;Rle&gt; |        &lt;character&gt;  &lt;numeric&gt;
+##      [1]     chr1 196651878-196747504      + | ENSG00000000971.15    4.98711
+##      [2]     chr6   46129993-46146699      + |  ENSG00000001561.6    1.92722
+##      [3]     chr4   17577192-17607972      + | ENSG00000002549.12    2.93373
+##      [4]     chr7 150800403-150805120      + |  ENSG00000002933.8    3.16722
+##      [5]     chr4   15778275-15853230      + | ENSG00000004468.12    5.40894
+##      ...      ...                 ...    ... .                ...        ...
+##   [8235]     chr3   72749277-72861914      - | ENSG00000144736.13 -0.3240580
+##   [8236]    chr17   29566052-29573157      + | ENSG00000167543.15  0.0582049
+##   [8237]     chr7 129225023-129430211      + | ENSG00000158467.16  0.2845564
+##   [8238]     chr2   24029340-24049575      - | ENSG00000163026.11 -0.1305761
+##   [8239]    chr16     1826941-1840207      + | ENSG00000180185.11  0.1739038
+##              de_padj  resample   origin
+##            &lt;numeric&gt; &lt;integer&gt; &lt;factor&gt;
+##      [1] 1.37057e-13         0       de
+##      [2] 3.17478e-05         0       de
+##      [3] 2.01310e-11         0       de
+##      [4] 1.07360e-08         0       de
+##      [5] 4.82905e-18         0       de
+##      ...         ...       ...      ...
+##   [8235]    0.531385        10   not_de
+##   [8236]    0.681057        10   not_de
+##   [8237]    0.378275        10   not_de
+##   [8238]    0.601621        10   not_de
+##   [8239]    0.568644        10   not_de
 ##   -------
 ##   seqinfo: 25 sequences (1 circular) from an unspecified genome; no seqlengths</code></pre>
 </div>
@@ -558,45 +545,32 @@ data.frame(rmu = rowMeans(assay(atac)), -->
 <a class="sourceLine" id="cb70-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/overlap-joins.html">join_overlap_left</a></span>(da_peaks)</a>
 <a class="sourceLine" id="cb70-3" data-line-number="3">overlap_genes</a></code></pre></div>
 <pre><code>## GRanges object with 27591 ranges and 8 metadata columns:
-##           seqnames              ranges strand |            gene_id
-##              &lt;Rle&gt;           &lt;IRanges&gt;  &lt;Rle&gt; |        &lt;character&gt;
-##       [1]     chr1 196641878-196661877      + | ENSG00000000971.15
-##       [2]     chr6   46119993-46139992      + |  ENSG00000001561.6
-##       [3]     chr4   17567192-17587191      + | ENSG00000002549.12
-##       [4]     chr4   17567192-17587191      + | ENSG00000002549.12
-##       [5]     chr4   17567192-17587191      + | ENSG00000002549.12
-##       ...      ...                 ...    ... .                ...
-##   [27587]    chr17   29556052-29576051      + | ENSG00000167543.15
-##   [27588]     chr7 129215023-129235022      + | ENSG00000158467.16
-##   [27589]     chr2   24039575-24059574      - | ENSG00000163026.11
-##   [27590]    chr16     1816941-1836940      + | ENSG00000180185.11
-##   [27591]    chr16     1816941-1836940      + | ENSG00000180185.11
-##                    de_log2FC              de_padj  resample   origin
-##                    &lt;numeric&gt;            &lt;numeric&gt; &lt;integer&gt; &lt;factor&gt;
-##       [1]   4.98711071929753 1.37057047788478e-13         0       de
-##       [2]   1.92721595380928  3.1747750713955e-05         0       de
-##       [3]    2.9337250105913 2.01310386948312e-11         0       de
-##       [4]    2.9337250105913 2.01310386948312e-11         0       de
-##       [5]    2.9337250105913 2.01310386948312e-11         0       de
-##       ...                ...                  ...       ...      ...
-##   [27587] 0.0582048743676746    0.681056516727239        10   not_de
-##   [27588]  0.284556421478987    0.378275048248545        10   not_de
-##   [27589] -0.130576070177018    0.601621122384955        10   not_de
-##   [27590]  0.173903843805343    0.568644093540838        10   not_de
-##   [27591]  0.173903843805343    0.568644093540838        10   not_de
-##                    peak_id          da_log2FC              da_padj
-##                &lt;character&gt;          &lt;numeric&gt;            &lt;numeric&gt;
-##       [1]  ATAC_peak_21236 -0.546582189082724 0.000115273676444232
-##       [2] ATAC_peak_231183   1.45329684862127  9.7322474682763e-17
-##       [3] ATAC_peak_193578  0.222371496904895 3.00939005719989e-11
-##       [4] ATAC_peak_193579 -0.281615137872819 7.99888515457195e-05
-##       [5] ATAC_peak_193580  0.673705317951604 7.60042918890061e-15
-##       ...              ...                ...                  ...
-##   [27587] ATAC_peak_109304  0.211750928531232  0.00111289505290053
-##   [27588] ATAC_peak_255700  0.177364068655037 5.25384772617076e-09
-##   [27589] ATAC_peak_133247 -0.266265981992122  1.0155043266685e-07
-##   [27590]  ATAC_peak_97065 -0.405271356218346 1.28054921946532e-05
-##   [27591]  ATAC_peak_97067  0.289105317951603 5.87369828076092e-07
+##           seqnames              ranges strand |            gene_id  de_log2FC
+##              &lt;Rle&gt;           &lt;IRanges&gt;  &lt;Rle&gt; |        &lt;character&gt;  &lt;numeric&gt;
+##       [1]     chr1 196641878-196661877      + | ENSG00000000971.15    4.98711
+##       [2]     chr6   46119993-46139992      + |  ENSG00000001561.6    1.92722
+##       [3]     chr4   17567192-17587191      + | ENSG00000002549.12    2.93373
+##       [4]     chr4   17567192-17587191      + | ENSG00000002549.12    2.93373
+##       [5]     chr4   17567192-17587191      + | ENSG00000002549.12    2.93373
+##       ...      ...                 ...    ... .                ...        ...
+##   [27587]    chr17   29556052-29576051      + | ENSG00000167543.15  0.0582049
+##   [27588]     chr7 129215023-129235022      + | ENSG00000158467.16  0.2845564
+##   [27589]     chr2   24039575-24059574      - | ENSG00000163026.11 -0.1305761
+##   [27590]    chr16     1816941-1836940      + | ENSG00000180185.11  0.1739038
+##   [27591]    chr16     1816941-1836940      + | ENSG00000180185.11  0.1739038
+##               de_padj  resample   origin          peak_id da_log2FC     da_padj
+##             &lt;numeric&gt; &lt;integer&gt; &lt;factor&gt;      &lt;character&gt; &lt;numeric&gt;   &lt;numeric&gt;
+##       [1] 1.37057e-13         0       de  ATAC_peak_21236 -0.546582 1.15274e-04
+##       [2] 3.17478e-05         0       de ATAC_peak_231183  1.453297 9.73225e-17
+##       [3] 2.01310e-11         0       de ATAC_peak_193578  0.222371 3.00939e-11
+##       [4] 2.01310e-11         0       de ATAC_peak_193579 -0.281615 7.99889e-05
+##       [5] 2.01310e-11         0       de ATAC_peak_193580  0.673705 7.60043e-15
+##       ...         ...       ...      ...              ...       ...         ...
+##   [27587]    0.681057        10   not_de ATAC_peak_109304  0.211751 1.11290e-03
+##   [27588]    0.378275        10   not_de ATAC_peak_255700  0.177364 5.25385e-09
+##   [27589]    0.601621        10   not_de ATAC_peak_133247 -0.266266 1.01550e-07
+##   [27590]    0.568644        10   not_de  ATAC_peak_97065 -0.405271 1.28055e-05
+##   [27591]    0.568644        10   not_de  ATAC_peak_97067  0.289105 5.87370e-07
 ##   -------
 ##   seqinfo: 25 sequences (1 circular) from an unspecified genome; no seqlengths</code></pre>
 <p>Now we can ask, how many DA peaks are near DE genes relative to “other” non-DE genes? A gene may appear more than once, since multiple peaks may overlap a single gene or because we have re-sampled the same gene more than once.</p>
@@ -626,7 +600,7 @@ data.frame(rmu = rowMeans(assay(atac)), -->
 <pre><code>## DataFrame with 2 rows and 4 columns
 ##     origin       any      lfc1      lfc2
 ##   &lt;factor&gt; &lt;numeric&gt; &lt;numeric&gt; &lt;numeric&gt;
-## 1       de      3416      1097       234
+## 1   de        3416.0    1097.0     234.0
 ## 2   not_de    2362.3     443.8      32.3</code></pre>
 <p>Then using <code><a href="https://dplyr.tidyverse.org/reference/summarise_all.html">summarize_all()</a></code> from <em>dplyr</em> we divide the rows of the above computation, to see that the relative enrichment increases for a ‘larger’ LFC:</p>
 <div class="sourceCode" id="cb76"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb76-1" data-line-number="1">overlap_tab <span class="op">%&gt;%</span></a>
@@ -652,7 +626,7 @@ data.frame(rmu = rowMeans(assay(atac)), -->
 <pre><code>## DataFrame with 2 rows and 5 columns
 ##     origin lfc1_gene_count lfc1_peak_count lfc2_gene_count lfc2_peak_count
 ##   &lt;factor&gt;       &lt;numeric&gt;       &lt;numeric&gt;       &lt;numeric&gt;       &lt;numeric&gt;
-## 1       de             515            1097             151             234
+## 1   de               515.0          1097.0           151.0           234.0
 ## 2   not_de           301.4           443.8            30.4            32.3</code></pre>
 <p>To do this for many thresholds is cumbersome and would create a lot of duplicate code, instead we create a single function called <code>count_above_threshold</code> that accepts a GRanges object, and computes the peak count that meets the threshold.</p>
 <div class="sourceCode" id="cb80"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb80-1" data-line-number="1">count_above_threshold &lt;-<span class="st"> </span><span class="cf">function</span>(.data, threshold) {</a>
@@ -683,19 +657,19 @@ data.frame(rmu = rowMeans(assay(atac)), -->
 <a class="sourceLine" id="cb83-6" data-line-number="6">  )</a>
 <a class="sourceLine" id="cb83-7" data-line-number="7">counts_by_threshold</a></code></pre></div>
 <pre><code>## DataFrame with 200 rows and 4 columns
-##       origin          threshold gene_count peak_count
-##     &lt;factor&gt;          &lt;numeric&gt;  &lt;numeric&gt;  &lt;numeric&gt;
-## 1         de 0.0658243106359027        727       3416
-## 2         de  0.118483961449043        727       3392
-## 3         de  0.171143612262182        727       3304
-## 4         de  0.223803263075322        724       3160
-## 5         de  0.276462913888462        723       3045
-## ...      ...                ...        ...        ...
-## 196   not_de   5.06849113788419          0          0
-## 197   not_de   5.12115078869733          0          0
-## 198   not_de   5.17381043951047          0          0
-## 199   not_de   5.22647009032361          0          0
-## 200   not_de   5.27912974113675          0          0</code></pre>
+##       origin threshold gene_count peak_count
+##     &lt;factor&gt; &lt;numeric&gt;  &lt;numeric&gt;  &lt;numeric&gt;
+## 1         de 0.0658243        727       3416
+## 2         de 0.1184840        727       3392
+## 3         de 0.1711436        727       3304
+## 4         de 0.2238033        724       3160
+## 5         de 0.2764629        723       3045
+## ...      ...       ...        ...        ...
+## 196   not_de   5.06849          0          0
+## 197   not_de   5.12115          0          0
+## 198   not_de   5.17381          0          0
+## 199   not_de   5.22647          0          0
+## 200   not_de   5.27913          0          0</code></pre>
 <p>Again we can compute the relative enrichment in LFCs in the same manner as before and visualize how enrichment changes as the threshold value increases:</p>
 <div class="sourceCode" id="cb85"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb85-1" data-line-number="1">enrichment &lt;-<span class="st"> </span>counts_by_threshold <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb85-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span>() <span class="op">%&gt;%</span></a>
@@ -740,7 +714,7 @@ data.frame(rmu = rowMeans(assay(atac)), -->
 <h2 class="hasAnchor">
 <a href="#session-info" class="anchor"></a>Session Info</h2>
 <div class="sourceCode" id="cb88"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb88-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo</a></span>()</a></code></pre></div>
-<pre><code>## R Under development (unstable) (2019-12-13 r77566)
+<pre><code>## R Under development (unstable) (2019-12-18 r77601)
 ## Platform: x86_64-pc-linux-gnu (64-bit)
 ## Running under: Ubuntu 16.04.6 LTS
 ## 
@@ -764,20 +738,20 @@ data.frame(rmu = rowMeans(assay(atac)), -->
 ##  [1] ggplot2_3.2.1               plyranges_1.7.6            
 ##  [3] DESeq2_1.27.17              GenomicFeatures_1.39.1     
 ##  [5] AnnotationDbi_1.49.0        SummarizedExperiment_1.17.0
-##  [7] DelayedArray_0.13.0         BiocParallel_1.21.0        
+##  [7] DelayedArray_0.13.0         BiocParallel_1.21.1        
 ##  [9] matrixStats_0.55.0          Biobase_2.47.1             
 ## [11] GenomicRanges_1.39.1        GenomeInfoDb_1.23.0        
-## [13] IRanges_2.21.2              S4Vectors_0.25.6           
+## [13] IRanges_2.21.2              S4Vectors_0.25.8           
 ## [15] BiocGenerics_0.33.0         readr_1.3.1                
 ## [17] dplyr_0.8.3                 tximeta_1.5.6              
 ## [19] fluentGenomics_0.0.3       
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] ProtGenerics_1.19.1      bitops_1.0-6             fs_1.3.1                
+##  [1] ProtGenerics_1.19.2      bitops_1.0-6             fs_1.3.1                
 ##  [4] bit64_0.9-7              RColorBrewer_1.1-2       progress_1.2.2          
 ##  [7] httr_1.4.1               rprojroot_1.3-2          tools_4.0.0             
 ## [10] backports_1.1.5          utf8_1.1.4               R6_2.4.1                
-## [13] colorspace_1.4-1         DBI_1.0.0                lazyeval_0.2.2          
+## [13] colorspace_1.4-1         DBI_1.1.0                lazyeval_0.2.2          
 ## [16] withr_2.1.2              tidyselect_0.2.5         prettyunits_1.0.2       
 ## [19] bit_1.1-14               curl_4.3                 compiler_4.0.0          
 ## [22] cli_2.0.0                desc_1.2.0               labeling_0.3            
@@ -786,18 +760,18 @@ data.frame(rmu = rowMeans(assay(atac)), -->
 ## [31] stringr_1.4.0            digest_0.6.23            Rsamtools_2.3.2         
 ## [34] rmarkdown_2.0            XVector_0.27.0           pkgconfig_2.0.3         
 ## [37] htmltools_0.4.0          dbplyr_1.4.2             ensembldb_2.11.2        
-## [40] rlang_0.4.2              RSQLite_2.1.4            farver_2.0.1            
+## [40] rlang_0.4.2              RSQLite_2.1.5            farver_2.0.1            
 ## [43] jsonlite_1.6             RCurl_1.95-4.12          magrittr_1.5            
 ## [46] GenomeInfoDbData_1.2.2   Matrix_1.2-18            munsell_0.5.0           
 ## [49] Rcpp_1.0.3               fansi_0.4.0              lifecycle_0.1.0         
 ## [52] stringi_1.4.3            yaml_2.2.0               MASS_7.3-51.4           
 ## [55] zlibbioc_1.33.0          BiocFileCache_1.11.4     grid_4.0.0              
 ## [58] blob_1.2.0               crayon_1.3.4             lattice_0.20-38         
-## [61] Biostrings_2.55.3        splines_4.0.0            annotate_1.65.0         
+## [61] Biostrings_2.55.4        splines_4.0.0            annotate_1.65.0         
 ## [64] hms_0.5.2                locfit_1.5-9.1           zeallot_0.1.0           
 ## [67] knitr_1.26               pillar_1.4.2             geneplotter_1.65.0      
 ## [70] biomaRt_2.43.0           XML_3.98-1.20            glue_1.3.1              
-## [73] evaluate_0.14            vctrs_0.2.0              gtable_0.3.0            
+## [73] evaluate_0.14            vctrs_0.2.1              gtable_0.3.0            
 ## [76] openssl_1.4.1            purrr_0.3.3              assertthat_0.2.1        
 ## [79] xfun_0.11                xtable_1.8-4             AnnotationFilter_1.11.0 
 ## [82] viridisLite_0.3.0        survival_3.1-8           tibble_2.1.3            
