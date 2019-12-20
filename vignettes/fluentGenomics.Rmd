@@ -3,7 +3,7 @@ title: "Fluent genomics with plyranges and tximeta"
 author: "Stuart Lee, Michael Lawrence, Michael Love"
 abstract: "We construct a simple workflow for fluent genomics data analysis using the R/Biocondcutor ecosystem. This involves three core steps: **import** the data into an appropriate abstraction, **model** the data with respect to the biological questions of interest, and **transform** the results with respect to their underlying genomic coordinates. Here we show how to implement these steps to integrate published RNA-seq and ATAC-seq experiments on macrophage cell lines. Using *tximeta*, we **import** RNA-seq transcript quantifications into an analysis-ready data structure, called the *SummarizedExperiment*, that contains the correct reference transcriptome and provenance of the quantification software. Using *SummarizedExperiment*s to represent the ATAC-seq and RNA-seq data, we **model**  differentially accessible (DA) chromatin peaks and differentially expressed (DE) genes with existing Bioconductor packages. Using *plyranges* we then **transform** the results to see if there is an enrichment of DE genes nearby DA peaks by finding overlaps and aggregating over log-fold change thresholds. The combination of these packages and their integration with the Bioconductor ecosystem provides a coherent framework for analysts to iteratively and reproducibly explore their biological data."
 output:
-  rmarkdown::html_document:
+  bookdown::html_document2:
     highlight: pygments
     toc: true
     toc_depth: 3
@@ -80,8 +80,17 @@ results.
 ## Experimental Data
 
 The data used in this workflow is available from two packages: the *macrophage*
-Bioconductor ExperimentData package and from this workflow package
-*fluentGenomics* directly.
+Bioconductor ExperimentData package and from the workflow package
+*fluentGenomics*.
+
+The *macrophage* package contains RNA-seq quantification from 24 RNA-seq
+samples, a subset of the RNA-seq samples generated and analyzed by @alasoo. The
+paired-end reads were quantified using *Salmon* [@salmon], using the Gencode 29
+human reference transcripts [@gencode]. For more details on quantification, and
+the exact code used, consult the vignette of the
+[macrophage](http://bioconductor.org/packages/macrophage) package. The package
+also contains the `Snakemake` file that was used to distribute the *Salmon*
+quantification jobs on a cluster [@snakemake].
 
 The *fluentGenomics* package contains functionality to download and generate a
 cached *SummarizedExperiment* object from the normalized ATAC-seq data provided
@@ -94,31 +103,25 @@ The following code loads the path to the cached data file, or if it is not
 present will create the cache and generate a *SummarizedExperiment* using the
 the *BiocFileCache* package [@bcfilecache].
 
+```{r cache-path, eval = retrieve_cache}
+library(fluentGenomics)
+path_to_se <- cache_atac_se()
+```
+
 We can then read the cached file and assign it to an object called `atac`. Note
 that this step is not strictly necessary to run the workflow.
 
-```{r load-cache, eval = retrieve_cache}
-library(fluentGenomics)
-path_to_se <- cache_atac_se()
+```{r read-cache, eval = retrieve_cache}
 atac <- readRDS(path_to_se)
 ```
 
 A precise description of how we obtained this *SummarizedExperiment* object can
 be found in section \@ref(atac).
 
-The *macrophage* package contains RNA-seq quantification from 24 RNA-seq
-samples, a subset of the RNA-seq samples generated and analyzed by @alasoo. The
-paired-end reads were quantified using *Salmon* [@salmon], using the Gencode 29
-human reference transcripts [@gencode]. For more details on quantification, and
-the exact code used, consult the vignette of the
-[macrophage](http://bioconductor.org/packages/macrophage) package. The package
-also contains the `Snakemake` file that was used to distribute the *Salmon*
-quantification jobs on a cluster [@snakemake].
 
+# Import Data as a *SummarizedExperiment* {#se}
 
-# RNA-seq data analysis
-
-## Easy RNA-seq data import with *tximeta*
+## Using *tximeta* to import RNA-seq quantifications
 
 First, we specify a directory `dir`, where the quantification files are stored.
 You could simply specify this directory with:
@@ -127,7 +130,7 @@ You could simply specify this directory with:
 dir <- "/path/to/quant/files"
 ```
 
-where the path is relative to your current R session. However, here in this
+where the path is relative to your current R session. However,  in this
 case we have distributed the files in the *macrophage* package. The relevant
 directory can be located and associated files can be located `system.file`.
 
@@ -168,12 +171,11 @@ operator,`%>%`, which can be read as then i.e. first read the data, then select
 columns, then mutate them.
 
 Now we have a data frame summarizing the experimental design and the locations
-of the quantifications, and are ready for import with *tximeta*. The following
+of the quantifications. The following
 lines of code do a lot of work for the analyst: importing the RNA-seq
 quantification (dropping inferential replicates in this case), locating the
 relevant reference transcriptome, attaching the transcript ranges to the data,
-and fetching genome information. The result is stored in the Bioconductor data
-structure called a *SummarizedExperiment*.
+and fetching genome information. The result is a *SummarizedExperiment* object.
 
 ```{r}
 suppressPackageStartupMessages(library(SummarizedExperiment))
@@ -208,7 +210,76 @@ methods of @Soneson2015.
 gse <- summarizeToGene(se)
 ```
 
-## Preliminary RNA-seq DE analysis
+## Importing ATAC-seq data as a *SummarizedExperiment* object
+
+The *SummarizedExperiment* object containing ATAC-seq peaks can be created from
+the following tab-delimited files found in [@alasooZenodo]:
+
+* The sample metadata: `ATAC_sample_metadata.txt.gz` (<1M)
+* The matrix of normalized read counts: `ATAC_cqn_matrix.txt.gz` (109M)
+* The annotated peaks: `ATAC_peak_metadata.txt.gz` (5.6M)
+
+To begin we read in the sample metadata, following similar steps 
+to those we used to generate the `coldata` data frame for the RNA-seq
+experiment:
+
+```{r eval=FALSE}
+atac_coldata <- read_tsv("ATAC_sample_metadata.txt.gz") %>%
+ select(
+    sample_id,
+    donor,
+    condition = condition_name
+  ) %>%
+  mutate(condition = relevel(factor(condition), "naive"))
+```
+
+The ATAC-seq counts have already been normalized with *cqn* [@Hansen2012] and log2
+transformed. Loading the *cqn*-normalized matrix of log2 transformed read
+counts takes ~30 seconds and loads an object of ~370 Mb. We set the column
+names so that the first column contains the rownames of the matrix, and the remaining
+columns are the sample identities from the `atac_coldata` object.
+
+```{r eval=FALSE}
+atac_mat <- read_tsv("ATAC_cqn_matrix.txt.gz",
+                     skip = 1,
+                     col_names =c("rownames", atac_coldata[["sample_id"]]))
+rownames <- atac_mat[["rownames"]]
+atac_mat <- as.matrix(atac_mat[,-1])
+rownames(atac_mat) <- rownames
+```
+
+We read in the peak metadata (locations in the genome), and convert it
+to a *GRanges* object. The `as_granges()` function automatically converts the
+data.frame into a *GRanges* object, from that result, we extract the peak_id
+column and set the genome information to the build "GRCh38". We know this from
+the [Zenodo entry](https://zenodo.org/record/1188300#.XJOFSlNKiL5)
+
+```{r eval=FALSE}
+library(plyranges)
+peaks_df <- read_tsv("ATAC_peak_metadata.txt.gz",
+  col_types = c("cidciicdc")
+)
+
+peaks_gr <- peaks_df %>%
+  as_granges(seqnames = chr) %>%
+  select(peak_id=gene_id) %>%
+  set_genome_info(genome = "GRCh38")
+```
+
+Finally, we construct a *SummarizedExperiment* object. 
+We place the matrix into the assays slot as a named list; we place
+the annotated peaks into the rowwise ranges slot; and the sample
+metadata into the columnwise data slot:
+
+```{r eval=FALSE}
+atac <- SummarizedExperiment(assays = list(cqndata=atac_mat),
+                             rowRanges=peaks_gr,
+                             colData=atac_coldata)
+```
+
+# Model
+
+## RNA-seq differential gene expression analysis
 
 We can easily run a differential expression analysis with *DESeq2* using the
 following code chunks [@Love2014]. The design indicates that we want to control
@@ -287,76 +358,12 @@ other_genes <- results(dds,
                     de_padj = padj)
 ```
 
-# ATAC-seq peak differential abundance analysis {#atac}
+## ATAC-seq peak differential abundance analysis 
 
 The following section describes the process we have used for generating a
 *GRanges* object of differential peaks from that ATAC-seq data in @alasoo.
 
 The code chunks for the remainder of this section are not run.
-
-## Generating a *SummarizedExperiment* object
-
-The *SummarizedExperiment* object containing ATAC-seq peaks can be created from
-the following tab-delimited files found in [@alasooZenodo]:
-
-* The annotated peaks: `ATAC_peak_metadata.txt.gz` (5.6M)
-* The sample metadata: `ATAC_sample_metadata.txt.gz` (<1M)
-* The matrix of normalized read counts: `ATAC_cqn_matrix.txt.gz` (109M)
-
-First, we read in the peak metadata (locations in the genome), and convert to a
-*GRanges* object. The `as_granges()` function automatically converts the
-data.frame into a *GRanges* object, from that result, we extract the peak_id
-column and set the genome information to the build "GRCh38". We know this from
-the [Zenodo entry](https://zenodo.org/record/1188300#.XJOFSlNKiL5)
-
-```{r eval=FALSE}
-peaks_df <- read_tsv("ATAC_peak_metadata.txt.gz",
-  col_types = c("cidciicdc")
-)
-
-peaks_gr <- peaks_df %>%
-  as_granges(seqnames = chr) %>%
-  select(peak_id=gene_id) %>%
-  set_genome_info(genome = "GRCh38")
-```
-
-We also read in the sample metadata:
-
-```{r eval=FALSE}
-atac_coldata <- read_tsv("ATAC_sample_metadata.txt.gz") %>%
- select(
-    sample_id,
-    donor,
-    condition = condition_name
-  ) %>%
-  mutate(condition = relevel(factor(condition), "naive"))
-```
-
-The ATAC-seq data has already been normalized with *cqn* [@Hansen2012] and log2
-transformed. Loading the *cqn*-normalized matrix of log2 transformed read
-counts takes ~30 seconds and loads an object of ~370 Mb. We set the column
-names so the first row contains the rownames of the matrix, and the remaining
-columns are matched to the sample identifiers.
-
-```{r eval=FALSE}
-atac_mat <- read_tsv("ATAC_cqn_matrix.txt.gz",
-                     skip = 1,
-                     col_names =c("rownames", atac_coldata[["sample_id"]]))
-rownames <- atac_mat[["rownames"]]
-atac_mat <- as.matrix(atac_mat[,-1])
-rownames(atac_mat) <- rownames
-```
-
-Finally, we then combine the data, and two pieces of metadata into a
-*SummarizedExperiment*:
-
-```{r eval=FALSE}
-atac <- SummarizedExperiment(list(cqndata=atac_mat),
-                             rowRanges=peaks_gr,
-                             colData=atac_coldata)
-```
-
-##  Using limma for differential accessibility
 
 <!-- We can check the standard deviation over mean plot, to assess for any -->
 <!-- systematic trends: -->
@@ -395,27 +402,29 @@ atac_peaks <- rowRanges(atac) %>%
 seqlevelsStyle(atac_peaks) <- "UCSC"
 ```
 
-# Finding overlaps with *plyranges*
-
-We have already used *plyranges* a number of times above, to `filter`, `mutate`
-and `select` on *GRanges* objects, as well as ensuring the correct genome
-annotation and style has been used.
-
 The final *GRanges* object containing the DA peaks is included in the workflow
-package and is loaded below:
+package and can be loaded as follows:
 
 ```{r}
 library(fluentGenomics)
 peaks
 ```
 
-For the overlap analysis, we filter these to have a nominal FDR bound of 1$.
+# Transform
+
+## Finding overlaps with *plyranges*
+
+We have already used *plyranges* a number of times above, to `filter`, `mutate`
+and `select` on *GRanges* objects, as well as ensuring the correct genome
+annotation and style has been used.
+
+For the overlap analysis, we filter the annotated peaks to have a nominal FDR 
+bound of 1%.
 
 ```{r}
 da_peaks <- peaks %>%
   filter(da_padj < 0.01)
 ```
-
 
 We now have *GRanges* objects that contain DE genes, genes without strong
 signal of DE, and DA peaks. We are ready to perform our original aim and answer
