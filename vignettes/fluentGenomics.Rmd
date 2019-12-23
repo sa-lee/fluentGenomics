@@ -525,9 +525,9 @@ the metadata columns from those overlapping DA peaks.  For any gene that has no
 overlaps, the DA peak columns will have `NA`'s.
 
 ```{r}
-overlap_genes <- all_genes %>%
+genes_olap_peaks <- all_genes %>%
   join_overlap_left(da_peaks)
-overlap_genes
+genes_olap_peaks
 ```
 
 Now we can ask, how many DA peaks are near DE genes relative to "other" non-DE
@@ -545,11 +545,11 @@ the number of resamples we have performed when counting if there are any peaks,
 to ensure we do not double count the same peak:
 
 ```{r}
-any_peaks <- overlap_genes %>%
+gene_peak_max_lfc <- genes_olap_peaks %>%
   group_by(gene_id, origin)  %>%
   reduce_ranges_directed(
-    any = sum(!is.na(da_padj)) / n_distinct(resample),
-    max_logFC = max(abs(da_log2FC))
+    peak_count = sum(!is.na(da_padj)) / n_distinct(resample),
+    peak_max_lfc = max(abs(da_log2FC))
   )
 ```
 
@@ -558,10 +558,10 @@ changes between non-DE and DE genes using a boxplot:
 
 ```{r}
 library(ggplot2)
-any_peaks %>%
-  filter(any > 0) %>%
+gene_peak_max_lfc %>%
+  filter(peak_count > 0) %>%
   as.data.frame() %>%
-  ggplot(aes(origin, max_logFC)) +
+  ggplot(aes(origin, peak_max_lfc)) +
   geom_boxplot()
 ```
 
@@ -574,19 +574,23 @@ we change threshold values on the peak LFC. As an example, we could compute
 this by arbitrarily chosen LFC thresholds as follows:
 
 ```{r}
-overlap_tab <- overlap_genes %>%
+origin_peak_lfc <- genes_olap_peaks %>%
   group_by(origin) %>%
-  summarize(any=sum(!is.na(da_padj)) / n_distinct(resample),
-            lfc1 =sum(abs(da_log2FC) > 1, na.rm=TRUE)/ n_distinct(resample),
-            lfc2= sum(abs(da_log2FC) > 2, na.rm=TRUE)/ n_distinct(resample))
-overlap_tab
+  summarize(
+    peak_count = sum(!is.na(da_padj)) / n_distinct(resample),
+    lfc1_peak_count =sum(abs(da_log2FC) > 1, na.rm=TRUE)/ n_distinct(resample),
+    lfc2_peak_count = sum(abs(da_log2FC) > 2, na.rm=TRUE)/ n_distinct(resample)
+  )
+origin_peak_lfc
 ```
 
-Then using `summarize_all()` from *dplyr* we divide the rows of the above
-computation, to see that the relative enrichment increases for a 'larger' LFC:
+Then for all variables except for the `origin` column we divide
+the first rows values by the second row, which will be the
+enrichment of peaks in DE genes compared to other genes. 
+We see that the relative enrichment increases  for a 'larger' LFC:
 
 ```{r}
-overlap_tab %>%
+origin_peak_lfc %>%
   as.data.frame() %>%
   select(-origin) %>%
   summarize_all(.funs = ~Reduce("/", .))
@@ -602,7 +606,7 @@ genes that have more than zero peaks (again averaging over the number of
 resamples).
 
 ```{r}
-overlap_genes %>%
+genes_olap_peaks %>%
   group_by(gene_id, origin, resample) %>%
   reduce_ranges_directed(
     lfc1 =sum(abs(da_log2FC) > 1, na.rm=TRUE),
@@ -624,7 +628,7 @@ duplicate code, instead we create a single function called
 count that meets the threshold.
 
 ```{r}
-count_above_threshold <- function(.data, threshold) {
+count_if_above_threshold <- function(.data, threshold) {
   reduce_ranges_directed(.data,
                          threshold = threshold,
                          value = sum(abs(da_log2FC) > threshold, na.rm = TRUE)
@@ -645,16 +649,17 @@ thresholds <- da_peaks %>%
   )
 ```
 
-The peaks are computed for each value by applying `count_above_threshold()` on
-the grouped *GRanges* object for each threshold and then binding the result.
+The peaks are computed for each threshold value by applying the function
+`count_if_above_threshold()` on a *GRanges* object that has been grouped
+by the gene, origin and the number of resamples variables.
 This could be done easily in parallel with `BiocParallel` but here we compute
-everything serially.
+everything serially .
 ```{r}
-by_gene_origin <- overlap_genes %>%
+by_gene_origin <- genes_olap_peaks %>%
   group_by(gene_id, origin, resample)
 
-all_thresholds <- bind_ranges(
-  lapply(thresholds, count_above_threshold, .data = by_gene_origin)
+genes_peak_all_thresholds <- bind_ranges(
+  lapply(thresholds, count_if_above_threshold, .data = by_gene_origin)
 )
 ```
 
@@ -662,24 +667,24 @@ This creates a very *long* GRanges object. To compute the peak and gene counts
 for each threshold, we apply the same summarization as before:
 
 ```{r}
-counts_by_threshold <- all_thresholds %>%
+origin_peak_all_thresholds <- genes_peak_all_thresholds %>%
   group_by(origin, threshold) %>%
   summarize(
     gene_count = sum(value > 0) / n_distinct(resample),
     peak_count = sum(value) / n_distinct(resample)
   )
-counts_by_threshold
+origin_peak_all_thresholds
 ```
 
 Again we can compute the relative enrichment in LFCs in the same manner as
 before and visualize how enrichment changes as the threshold value increases:
 ```{r}
-enrichment <- counts_by_threshold %>%
+peak_enrichment <- origin_peak_all_thresholds %>%
   as.data.frame() %>%
   group_by(threshold) %>%
   summarize(enrichment = Reduce("/", peak_count))
 
-enrichment %>%
+peak_enrichment %>%
   ggplot(aes(x = threshold, y = enrichment)) +
   geom_line() +
   labs(x = "logFC threshold", y = "Relative Enrichment")
@@ -693,7 +698,7 @@ a large change went down - we can check this by plotting the number of DE genes
 against the number of DA peaks:
 
 ```{r}
-counts_by_threshold %>%
+origin_peak_all_thresholds %>%
   as.data.frame() %>%
   ggplot(aes(x = gene_count,
              y = peak_count,
