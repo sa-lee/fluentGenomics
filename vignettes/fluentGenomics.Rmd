@@ -148,14 +148,15 @@ library(dplyr)
 library(readr)
 colfile <- file.path(dir, "coldata.csv")
 coldata <- read_csv(colfile) %>%
-  select(
+  dplyr::select(
     names,
     id = sample_id,
     line = line_id,
     condition = condition_name
   ) %>%
-  mutate(
+  dplyr::mutate(
     files = file.path(dir, "quants", names, "quant.sf.gz"),
+    line = factor(line),
     condition = relevel(factor(condition), "naive")
   )
 coldata
@@ -354,8 +355,8 @@ other_genes <- results(dds,
   filter(pvalue > 0.1) %>%
   names_to_column("gene_id") %>%
   dplyr::select(gene_id,
-                    de_log2FC = log2FoldChange,
-                    de_padj = padj)
+                de_log2FC = log2FoldChange,
+                de_padj = padj)
 ```
 
 ## ATAC-seq peak differential abundance analysis 
@@ -473,7 +474,7 @@ all_genes <- bind_ranges(
   .id="origin"
   ) %>%
   mutate(
-    origin = factor(origin, c("de", "not_de")),
+    origin = factor(origin, c("not_de", "de")),
     resample = ifelse(is.na(resample), 0L, as.integer(resample))
   )
 all_genes
@@ -500,7 +501,7 @@ ranges, and fix the start of positively stranded ranges.
 
 We can then repeat the same pattern but this time using `anchor_center()` to
 tell *plyranges* that we are making the TSS the midpoint of a range that has
-total width of 20kb or 10kb both upstream and downstream of the TSS.
+total width of 20kb, or 10kb both upstream and downstream of the TSS.
 
 ```{r}
 all_genes <-all_genes %>%
@@ -531,8 +532,9 @@ genes_olap_peaks
 ```
 
 Now we can ask, how many DA peaks are near DE genes relative to "other" non-DE
-genes?  A gene may appear more than once, since multiple peaks may overlap a
-single gene or because we have re-sampled the same gene more than once.
+genes?  A gene may appear more than once in `genes_olap_peaks`, because
+multiple peaks may overlap a single gene, or because we have re-sampled
+the same gene more than once, or a combination of these two cases.
 
 For each gene (that is the combination of chromosome, the start, end and
 strand), and the "origin" (DE vs not-DE) we can compute the distinct number of
@@ -553,7 +555,7 @@ gene_peak_max_lfc <- genes_olap_peaks %>%
   )
 ```
 
-We can then filter genes if there have any peaks and compare the peak fold
+We can then filter genes if they have any peaks and compare the peak fold
 changes between non-DE and DE genes using a boxplot:
 
 ```{r}
@@ -593,7 +595,17 @@ We see that the relative enrichment increases  for a 'larger' LFC:
 origin_peak_lfc %>%
   as.data.frame() %>%
   select(-origin) %>%
-  summarize_all(.funs = ~Reduce("/", .))
+  summarize_all(.funs = ~Reduce(function(x,y) y/x, .))
+```
+
+Un-tidy but avoid `.funs=~Reduce`?
+
+```{r}
+m <- origin_peak_lfc %>%
+  as.data.frame() %>%
+  select(-origin) %>%
+  as.matrix()
+m[2,] / m[1,]
 ```
 
 Due to the one-to-many mappings of DE genes to peaks, it is unknown if we have
@@ -619,7 +631,6 @@ genes_olap_peaks %>%
     lfc2_gene_count = sum(lfc2 > 0) / n_distinct(resample),
     lfc2_peak_count = sum(lfc2) / n_distinct(resample)
   )
-
 ```
 
 To do this for many thresholds is cumbersome and would create a lot of
@@ -654,6 +665,7 @@ The peaks are computed for each threshold value by applying the function
 by the gene, origin and the number of resamples variables.
 This could be done easily in parallel with `BiocParallel` but here we compute
 everything serially .
+
 ```{r}
 by_gene_origin <- genes_olap_peaks %>%
   group_by(gene_id, origin, resample)
@@ -682,8 +694,7 @@ before and visualize how enrichment changes as the threshold value increases:
 peak_enrichment <- origin_peak_all_thresholds %>%
   as.data.frame() %>%
   group_by(threshold) %>%
-  summarize(enrichment = Reduce("/", peak_count))
-
+  summarize(enrichment = Reduce(function(x,y) y/x, peak_count))
 peak_enrichment %>%
   ggplot(aes(x = threshold, y = enrichment)) +
   geom_line() +
@@ -709,7 +720,6 @@ origin_peak_all_thresholds %>%
   labs(x = "Number of Genes",
        y = "Number of Peaks",
        color = "LFC threshold")
-
 ```
 
 # Discussion
@@ -767,7 +777,7 @@ The authors declare that they have no competing interests.
 SL is supported by an Australian Government Research Training Program (RTP)
 scholarship with a top up scholarship from CSL Limited.
 
-<!-- other authors to fill in here -->
+MIL's contribution is supported by NIH grant R01 HG009937.
 
 __I confirm that the funders had no role in study design, data collection and
 analysis, decision to publish, or preparation of the manuscript.__
@@ -778,6 +788,5 @@ analysis, decision to publish, or preparation of the manuscript.__
 The authors would like to thank all participants of the Bioconductor 2019 and
 BiocAsia 2019 conferences who attended and provided feedback on early versions
 of this workflow paper.
-
 
 # References
