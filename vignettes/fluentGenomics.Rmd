@@ -43,18 +43,18 @@ makeLinkedTxome(
 
 # Introduction
 
-To begin we will examine a subset of the RNA-seq and ATAC-seq data from @alasoo
-- [doi: 10.1038/s41588-018-0046-7](https://doi.org/10.1038/s41588-018-0046-7).
-The experiment involved treatment of macrophage cell lines from a number of
-human donors with interferon (IFN) gamma, *Salmonella* infection, or both
-treatments combined. In the original study, the authors examined gene
+In this workflow, we examine a subset of the RNA-seq and ATAC-seq data
+from @alasoo, a study that involved treatment of macrophage cell lines
+from a number of human donors with interferon (IFN) gamma,
+*Salmonella* infection, or both treatments combined.
+@alasoo examined gene 
 expression and chromatin accessibility in a subset of 86 successfully
 differentiated induced pluripotent stem cells (iPSC) lines, and examined
-baseline quantitative trait loci (QTL) and response QTL for both expression and
-accessibility. In the original study, it was found that there were expression
-QTLs that had an effect on chromatin accessibility in naive macrophage cells
-upon IFNg stimulation and consequently the variants implicated likely result in
-changes in binding of cell-specific transcription factors.
+baseline quantitative trait loci (QTL) and response QTL for chromatin
+accessibility and gene expression. The authors found that many of the
+stimulus-specific expression QTL were already detectable as chromatin
+QTL in naive cells, and futher hypothesize about the nature and role
+of transcription factors implicated in the response to stimulus.
 
 In this workflow, we will perform a much simpler analysis than the one found in
 @alasoo, using their publicly available RNA-seq and ATAC-seq data (ignoring the
@@ -73,9 +73,10 @@ to perform easily-readable transformations of data tied to genomic ranges, e.g.
 shifts, windows, overlaps, etc. The *plyranges* package is described by
 @Lee2019, and leverage underlying range operations described by @granges. The
 second package described by @Love2019-tximeta is used to read RNA-seq
-quantification into R/Bioconductor, such that the genomic ranges are
-automatically attached to the quantification data and differential expression
-results.
+quantification into R/Bioconductor, such that the transcript ranges
+and their provenance are automatically attached to an object
+containing the quantification data and the differential expression
+results. 
 
 ## Experimental Data
 
@@ -121,7 +122,7 @@ be found in section \@ref(atac).
 
 # Import Data as a *SummarizedExperiment* {#se}
 
-## Using *tximeta* to import RNA-seq quantifications
+## Using *tximeta* to import RNA-seq quantification data
 
 First, we specify a directory `dir`, where the quantification files are stored.
 You could simply specify this directory with:
@@ -132,7 +133,7 @@ dir <- "/path/to/quant/files"
 
 where the path is relative to your current R session. However,  in this
 case we have distributed the files in the *macrophage* package. The relevant
-directory can be located and associated files can be located `system.file`.
+directory and associated files can be located using `system.file`. 
 
 ```{r}
 dir <- system.file("extdata", package="macrophage")
@@ -163,20 +164,26 @@ coldata
 ```
 
 After we have read the `coldata.csv` file, we select relevant columns from this
-table and create a new column called `files` and transform the existing
-`condition` column to a factor with the "naive" cell line as the baseline. The
-`files` column points to the quantifications for each observation - these files
+table, create a new column called `files`, and transform the existing
+`line` and `condition` columns into factors. 
+In the case of `condition`, we specify the "naive" cell line as the
+reference level. 
+The `files` column points to the quantifications for each observation - these files
 have been gzipped, but would typically not have the 'gz' ending if used from
 `salmon` directly. One other thing to note is the use of the pipe
-operator,`%>%`, which can be read as then i.e. first read the data, then select
-columns, then mutate them.
+operator,`%>%`, which can be read as "then", i.e. first read the data,
+*then* select columns, *then* mutate them.
 
 Now we have a data frame summarizing the experimental design and the locations
 of the quantifications. The following
 lines of code do a lot of work for the analyst: importing the RNA-seq
-quantification (dropping inferential replicates in this case), locating the
+quantification (dropping *inferential replicates* in this case), locating the
 relevant reference transcriptome, attaching the transcript ranges to the data,
-and fetching genome information. The result is a *SummarizedExperiment* object.
+and fetching genome information. Inferential replicates are especially
+useful for performing transcript-level analysis, but here we will use
+a point estimate for the per-gene counts and perform gene-level analysis.
+
+The result is a *SummarizedExperiment* object.
 
 ```{r}
 suppressPackageStartupMessages(library(SummarizedExperiment))
@@ -186,8 +193,11 @@ se
 ```
 <!-- should we describe the data structure in more detail, or use a figure -->
 
-The *tximeta* package can be used without an internet connection, in this
-case the linked transcriptome can be created directly from a salmon
+On a machine with a working internet connection, the above command
+works without any extra steps, as the `tximeta` function obtains any
+necessary metadata via FTP, unless it is already cached locally.
+The *tximeta* package can also be used without an internet connection, in this
+case the linked transcriptome can be created directly from a *Salmon*
 index and gtf. 
 
 ```{r, eval = FALSE}
