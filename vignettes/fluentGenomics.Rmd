@@ -366,8 +366,9 @@ de_genes <- de_genes %>%
 We now wish to extract genes for which we could *not* reject the null hypothesis
 (we select based on an un-adjusted p-value larger than 0.1 for example).
 We must re-run `results` because we don't want to use an `lfcThreshold` this
-time. For brevity we will label these genes as `other_genes`, and
-later on we will use these for comparison with our `de_genes` set. 
+time. For brevity we will label these genes as `other_genes` or later as
+"non-DE genes", and we will use these for comparison with our
+`de_genes` set.
 
 ```{r}
 other_genes <- results(dds,
@@ -439,6 +440,11 @@ peaks
 We have already used *plyranges* a number of times above, to `filter`, `mutate`
 and `select` on *GRanges* objects, as well as ensuring the correct genome
 annotation and style has been used.
+The *plyranges* package provides a grammar for performing
+transformations of genomic data [@Lee2019]. Computations resulting
+from compositions of *plyranges* "verbs" are performed using
+underlying, highly optimized range operations in the *GenomicRanges*
+package [@granges]. 
 
 For the overlap analysis, we filter the annotated peaks to have a nominal FDR 
 bound of 1%.
@@ -449,9 +455,9 @@ da_peaks <- peaks %>%
 ```
 
 We now have *GRanges* objects that contain DE genes, genes without strong
-signal of DE, and DA peaks. We are ready to perform our original aim and answer
-the question: is there an enrichment of DA ATAC-seq peaks in the vicinity of DE
-genes?
+signal of DE, and DA peaks. We are ready to answer the question: is
+there an enrichment of DA ATAC-seq peaks in the vicinity of DE genes
+compared to genes without sufficient DE signal?
 
 ## Down sampling non-differentially expressed genes
 
@@ -466,7 +472,9 @@ size <- length(de_genes)
 slice(other_genes, sample.int(n(), size))
 ```
 
-We can repeat this many times to create many samples via replicate:
+We can repeat this many times to create many samples via replicate. By
+replicating the sub-sampling multiple times, we minimize the variance
+on the enrichment statistics induced by the sampling process.
 
 ```{r}
 # set a seed for the results
@@ -503,12 +511,12 @@ all_genes
 
 ## Expanding genomic coordinates around the transcription start site
 
-Now we would like to modify our gene ranges so their width is 10 kilobases on
+Now we would like to modify our gene ranges so they contain the 10 kilobases on
 either side of their transcription start site (TSS). There are many ways one
 could do this but we prefer an approach via the anchoring methods in
-*plyranges*. Because there is a mutual dependence between the start, end, width
-and strand of a *GRanges* object, we define anchors to fix one of start and
-end, while modifying the width. As an example to extract just the TSS, we can
+*plyranges*. Because there is a mutual dependence between the start, end, width,
+and strand of a *GRanges* object, we define anchors to fix one of `start` and
+`end`, while modifying the `width`. As an example to extract just the TSS, we can
 anchor by the 5' end of the range and modify the width of the range to equal 1.
 
 ```{r}
@@ -517,15 +525,15 @@ all_genes <- all_genes %>%
   mutate(width = 1)
 ```
 
-Anchoring by the 5' end of a range will fix the end of negatively stranded
-ranges, and fix the start of positively stranded ranges.
+Anchoring by the 5' end of a range will fix the `end` of negatively stranded
+ranges, and fix the `start` of positively stranded ranges.
 
 We can then repeat the same pattern but this time using `anchor_center()` to
 tell *plyranges* that we are making the TSS the midpoint of a range that has
 total width of 20kb, or 10kb both upstream and downstream of the TSS.
 
 ```{r}
-all_genes <-all_genes %>%
+all_genes <- all_genes %>%
   anchor_center() %>%
   mutate(width=2*1e4)
 ```
@@ -533,13 +541,12 @@ all_genes <-all_genes %>%
 ## Use overlap joins to find relative enrichment
 
 We are now ready to compute overlaps between RNA-seq genes (our DE set and
-bootstrap samples) and the ATAC-seq peaks. In *plyranges*, overlaps are defined
+bootstrap sets) and the ATAC-seq peaks. In *plyranges*, overlaps are defined
 as joins between two *GRanges* objects: a _left_ and a _right_ *GRanges*
 object. In an overlap join, a match is any range on the _left_ *GRanges* that
 is overlapped by the _right_ *GRanges*. One powerful aspect of the overlap
 joins is that the result maintains all (metadata) columns from each of the
 _left_ and _right_ ranges which makes downstream summaries easy to compute.
-
 
 To combine the DE genes with the DA peaks, we perform a left overlap join. This
 returns to us the `all_genes` ranges (potentially with duplication), but with
@@ -557,13 +564,13 @@ genes?  A gene may appear more than once in `genes_olap_peaks`, because
 multiple peaks may overlap a single gene, or because we have re-sampled
 the same gene more than once, or a combination of these two cases.
 
-For each gene (that is the combination of chromosome, the start, end and
+For each gene (that is the combination of chromosome, the start, end, and
 strand), and the "origin" (DE vs not-DE) we can compute the distinct number of
-peaks for each gene and the maximum peak based on log FC. This is achieved via
+peaks for each gene and the maximum peak based on log FC. This is achieved via 
 `reduce_ranges_directed`, which allows an aggregation to result in a GRanges
 object via merging neighboring genomic regions. The use of the directed suffix
 indicates we're maintaining strand information. In this case, we are simply
-merging ranges via the groups we mentioned above. We also have to account for
+merging ranges (genes) via the groups we mentioned above. We also have to account for
 the number of resamples we have performed when counting if there are any peaks,
 to ensure we do not double count the same peak:
 
@@ -588,13 +595,14 @@ gene_peak_max_lfc %>%
   geom_boxplot()
 ```
 
-In general, the DE genes have larger DA fold changes relative to the non-DE
-genes.
+In general, the DE genes have larger maximum DA fold changes relative
+to the non-DE genes.
 
-Next we examine how changes in DA LFC alter enrichment for DE genes. First, we
-want to know how the number of peaks within DE genes and non-DE genes change as
+Next we examine how thresholds on the DA LFC modify the enrichment we
+observe of DA peaks near DE or non-DE genes.
+First, we want to know how the number of peaks within DE genes and non-DE genes change as
 we change threshold values on the peak LFC. As an example, we could compute
-this by arbitrarily chosen LFC thresholds as follows:
+this by arbitrarily chosen LFC thresholds of 1 or 2 as follows:
 
 ```{r}
 origin_peak_lfc <- genes_olap_peaks %>%
@@ -607,7 +615,13 @@ origin_peak_lfc <- genes_olap_peaks %>%
 origin_peak_lfc
 ```
 
-Then for all variables except for the `origin` column we divide
+Here we see that DE genes tend to have more DA peaks near them, and
+that the number or DA peaks decrease as we increase the DA LFC
+threshold (as expected). We now show how to compute the ratio of peak
+counts from DE compared to non-DE genes, so we can see how this ratio
+changes for various DA LFC thresholds.
+
+For all variables except for the `origin` column we divide
 the first rows values by the second row, which will be the
 enrichment of peaks in DE genes compared to other genes. 
 We see that the relative enrichment increases  for a 'larger' LFC:
@@ -619,7 +633,12 @@ origin_peak_lfc %>%
   summarize_all(.funs = ~Reduce(function(x,y) y/x, .))
 ```
 
-Un-tidy but avoid `.funs=~Reduce`?
+The above code makes use of the *dplyr* framework, but is admittedly a
+bit complicated to read if one is not familiar with `.funs` or
+`Reduce`. We can also perform a simple ratio of two rows of a 
+matrix, giving the same result. The above code however allows us to
+perform the operation as a single composition of verbs, rather than
+needing to save an intermediate object.
 
 ```{r}
 m <- origin_peak_lfc %>%
@@ -629,12 +648,13 @@ m <- origin_peak_lfc %>%
 m[2,] / m[1,]
 ```
 
-Due to the one-to-many mappings of DE genes to peaks, it is unknown if we have
+Due to the one-to-many mappings of genes to peaks, it is unknown if we have
 the same number of DE genes participating or less, as we increase the threshold
-on the peak LFC. This can be accounted for by grouping and aggregating twice.
+on the DA LFC. We can examine the number of genes with overlapping DA
+peaks at various thresholds by grouping and aggregating twice.
 First, the number of peaks that meet the thresholds are computed within each
-gene, origin and resample group. Second, within the origin column, we compute
-the total number of peaks that meet the target threshold and the number of
+gene, origin, and resample group. Second, within the origin column, we compute
+the total number of peaks that meet the DA LFC threshold and the number of
 genes that have more than zero peaks (again averaging over the number of
 resamples).
 
@@ -642,8 +662,8 @@ resamples).
 genes_olap_peaks %>%
   group_by(gene_id, origin, resample) %>%
   reduce_ranges_directed(
-    lfc1 =sum(abs(da_log2FC) > 1, na.rm=TRUE),
-    lfc2= sum(abs(da_log2FC) > 2, na.rm=TRUE)
+    lfc1 = sum(abs(da_log2FC) > 1, na.rm=TRUE),
+    lfc2 = sum(abs(da_log2FC) > 2, na.rm=TRUE)
   ) %>%
   group_by(origin) %>%
   summarize(
@@ -657,7 +677,7 @@ genes_olap_peaks %>%
 To do this for many thresholds is cumbersome and would create a lot of
 duplicate code, instead we create a single function called
 `count_above_threshold` that accepts a GRanges object, and computes the peak
-count that meets the threshold.
+count that meets the DA LFC threshold.
 
 ```{r}
 count_if_above_threshold <- function(.data, threshold) {
@@ -712,6 +732,7 @@ origin_peak_all_thresholds
 Again we can compute the relative enrichment in LFCs in the same manner as
 before and visualize how enrichment changes as the threshold value increases:
 ```{r}
+
 peak_enrichment <- origin_peak_all_thresholds %>%
   as.data.frame() %>%
   group_by(threshold) %>%
