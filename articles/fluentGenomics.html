@@ -82,15 +82,15 @@
     
         <div class="abstract">
       <p class="abstract">Abstract</p>
-      We construct a simple workflow for fluent genomics data analysis using the R/Biocondcutor ecosystem. This involves three core steps: <strong>import</strong> the data into an appropriate abstraction, <strong>model</strong> the data with respect to the biological questions of interest, and <strong>transform</strong> the results with respect to their underlying genomic coordinates. Here we show how to implement these steps to integrate published RNA-seq and ATAC-seq experiments on macrophage cell lines. Using <em>tximeta</em>, we <strong>import</strong> RNA-seq transcript quantifications into an analysis-ready data structure, called the <em>SummarizedExperiment</em>, that contains the correct reference transcriptome and provenance of the quantification software. Using <em>SummarizedExperiment</em>s to represent the ATAC-seq and RNA-seq data, we <strong>model</strong> differentially accessible (DA) chromatin peaks and differentially expressed (DE) genes with existing Bioconductor packages. Using <em>plyranges</em> we then <strong>transform</strong> the results to see if there is an enrichment of DE genes nearby DA peaks by finding overlaps and aggregating over log-fold change thresholds. The combination of these packages and their integration with the Bioconductor ecosystem provides a coherent framework for analysts to iteratively and reproducibly explore their biological data.
+      We construct a simple workflow for fluent genomics data analysis using the R/Biocondcutor ecosystem. This involves three core steps: <strong>import</strong> the data into an appropriate abstraction, <strong>model</strong> the data with respect to the biological questions of interest, and <strong>transform</strong> the results with respect to their underlying genomic coordinates. Here we show how to implement these steps to integrate published RNA-seq and ATAC-seq experiments on macrophage cell lines. Using <em>tximeta</em>, we <strong>import</strong> RNA-seq transcript quantifications into an analysis-ready data structure, called the <em>SummarizedExperiment</em>, that contains the ranges of the reference transcripts and metadata on their provenance. Using <em>SummarizedExperiment</em>s to represent the ATAC-seq and RNA-seq data, we <strong>model</strong> differentially accessible (DA) chromatin peaks and differentially expressed (DE) genes with existing Bioconductor packages. Using <em>plyranges</em> we then <strong>transform</strong> the results to see if there is an enrichment of DE genes nearby DA peaks by finding overlaps and aggregating over log-fold change thresholds. The combination of these packages and their integration with the Bioconductor ecosystem provides a coherent framework for analysts to iteratively and reproducibly explore their biological data.
     </div>
     
 <div id="introduction" class="section level1">
 <h1 class="hasAnchor">
 <a href="#introduction" class="anchor"></a>Introduction</h1>
-<p>To begin we will examine a subset of the RNA-seq and ATAC-seq data from <span class="citation">Alasoo et al. (2018)</span> - <a href="https://doi.org/10.1038/s41588-018-0046-7">doi: 10.1038/s41588-018-0046-7</a>. The experiment involved treatment of macrophage cell lines from a number of human donors with interferon (IFN) gamma, <em>Salmonella</em> infection, or both treatments combined. In the original study, the authors examined gene expression and chromatin accessibility in a subset of 86 successfully differentiated induced pluripotent stem cells (iPSC) lines, and examined baseline quantitative trait loci (QTL) and response QTL for both expression and accessibility. In the original study, it was found that there were expression QTLs that had an effect on chromatin accessibility in naive macrophage cells upon IFNg stimulation and consequently the variants implicated likely result in changes in binding of cell-specific transcription factors.</p>
+<p>In this workflow, we examine a subset of the RNA-seq and ATAC-seq data from <span class="citation">Alasoo et al. (2018)</span>, a study that involved treatment of macrophage cell lines from a number of human donors with interferon (IFN) gamma, <em>Salmonella</em> infection, or both treatments combined. <span class="citation">Alasoo et al. (2018)</span> examined gene expression and chromatin accessibility in a subset of 86 successfully differentiated induced pluripotent stem cells (iPSC) lines, and examined baseline quantitative trait loci (QTL) and response QTL for chromatin accessibility and gene expression. The authors found that many of the stimulus-specific expression QTL were already detectable as chromatin QTL in naive cells, and futher hypothesize about the nature and role of transcription factors implicated in the response to stimulus.</p>
 <p>In this workflow, we will perform a much simpler analysis than the one found in <span class="citation">Alasoo et al. (2018)</span>, using their publicly available RNA-seq and ATAC-seq data (ignoring the genotypes). We will examine the effect of IFNg stimulation on gene expression and chromatin accessibility, and look to see if there is an enrichment of differentially accessible (DA) ATAC-seq peaks in the vicinity of differentially expressed (DE) genes. This is plausible, as the transcriptomic response to IFNg stimulation may be mediated through binding of regulatory proteins to accessible regions, and this binding may increase the accessibility of those regions such that it can be detected by ATAC-seq.</p>
-<p>Throughout the workflow, we will use existing Bioconductor infrastructure to understand these datasets. In particular, we will emphasize the use of the Bioconductor packages <em>plyranges</em> and <em>tximeta</em>. The first package is be used to perform easily-readable transformations of data tied to genomic ranges, e.g. shifts, windows, overlaps, etc. The <em>plyranges</em> package is described by <span class="citation">Lee, Cook, and Lawrence (2019)</span>, and leverage underlying range operations described by <span class="citation">Lawrence (2013)</span>. The second package described by <span class="citation">Love et al. (2019)</span> is used to read RNA-seq quantification into R/Bioconductor, such that the genomic ranges are automatically attached to the quantification data and differential expression results.</p>
+<p>Throughout the workflow, we will use existing Bioconductor infrastructure to understand these datasets. In particular, we will emphasize the use of the Bioconductor packages <em>plyranges</em> and <em>tximeta</em>. The first package is be used to perform easily-readable transformations of data tied to genomic ranges, e.g. shifts, windows, overlaps, etc. The <em>plyranges</em> package is described by <span class="citation">Lee, Cook, and Lawrence (2019)</span>, and leverage underlying range operations described by <span class="citation">Lawrence (2013)</span>. The second package described by <span class="citation">Love et al. (2019)</span> is used to read RNA-seq quantification into R/Bioconductor, such that the transcript ranges and their provenance are automatically attached to an object containing the quantification data and the differential expression results.</p>
 <div id="experimental-data" class="section level2">
 <h2 class="hasAnchor">
 <a href="#experimental-data" class="anchor"></a>Experimental Data</h2>
@@ -109,12 +109,12 @@
 <h1 class="hasAnchor">
 <a href="#se" class="anchor"></a>Import Data as a <em>SummarizedExperiment</em>
 </h1>
-<div id="using-tximeta-to-import-rna-seq-quantifications" class="section level2">
+<div id="using-tximeta-to-import-rna-seq-quantification-data" class="section level2">
 <h2 class="hasAnchor">
-<a href="#using-tximeta-to-import-rna-seq-quantifications" class="anchor"></a>Using <em>tximeta</em> to import RNA-seq quantifications</h2>
+<a href="#using-tximeta-to-import-rna-seq-quantification-data" class="anchor"></a>Using <em>tximeta</em> to import RNA-seq quantification data</h2>
 <p>First, we specify a directory <code>dir</code>, where the quantification files are stored. You could simply specify this directory with:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">dir &lt;-<span class="st"> "/path/to/quant/files"</span></a></code></pre></div>
-<p>where the path is relative to your current R session. However, in this case we have distributed the files in the <em>macrophage</em> package. The relevant directory can be located and associated files can be located <code>system.file</code>.</p>
+<p>where the path is relative to your current R session. However, in this case we have distributed the files in the <em>macrophage</em> package. The relevant directory and associated files can be located using <code>system.file</code>.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">dir &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span>(<span class="st">"extdata"</span>, <span class="dt">package=</span><span class="st">"macrophage"</span>)</a></code></pre></div>
 <p>Information about the experiment is contained in the <code>coldata.csv</code> file. We leverage the <em>dplyr</em> and <em>readr</em> packages (as part of the <em>tidyverse</em>) to read this file into R <span class="citation">(Wickham et al. 2019)</span>. We will see later that <em>plyranges</em> extends these packages to accommodate genomic ranges.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(dplyr)</a></code></pre></div>
@@ -129,16 +129,17 @@
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(readr)</a>
 <a class="sourceLine" id="cb9-2" data-line-number="2">colfile &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span>(dir, <span class="st">"coldata.csv"</span>)</a>
 <a class="sourceLine" id="cb9-3" data-line-number="3">coldata &lt;-<span class="st"> </span><span class="kw"><a href="https://readr.tidyverse.org/reference/read_delim.html">read_csv</a></span>(colfile) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb9-4" data-line-number="4"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(</a>
+<a class="sourceLine" id="cb9-4" data-line-number="4"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(</a>
 <a class="sourceLine" id="cb9-5" data-line-number="5">    names,</a>
 <a class="sourceLine" id="cb9-6" data-line-number="6">    <span class="dt">id =</span> sample_id,</a>
 <a class="sourceLine" id="cb9-7" data-line-number="7">    <span class="dt">line =</span> line_id,</a>
 <a class="sourceLine" id="cb9-8" data-line-number="8">    <span class="dt">condition =</span> condition_name</a>
 <a class="sourceLine" id="cb9-9" data-line-number="9">  ) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb9-10" data-line-number="10"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(</a>
+<a class="sourceLine" id="cb9-10" data-line-number="10"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(</a>
 <a class="sourceLine" id="cb9-11" data-line-number="11">    <span class="dt">files =</span> <span class="kw"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span>(dir, <span class="st">"quants"</span>, names, <span class="st">"quant.sf.gz"</span>),</a>
-<a class="sourceLine" id="cb9-12" data-line-number="12">    <span class="dt">condition =</span> <span class="kw"><a href="https://rdrr.io/r/stats/relevel.html">relevel</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/factor.html">factor</a></span>(condition), <span class="st">"naive"</span>)</a>
-<a class="sourceLine" id="cb9-13" data-line-number="13">  )</a></code></pre></div>
+<a class="sourceLine" id="cb9-12" data-line-number="12">    <span class="dt">line =</span> <span class="kw"><a href="https://rdrr.io/r/base/factor.html">factor</a></span>(line),</a>
+<a class="sourceLine" id="cb9-13" data-line-number="13">    <span class="dt">condition =</span> <span class="kw"><a href="https://rdrr.io/r/stats/relevel.html">relevel</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/factor.html">factor</a></span>(condition), <span class="st">"naive"</span>)</a>
+<a class="sourceLine" id="cb9-14" data-line-number="14">  )</a></code></pre></div>
 <pre><code>## Parsed with column specification:
 ## cols(
 ##   names = col_character(),
@@ -158,7 +159,7 @@
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1">coldata</a></code></pre></div>
 <pre><code>## # A tibble: 24 x 5
 ##    names      id     line  condition  files                                     
-##    &lt;chr&gt;      &lt;chr&gt;  &lt;chr&gt; &lt;fct&gt;      &lt;chr&gt;                                     
+##    &lt;chr&gt;      &lt;chr&gt;  &lt;fct&gt; &lt;fct&gt;      &lt;chr&gt;                                     
 ##  1 SAMEA1038… diku_A diku… naive      /home/travis/R/Library/macrophage/extdata…
 ##  2 SAMEA1038… diku_B diku… IFNg       /home/travis/R/Library/macrophage/extdata…
 ##  3 SAMEA1038… diku_C diku… SL1344     /home/travis/R/Library/macrophage/extdata…
@@ -170,8 +171,9 @@
 ##  9 SAMEA1038… fikt_A fikt… naive      /home/travis/R/Library/macrophage/extdata…
 ## 10 SAMEA1038… fikt_B fikt… IFNg       /home/travis/R/Library/macrophage/extdata…
 ## # … with 14 more rows</code></pre>
-<p>After we have read the <code>coldata.csv</code> file, we select relevant columns from this table and create a new column called <code>files</code> and transform the existing <code>condition</code> column to a factor with the “naive” cell line as the baseline. The <code>files</code> column points to the quantifications for each observation - these files have been gzipped, but would typically not have the ‘gz’ ending if used from <code>salmon</code> directly. One other thing to note is the use of the pipe operator,<code><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">%&gt;%</a></code>, which can be read as then i.e. first read the data, then select columns, then mutate them.</p>
-<p>Now we have a data frame summarizing the experimental design and the locations of the quantifications. The following lines of code do a lot of work for the analyst: importing the RNA-seq quantification (dropping inferential replicates in this case), locating the relevant reference transcriptome, attaching the transcript ranges to the data, and fetching genome information. The result is a <em>SummarizedExperiment</em> object.</p>
+<p>After we have read the <code>coldata.csv</code> file, we select relevant columns from this table, create a new column called <code>files</code>, and transform the existing <code>line</code> and <code>condition</code> columns into factors. In the case of <code>condition</code>, we specify the “naive” cell line as the reference level. The <code>files</code> column points to the quantifications for each observation - these files have been gzipped, but would typically not have the ‘gz’ ending if used from <code>salmon</code> directly. One other thing to note is the use of the pipe operator,<code><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">%&gt;%</a></code>, which can be read as “then”, i.e. first read the data, <em>then</em> select columns, <em>then</em> mutate them.</p>
+<p>Now we have a data.frame summarizing the experimental design and the locations of the quantifications. The following lines of code do a lot of work for the analyst: importing the RNA-seq quantification (dropping <em>inferential replicates</em> in this case), locating the relevant reference transcriptome, attaching the transcript ranges to the data, and fetching genome information. Inferential replicates are especially useful for performing transcript-level analysis, but here we will use a point estimate for the per-gene counts and perform gene-level analysis.</p>
+<p>The result is a <em>SummarizedExperiment</em> object.</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(SummarizedExperiment))</a>
 <a class="sourceLine" id="cb13-2" data-line-number="2"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(tximeta)</a>
 <a class="sourceLine" id="cb13-3" data-line-number="3">se &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/tximeta/man/tximeta.html">tximeta</a></span>(coldata, <span class="dt">dropInfReps=</span><span class="ot">TRUE</span>)</a></code></pre></div>
@@ -189,9 +191,13 @@
 <pre><code>## OK
 ## generating transcript ranges
 ## fetching genome info for GENCODE</code></pre>
-<pre><code>## Error in function (type, msg, asError = TRUE)  : 
-##   Failed to connect to ftp.ncbi.nlm.nih.gov port 21: Connection timed out</code></pre>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" data-line-number="1">se</a></code></pre></div>
+<pre><code>## Warning in file(file, "rt"): cannot open URL 'ftp://
+## ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/001/405/GCF_000001405.26_GRCh38/
+## GCF_000001405.26_GRCh38_assembly_report.txt': FTP status was '421 Service not
+## available, closing control connection'</code></pre>
+<pre><code>## Error in file(file, "rt") : 
+##   cannot open the connection to 'ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/001/405/GCF_000001405.26_GRCh38/GCF_000001405.26_GRCh38_assembly_report.txt'</code></pre>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" data-line-number="1">se</a></code></pre></div>
 <pre><code>## class: RangedSummarizedExperiment 
 ## dim: 205870 24 
 ## metadata(6): tximetaInfo quantInfo ... txomeInfo txdbInfo
@@ -203,20 +209,20 @@
 ##   SAMEA103884949
 ## colData names(4): names id line condition</code></pre>
 <!-- should we describe the data structure in more detail, or use a figure -->
-<p>The <em>tximeta</em> package can be used without an internet connection, in this case the linked transcriptome can be created directly from a salmon index and gtf.</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/pkg/tximeta/man/linkedTxome.html">makeLinkedTxome</a></span>(</a>
-<a class="sourceLine" id="cb22-2" data-line-number="2">  <span class="dt">indexDir=</span><span class="kw"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span>(dir, <span class="st">"gencode.v29_salmon_0.12.0"</span>),</a>
-<a class="sourceLine" id="cb22-3" data-line-number="3">  <span class="dt">source=</span><span class="st">"Gencode"</span>,</a>
-<a class="sourceLine" id="cb22-4" data-line-number="4">  <span class="dt">organism=</span><span class="st">"Homo sapiens"</span>,</a>
-<a class="sourceLine" id="cb22-5" data-line-number="5">  <span class="dt">release=</span><span class="st">"29"</span>,</a>
-<a class="sourceLine" id="cb22-6" data-line-number="6">  <span class="dt">genome=</span><span class="st">"GRCh38"</span>,</a>
-<a class="sourceLine" id="cb22-7" data-line-number="7">  <span class="dt">fasta=</span><span class="st">"ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_29/gencode.v29.transcripts.fa.gz"</span>,</a>
-<a class="sourceLine" id="cb22-8" data-line-number="8">  <span class="dt">gtf=</span><span class="kw"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span>(dir, <span class="st">"gencode.v29.annotation.gtf.gz"</span>), <span class="co"># local version</span></a>
-<a class="sourceLine" id="cb22-9" data-line-number="9">  <span class="dt">write=</span><span class="ot">FALSE</span></a>
-<a class="sourceLine" id="cb22-10" data-line-number="10">)</a></code></pre></div>
+<p>On a machine with a working internet connection, the above command works without any extra steps, as the <code>tximeta</code> function obtains any necessary metadata via FTP, unless it is already cached locally. The <em>tximeta</em> package can also be used without an internet connection, in this case the linked transcriptome can be created directly from a <em>Salmon</em> index and gtf.</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/pkg/tximeta/man/linkedTxome.html">makeLinkedTxome</a></span>(</a>
+<a class="sourceLine" id="cb23-2" data-line-number="2">  <span class="dt">indexDir=</span><span class="kw"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span>(dir, <span class="st">"gencode.v29_salmon_0.12.0"</span>),</a>
+<a class="sourceLine" id="cb23-3" data-line-number="3">  <span class="dt">source=</span><span class="st">"Gencode"</span>,</a>
+<a class="sourceLine" id="cb23-4" data-line-number="4">  <span class="dt">organism=</span><span class="st">"Homo sapiens"</span>,</a>
+<a class="sourceLine" id="cb23-5" data-line-number="5">  <span class="dt">release=</span><span class="st">"29"</span>,</a>
+<a class="sourceLine" id="cb23-6" data-line-number="6">  <span class="dt">genome=</span><span class="st">"GRCh38"</span>,</a>
+<a class="sourceLine" id="cb23-7" data-line-number="7">  <span class="dt">fasta=</span><span class="st">"ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_29/gencode.v29.transcripts.fa.gz"</span>,</a>
+<a class="sourceLine" id="cb23-8" data-line-number="8">  <span class="dt">gtf=</span><span class="kw"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span>(dir, <span class="st">"gencode.v29.annotation.gtf.gz"</span>), <span class="co"># local version</span></a>
+<a class="sourceLine" id="cb23-9" data-line-number="9">  <span class="dt">write=</span><span class="ot">FALSE</span></a>
+<a class="sourceLine" id="cb23-10" data-line-number="10">)</a></code></pre></div>
 <p>Because <em>tximeta</em> knows the correct reference transcriptome, we can ask <em>tximeta</em> to summarize the transcript-level data to the gene level using the methods of <span class="citation">Soneson, Love, and Robinson (2015)</span>.</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" data-line-number="1">gse &lt;-<span class="st"> </span><span class="kw">summarizeToGene</span>(se)</a></code></pre></div>
-<pre><code>## loading existing TxDb created: 2019-12-23 05:18:50</code></pre>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" data-line-number="1">gse &lt;-<span class="st"> </span><span class="kw">summarizeToGene</span>(se)</a></code></pre></div>
+<pre><code>## loading existing TxDb created: 2020-01-12 13:13:09</code></pre>
 <pre><code>## Loading required package: GenomicFeatures</code></pre>
 <pre><code>## Loading required package: AnnotationDbi</code></pre>
 <pre><code>## 
@@ -224,7 +230,7 @@
 <pre><code>## The following object is masked from 'package:dplyr':
 ## 
 ##     select</code></pre>
-<pre><code>## obtaining transcript-to-gene mapping from TxDb</code></pre>
+<pre><code>## obtaining transcript-to-gene mapping from database</code></pre>
 <pre><code>## generating gene ranges</code></pre>
 <pre><code>## summarizing abundance</code></pre>
 <pre><code>## summarizing counts</code></pre>
@@ -233,41 +239,41 @@
 <div id="importing-atac-seq-data-as-a-summarizedexperiment-object" class="section level2">
 <h2 class="hasAnchor">
 <a href="#importing-atac-seq-data-as-a-summarizedexperiment-object" class="anchor"></a>Importing ATAC-seq data as a <em>SummarizedExperiment</em> object</h2>
-<p>The <em>SummarizedExperiment</em> object containing ATAC-seq peaks can be created from the following tab-delimited files found in <span class="citation">(Alasoo and Gaffney 2017)</span>:</p>
+<p>The <em>SummarizedExperiment</em> object containing ATAC-seq peaks can be created from the following tab-delimited files from <span class="citation">Alasoo and Gaffney (2017)</span>:</p>
 <ul>
 <li>The sample metadata: <code>ATAC_sample_metadata.txt.gz</code> (&lt;1M)</li>
 <li>The matrix of normalized read counts: <code>ATAC_cqn_matrix.txt.gz</code> (109M)</li>
 <li>The annotated peaks: <code>ATAC_peak_metadata.txt.gz</code> (5.6M)</li>
 </ul>
-<p>To begin we read in the sample metadata, following similar steps to those we used to generate the <code>coldata</code> data frame for the RNA-seq experiment:</p>
-<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb34-1" data-line-number="1">atac_coldata &lt;-<span class="st"> </span><span class="kw"><a href="https://readr.tidyverse.org/reference/read_delim.html">read_tsv</a></span>(<span class="st">"ATAC_sample_metadata.txt.gz"</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb34-2" data-line-number="2"><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(</a>
-<a class="sourceLine" id="cb34-3" data-line-number="3">    sample_id,</a>
-<a class="sourceLine" id="cb34-4" data-line-number="4">    donor,</a>
-<a class="sourceLine" id="cb34-5" data-line-number="5">    <span class="dt">condition =</span> condition_name</a>
-<a class="sourceLine" id="cb34-6" data-line-number="6">  ) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb34-7" data-line-number="7"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(<span class="dt">condition =</span> <span class="kw"><a href="https://rdrr.io/r/stats/relevel.html">relevel</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/factor.html">factor</a></span>(condition), <span class="st">"naive"</span>))</a></code></pre></div>
-<p>The ATAC-seq counts have already been normalized with <em>cqn</em> <span class="citation">(Hansen, Irizarry, and Z 2012)</span> and log2 transformed. Loading the <em>cqn</em>-normalized matrix of log2 transformed read counts takes ~30 seconds and loads an object of ~370 Mb. We set the column names so that the first column contains the rownames of the matrix, and the remaining columns are the sample identities from the <code>atac_coldata</code> object.</p>
-<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb35-1" data-line-number="1">atac_mat &lt;-<span class="st"> </span><span class="kw"><a href="https://readr.tidyverse.org/reference/read_delim.html">read_tsv</a></span>(<span class="st">"ATAC_cqn_matrix.txt.gz"</span>,</a>
-<a class="sourceLine" id="cb35-2" data-line-number="2">                     <span class="dt">skip =</span> <span class="dv">1</span>,</a>
-<a class="sourceLine" id="cb35-3" data-line-number="3">                     <span class="dt">col_names =</span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"rownames"</span>, atac_coldata[[<span class="st">"sample_id"</span>]]))</a>
-<a class="sourceLine" id="cb35-4" data-line-number="4">rownames &lt;-<span class="st"> </span>atac_mat[[<span class="st">"rownames"</span>]]</a>
-<a class="sourceLine" id="cb35-5" data-line-number="5">atac_mat &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/matrix.html">as.matrix</a></span>(atac_mat[,<span class="op">-</span><span class="dv">1</span>])</a>
-<a class="sourceLine" id="cb35-6" data-line-number="6"><span class="kw"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(atac_mat) &lt;-<span class="st"> </span>rownames</a></code></pre></div>
-<p>We read in the peak metadata (locations in the genome), and convert it to a <em>GRanges</em> object. The <code><a href="https://rdrr.io/pkg/plyranges/man/ranges-construct.html">as_granges()</a></code> function automatically converts the data.frame into a <em>GRanges</em> object, from that result, we extract the peak_id column and set the genome information to the build “GRCh38”. We know this from the <a href="https://zenodo.org/record/1188300#.XJOFSlNKiL5">Zenodo entry</a></p>
-<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb36-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(plyranges)</a>
-<a class="sourceLine" id="cb36-2" data-line-number="2">peaks_df &lt;-<span class="st"> </span><span class="kw"><a href="https://readr.tidyverse.org/reference/read_delim.html">read_tsv</a></span>(<span class="st">"ATAC_peak_metadata.txt.gz"</span>,</a>
-<a class="sourceLine" id="cb36-3" data-line-number="3">  <span class="dt">col_types =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"cidciicdc"</span>)</a>
-<a class="sourceLine" id="cb36-4" data-line-number="4">)</a>
-<a class="sourceLine" id="cb36-5" data-line-number="5"></a>
-<a class="sourceLine" id="cb36-6" data-line-number="6">peaks_gr &lt;-<span class="st"> </span>peaks_df <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb36-7" data-line-number="7"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/ranges-construct.html">as_granges</a></span>(<span class="dt">seqnames =</span> chr) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb36-8" data-line-number="8"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">select</a></span>(<span class="dt">peak_id=</span>gene_id) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb36-9" data-line-number="9"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/ranges-info.html">set_genome_info</a></span>(<span class="dt">genome =</span> <span class="st">"GRCh38"</span>)</a></code></pre></div>
-<p>Finally, we construct a <em>SummarizedExperiment</em> object. We place the matrix into the assays slot as a named list; we place the annotated peaks into the rowwise ranges slot; and the sample metadata into the columnwise data slot:</p>
-<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb37-1" data-line-number="1">atac &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/RangedSummarizedExperiment-class.html">SummarizedExperiment</a></span>(<span class="dt">assays =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">cqndata=</span>atac_mat),</a>
-<a class="sourceLine" id="cb37-2" data-line-number="2">                             <span class="dt">rowRanges=</span>peaks_gr,</a>
-<a class="sourceLine" id="cb37-3" data-line-number="3">                             <span class="dt">colData=</span>atac_coldata)</a></code></pre></div>
+<p>To begin we read in the sample metadata, following similar steps to those we used to generate the <code>coldata</code> data.frame for the RNA-seq experiment:</p>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb35-1" data-line-number="1">atac_coldata &lt;-<span class="st"> </span><span class="kw"><a href="https://readr.tidyverse.org/reference/read_delim.html">read_tsv</a></span>(<span class="st">"ATAC_sample_metadata.txt.gz"</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb35-2" data-line-number="2"><span class="st"> </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(</a>
+<a class="sourceLine" id="cb35-3" data-line-number="3">    sample_id,</a>
+<a class="sourceLine" id="cb35-4" data-line-number="4">    donor,</a>
+<a class="sourceLine" id="cb35-5" data-line-number="5">    <span class="dt">condition =</span> condition_name</a>
+<a class="sourceLine" id="cb35-6" data-line-number="6">  ) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb35-7" data-line-number="7"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(<span class="dt">condition =</span> <span class="kw"><a href="https://rdrr.io/r/stats/relevel.html">relevel</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/factor.html">factor</a></span>(condition), <span class="st">"naive"</span>))</a></code></pre></div>
+<p>The ATAC-seq counts have already been normalized with <em>cqn</em> <span class="citation">(Hansen, Irizarry, and Wu 2012)</span> and log2 transformed. Loading the <em>cqn</em>-normalized matrix of log2 transformed read counts takes ~30 seconds and loads an object of ~370 Mb. We set the column names so that the first column contains the rownames of the matrix, and the remaining columns are the sample identities from the <code>atac_coldata</code> object.</p>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb36-1" data-line-number="1">atac_mat &lt;-<span class="st"> </span><span class="kw"><a href="https://readr.tidyverse.org/reference/read_delim.html">read_tsv</a></span>(<span class="st">"ATAC_cqn_matrix.txt.gz"</span>,</a>
+<a class="sourceLine" id="cb36-2" data-line-number="2">                     <span class="dt">skip =</span> <span class="dv">1</span>,</a>
+<a class="sourceLine" id="cb36-3" data-line-number="3">                     <span class="dt">col_names =</span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"rownames"</span>, atac_coldata[[<span class="st">"sample_id"</span>]]))</a>
+<a class="sourceLine" id="cb36-4" data-line-number="4">rownames &lt;-<span class="st"> </span>atac_mat[[<span class="st">"rownames"</span>]]</a>
+<a class="sourceLine" id="cb36-5" data-line-number="5">atac_mat &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/matrix.html">as.matrix</a></span>(atac_mat[,<span class="op">-</span><span class="dv">1</span>])</a>
+<a class="sourceLine" id="cb36-6" data-line-number="6"><span class="kw"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(atac_mat) &lt;-<span class="st"> </span>rownames</a></code></pre></div>
+<p>We read in the peak metadata (locations in the genome), and convert it to a <em>GRanges</em> object. The <code><a href="https://rdrr.io/pkg/plyranges/man/ranges-construct.html">as_granges()</a></code> function automatically converts the data.frame into a <em>GRanges</em> object, from that result, we extract the peak_id column and set the genome information to the build “GRCh38”. We know this from the <a href="https://zenodo.org/record/1188300#.XJOFSlNKiL5">Zenodo entry</a>.</p>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb37-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(plyranges)</a>
+<a class="sourceLine" id="cb37-2" data-line-number="2">peaks_df &lt;-<span class="st"> </span><span class="kw"><a href="https://readr.tidyverse.org/reference/read_delim.html">read_tsv</a></span>(<span class="st">"ATAC_peak_metadata.txt.gz"</span>,</a>
+<a class="sourceLine" id="cb37-3" data-line-number="3">  <span class="dt">col_types =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"cidciicdc"</span>)</a>
+<a class="sourceLine" id="cb37-4" data-line-number="4">)</a>
+<a class="sourceLine" id="cb37-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb37-6" data-line-number="6">peaks_gr &lt;-<span class="st"> </span>peaks_df <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb37-7" data-line-number="7"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/ranges-construct.html">as_granges</a></span>(<span class="dt">seqnames =</span> chr) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb37-8" data-line-number="8"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">select</a></span>(<span class="dt">peak_id=</span>gene_id) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb37-9" data-line-number="9"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/ranges-info.html">set_genome_info</a></span>(<span class="dt">genome =</span> <span class="st">"GRCh38"</span>)</a></code></pre></div>
+<p>Finally, we construct a <em>SummarizedExperiment</em> object. We place the matrix into the assays slot as a named list, the annotated peaks into the row-wise ranges slot, and the sample metadata into the column-wise data slot:</p>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb38-1" data-line-number="1">atac &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/RangedSummarizedExperiment-class.html">SummarizedExperiment</a></span>(<span class="dt">assays =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">cqndata=</span>atac_mat),</a>
+<a class="sourceLine" id="cb38-2" data-line-number="2">                             <span class="dt">rowRanges=</span>peaks_gr,</a>
+<a class="sourceLine" id="cb38-3" data-line-number="3">                             <span class="dt">colData=</span>atac_coldata)</a></code></pre></div>
 </div>
 </div>
 <div id="model" class="section level1">
@@ -276,17 +282,15 @@
 <div id="rna-seq-differential-gene-expression-analysis" class="section level2">
 <h2 class="hasAnchor">
 <a href="#rna-seq-differential-gene-expression-analysis" class="anchor"></a>RNA-seq differential gene expression analysis</h2>
-<p>We can easily run a differential expression analysis with <em>DESeq2</em> using the following code chunks <span class="citation">(Love, Huber, and Anders 2014)</span>. The design indicates that we want to control for the donor (<code>line</code>) and test for differences in gene expression on the condition. For a more comprehensive discussion of DE analysis see <span class="citation">Love et al. (2016)</span> and <span class="citation">Law et al. (2018)</span>.</p>
-<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb38-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(DESeq2)</a>
-<a class="sourceLine" id="cb38-2" data-line-number="2">dds &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/DESeq2/man/DESeqDataSet.html">DESeqDataSet</a></span>(gse, <span class="op">~</span>line <span class="op">+</span><span class="st"> </span>condition)</a></code></pre></div>
+<p>We can easily run a differential expression analysis with <em>DESeq2</em> using the following code chunks <span class="citation">(Love, Huber, and Anders 2014)</span>. The design formula indicates that we want to control for the donor baselines (<code>line</code>) and test for differences in gene expression on the condition. For a more comprehensive discussion of DE workflows in Bioconductor see <span class="citation">Love et al. (2016)</span> and <span class="citation">Law et al. (2018)</span>.</p>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb39-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(DESeq2)</a>
+<a class="sourceLine" id="cb39-2" data-line-number="2">dds &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/DESeq2/man/DESeqDataSet.html">DESeqDataSet</a></span>(gse, <span class="op">~</span>line <span class="op">+</span><span class="st"> </span>condition)</a></code></pre></div>
 <pre><code>## using counts and average transcript lengths from tximeta</code></pre>
-<pre><code>## Warning in DESeqDataSet(gse, ~line + condition): some variables in design
-## formula are characters, converting to factors</code></pre>
 <div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb41-1" data-line-number="1"><span class="co"># filter out lowly expressed genes</span></a>
 <a class="sourceLine" id="cb41-2" data-line-number="2"><span class="co"># at least 10 counts in at least 6 samples</span></a>
 <a class="sourceLine" id="cb41-3" data-line-number="3">keep &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/colSums.html">rowSums</a></span>(<span class="kw"><a href="https://rdrr.io/pkg/DESeq2/man/counts.html">counts</a></span>(dds) <span class="op">&gt;=</span><span class="st"> </span><span class="dv">10</span>) <span class="op">&gt;=</span><span class="st"> </span><span class="dv">6</span></a>
 <a class="sourceLine" id="cb41-4" data-line-number="4">dds &lt;-<span class="st"> </span>dds[keep,]</a></code></pre></div>
-<p>Below we set the contrasts on the condition variable, indicating we are estimating log2 fold changes of IFNg stimulated cell lines against naive cell lines. We are interested in log fold changes greater than 1 at a false discovery rate at of 1%.</p>
+<p>The model is fit with the following line of code:</p>
 <div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb42-1" data-line-number="1">dds &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/DESeq2/man/DESeq.html">DESeq</a></span>(dds)</a></code></pre></div>
 <pre><code>## estimating size factors</code></pre>
 <pre><code>## using 'avgTxLength' from assays(dds), correcting for library size</code></pre>
@@ -295,6 +299,7 @@
 <pre><code>## mean-dispersion relationship</code></pre>
 <pre><code>## final dispersion estimates</code></pre>
 <pre><code>## fitting model and testing</code></pre>
+<p>Below we set the contrasts on the condition variable, indicating we are estimating log2 fold changes of IFNg stimulated cell lines against naive cell lines. We are interested in log fold changes greater than 1 at a false discovery rate at of 1%.</p>
 <div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb50-1" data-line-number="1">res &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/DESeq2/man/results.html">results</a></span>(dds,</a>
 <a class="sourceLine" id="cb50-2" data-line-number="2">               <span class="dt">contrast=</span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"condition"</span>,<span class="st">"IFNg"</span>,<span class="st">"naive"</span>),</a>
 <a class="sourceLine" id="cb50-3" data-line-number="3">               <span class="dt">lfcThreshold=</span><span class="dv">1</span>, <span class="dt">alpha=</span><span class="fl">0.01</span>)</a></code></pre></div>
@@ -311,8 +316,8 @@
 ## [1] see 'cooksCutoff' argument of ?results
 ## [2] see 'independentFiltering' argument of ?results</code></pre>
 <div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb53-1" data-line-number="1">DESeq2<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/DESeq2/man/plotMA.html">plotMA</a></span>(res, <span class="dt">ylim=</span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="op">-</span><span class="dv">10</span>,<span class="dv">10</span>))</a></code></pre></div>
-<p><img src="fluentGenomics_files/figure-html/unnamed-chunk-13-1.png" width="700"></p>
-<p>We now output the results as a <em>GRanges</em> object, due to the conventions of <em>plyranges</em> we construct a new column called <code>gene_id</code> from the row names of the results. Each row now contains the genomic region (<code>seqnames</code>, <code>start</code>, <code>end</code>, <code>strand</code>) along with corresponding metadata columns (the <code>gene_id</code> and the results of the test). Note that <em>tximeta</em> has correctly identified the reference genome as “hg38”, this has also been annotated onto the target <em>GRanges</em>. This kind of book-keeping is vital once overlap operations are performed to ensure that <em>plyranges</em></p>
+<p><img src="fluentGenomics_files/figure-html/unnamed-chunk-14-1.png" width="700"></p>
+<p>We now output the results as a <em>GRanges</em> object, due to the conventions of <em>plyranges</em> we construct a new column called <code>gene_id</code> from the row names of the results. Each row now contains the genomic region (<code>seqnames</code>, <code>start</code>, <code>end</code>, <code>strand</code>) along with corresponding metadata columns (the <code>gene_id</code> and the results of the test). Note that <em>tximeta</em> has correctly identified the reference genome as “hg38”, and this has also been added to the <em>GRanges</em> along the results columns. This kind of book-keeping is vital once overlap operations are performed to ensure that <em>plyranges</em> is not comparing across incompatible genomes.</p>
 <div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb54-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(plyranges))</a>
 <a class="sourceLine" id="cb54-2" data-line-number="2">de_genes &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/DESeq2/man/results.html">results</a></span>(dds,</a>
 <a class="sourceLine" id="cb54-3" data-line-number="3">                    <span class="dt">contrast=</span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"condition"</span>,<span class="st">"IFNg"</span>,<span class="st">"naive"</span>),</a>
@@ -349,24 +354,24 @@
 ##   [17806]      0.2539975  0.595751         0         1         1
 ##   -------
 ##   seqinfo: 25 sequences (1 circular) from an unspecified genome; no seqlengths</code></pre>
-<p>From this, we can restrict the results where that meet our FDR threshold and select (and rename) the metadata columns we’re interested in:</p>
+<p>From this, we can restrict the results to those that meet our FDR threshold and select (and rename) the metadata columns we’re interested in:</p>
 <div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb56-1" data-line-number="1">de_genes &lt;-<span class="st"> </span>de_genes <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb56-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">filter</a></span>(padj <span class="op">&lt;</span><span class="st"> </span><span class="fl">0.01</span>) <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb56-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">select</a></span>(gene_id, <span class="dt">de_log2FC =</span> log2FoldChange, <span class="dt">de_padj =</span> padj)</a></code></pre></div>
-<p>Next we re-run <code>results</code> because we don’t want to use an <code>lfcThreshold</code> this time. This will extract genes which are not differentially expressed according to the <em>DESeq2</em> significance test.</p>
+<p>We now wish to extract genes for which we could <em>not</em> reject the null hypothesis (we select based on an un-adjusted p-value larger than 0.1 for example). We must re-run <code>results</code> because we don’t want to use an <code>lfcThreshold</code> this time. For brevity we will label these genes as <code>other_genes</code>, and later on we will use these for comparison with our <code>de_genes</code> set.</p>
 <div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb57-1" data-line-number="1">other_genes &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/DESeq2/man/results.html">results</a></span>(dds,</a>
 <a class="sourceLine" id="cb57-2" data-line-number="2">                       <span class="dt">contrast=</span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"condition"</span>,<span class="st">"IFNg"</span>,<span class="st">"naive"</span>),</a>
 <a class="sourceLine" id="cb57-3" data-line-number="3">                       <span class="dt">format=</span><span class="st">"GRanges"</span>) <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb57-4" data-line-number="4"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">filter</a></span>(pvalue <span class="op">&gt;</span><span class="st"> </span><span class="fl">0.1</span>) <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb57-5" data-line-number="5"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/ranges-names.html">names_to_column</a></span>(<span class="st">"gene_id"</span>) <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb57-6" data-line-number="6"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span>(gene_id,</a>
-<a class="sourceLine" id="cb57-7" data-line-number="7">                    <span class="dt">de_log2FC =</span> log2FoldChange,</a>
-<a class="sourceLine" id="cb57-8" data-line-number="8">                    <span class="dt">de_padj =</span> padj)</a></code></pre></div>
+<a class="sourceLine" id="cb57-7" data-line-number="7">                <span class="dt">de_log2FC =</span> log2FoldChange,</a>
+<a class="sourceLine" id="cb57-8" data-line-number="8">                <span class="dt">de_padj =</span> padj)</a></code></pre></div>
 </div>
 <div id="atac-seq-peak-differential-abundance-analysis" class="section level2">
 <h2 class="hasAnchor">
 <a href="#atac-seq-peak-differential-abundance-analysis" class="anchor"></a>ATAC-seq peak differential abundance analysis</h2>
-<p>The following section describes the process we have used for generating a <em>GRanges</em> object of differential peaks from that ATAC-seq data in <span class="citation">Alasoo et al. (2018)</span>.</p>
+<p>The following section describes the process we have used for generating a <em>GRanges</em> object of differential peaks from the ATAC-seq data in <span class="citation">Alasoo et al. (2018)</span>.</p>
 <p>The code chunks for the remainder of this section are not run.</p>
 <!-- We can check the standard deviation over mean plot, to assess for any -->
 <!-- systematic trends: -->
@@ -453,30 +458,30 @@ data.frame(rmu = rowMeans(assay(atac)), -->
 <pre><code>## GRanges object with 749 ranges and 3 metadata columns:
 ##         seqnames              ranges strand |            gene_id   de_log2FC
 ##            &lt;Rle&gt;           &lt;IRanges&gt;  &lt;Rle&gt; |        &lt;character&gt;   &lt;numeric&gt;
-##     [1]    chr20     1888128-1894374      - |  ENSG00000276649.1  0.00522089
-##     [2]     chr7 143390289-143408892      - |  ENSG00000146904.8  0.35585286
-##     [3]    chr16   83908132-83951445      + |  ENSG00000260300.5 -0.37669276
-##     [4]    chr17   76734115-76737374      - | ENSG00000161547.16 -0.11945120
-##     [5]     chr1        89295-133723      - |  ENSG00000238009.6 -0.35240174
+##     [1]     chr6 158232236-158511828      + | ENSG00000130338.12  0.00366373
+##     [2]     chr3   32105689-32168713      + | ENSG00000152642.10 -0.31904728
+##     [3]     chr2   64453969-64461381      + | ENSG00000119862.12  0.36318376
+##     [4]    chr14   76151916-76254342      + | ENSG00000089916.17 -0.18341183
+##     [5]    chr17     7012635-7017520      + | ENSG00000161939.19  0.49907766
 ##     ...      ...                 ...    ... .                ...         ...
-##   [745]    chr15   84235773-84245368      + | ENSG00000184206.11  -0.1755558
-##   [746]     chr5   78360583-78479071      + | ENSG00000085365.17   0.1526110
-##   [747]    chr14   67819779-68730218      + | ENSG00000182185.18   0.3550634
-##   [748]    chr16     4331549-4355607      - |  ENSG00000217930.7  -0.1437266
-##   [749]    chr10   49818279-49970203      - |  ENSG00000227345.8   0.0111574
+##   [745]     chrX 154379197-154381523      + | ENSG00000102119.10 -0.16257338
+##   [746]     chr1     6624866-6635586      + | ENSG00000041988.15  0.15754432
+##   [747]    chr19     4444999-4457822      - | ENSG00000167671.11  0.00173181
+##   [748]    chr16   57447425-57461275      + | ENSG00000088682.13  0.01315355
+##   [749]    chr13   48389567-48444704      - | ENSG00000139679.15  0.21176792
 ##           de_padj
 ##         &lt;numeric&gt;
 ##     [1]  0.991572
-##     [2]  0.630305
-##     [3]  0.613199
-##     [4]  0.308865
-##     [5]  0.335103
+##     [2]  0.412507
+##     [3]  0.704881
+##     [4]  0.297062
+##     [5]  0.439643
 ##     ...       ...
-##   [745]  0.701400
-##   [746]  0.543054
-##   [747]  0.435390
-##   [748]  0.621675
-##   [749]  0.957396
+##   [745]  0.281674
+##   [746]  0.548696
+##   [747]  0.993378
+##   [748]  0.958482
+##   [749]  0.550456
 ##   -------
 ##   seqinfo: 25 sequences (1 circular) from an unspecified genome; no seqlengths</code></pre>
 <p>We can repeat this many times to create many samples via replicate:</p>
@@ -494,7 +499,7 @@ data.frame(rmu = rowMeans(assay(atac)), -->
 <a class="sourceLine" id="cb67-4" data-line-number="4">  <span class="dt">.id=</span><span class="st">"origin"</span></a>
 <a class="sourceLine" id="cb67-5" data-line-number="5">  ) <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb67-6" data-line-number="6"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">mutate</a></span>(</a>
-<a class="sourceLine" id="cb67-7" data-line-number="7">    <span class="dt">origin =</span> <span class="kw"><a href="https://rdrr.io/r/base/factor.html">factor</a></span>(origin, <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"de"</span>, <span class="st">"not_de"</span>)),</a>
+<a class="sourceLine" id="cb67-7" data-line-number="7">    <span class="dt">origin =</span> <span class="kw"><a href="https://rdrr.io/r/base/factor.html">factor</a></span>(origin, <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"not_de"</span>, <span class="st">"de"</span>)),</a>
 <a class="sourceLine" id="cb67-8" data-line-number="8">    <span class="dt">resample =</span> <span class="kw"><a href="https://rdrr.io/r/base/ifelse.html">ifelse</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span>(resample), 0L, <span class="kw"><a href="https://rdrr.io/r/base/integer.html">as.integer</a></span>(resample))</a>
 <a class="sourceLine" id="cb67-9" data-line-number="9">  )</a>
 <a class="sourceLine" id="cb67-10" data-line-number="10">all_genes</a></code></pre></div>
@@ -536,7 +541,7 @@ data.frame(rmu = rowMeans(assay(atac)), -->
 <a class="sourceLine" id="cb69-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/ranges-anchor.html">anchor_5p</a></span>() <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb69-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">mutate</a></span>(<span class="dt">width =</span> <span class="dv">1</span>)</a></code></pre></div>
 <p>Anchoring by the 5’ end of a range will fix the end of negatively stranded ranges, and fix the start of positively stranded ranges.</p>
-<p>We can then repeat the same pattern but this time using <code><a href="https://rdrr.io/pkg/plyranges/man/ranges-anchor.html">anchor_center()</a></code> to tell <em>plyranges</em> that we are making the TSS the midpoint of a range that has total width of 20kb or 10kb both upstream and downstream of the TSS.</p>
+<p>We can then repeat the same pattern but this time using <code><a href="https://rdrr.io/pkg/plyranges/man/ranges-anchor.html">anchor_center()</a></code> to tell <em>plyranges</em> that we are making the TSS the midpoint of a range that has total width of 20kb, or 10kb both upstream and downstream of the TSS.</p>
 <div class="sourceCode" id="cb70"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb70-1" data-line-number="1">all_genes &lt;-all_genes <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb70-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/ranges-anchor.html">anchor_center</a></span>() <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb70-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">mutate</a></span>(<span class="dt">width=</span><span class="dv">2</span><span class="op">*</span><span class="fl">1e4</span>)</a></code></pre></div>
@@ -578,7 +583,7 @@ data.frame(rmu = rowMeans(assay(atac)), -->
 ##   [27591]    0.568644        10   not_de  ATAC_peak_97067  0.289105 5.87370e-07
 ##   -------
 ##   seqinfo: 25 sequences (1 circular) from an unspecified genome; no seqlengths</code></pre>
-<p>Now we can ask, how many DA peaks are near DE genes relative to “other” non-DE genes? A gene may appear more than once, since multiple peaks may overlap a single gene or because we have re-sampled the same gene more than once.</p>
+<p>Now we can ask, how many DA peaks are near DE genes relative to “other” non-DE genes? A gene may appear more than once in <code>genes_olap_peaks</code>, because multiple peaks may overlap a single gene, or because we have re-sampled the same gene more than once, or a combination of these two cases.</p>
 <p>For each gene (that is the combination of chromosome, the start, end and strand), and the “origin” (DE vs not-DE) we can compute the distinct number of peaks for each gene and the maximum peak based on log FC. This is achieved via <code>reduce_ranges_directed</code>, which allows an aggregation to result in a GRanges object via merging neighboring genomic regions. The use of the directed suffix indicates we’re maintaining strand information. In this case, we are simply merging ranges via the groups we mentioned above. We also have to account for the number of resamples we have performed when counting if there are any peaks, to ensure we do not double count the same peak:</p>
 <div class="sourceCode" id="cb73"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb73-1" data-line-number="1">gene_peak_max_lfc &lt;-<span class="st"> </span>genes_olap_peaks <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb73-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">group_by</a></span>(gene_id, origin)  <span class="op">%&gt;%</span></a>
@@ -586,14 +591,14 @@ data.frame(rmu = rowMeans(assay(atac)), -->
 <a class="sourceLine" id="cb73-4" data-line-number="4">    <span class="dt">peak_count =</span> <span class="kw"><a href="https://rdrr.io/r/base/sum.html">sum</a></span>(<span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span>(da_padj)) <span class="op">/</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/n_distinct.html">n_distinct</a></span>(resample),</a>
 <a class="sourceLine" id="cb73-5" data-line-number="5">    <span class="dt">peak_max_lfc =</span> <span class="kw"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span>(da_log2FC))</a>
 <a class="sourceLine" id="cb73-6" data-line-number="6">  )</a></code></pre></div>
-<p>We can then filter genes if there have any peaks and compare the peak fold changes between non-DE and DE genes using a boxplot:</p>
+<p>We can then filter genes if they have any peaks and compare the peak fold changes between non-DE and DE genes using a boxplot:</p>
 <div class="sourceCode" id="cb74"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb74-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(ggplot2)</a>
 <a class="sourceLine" id="cb74-2" data-line-number="2">gene_peak_max_lfc <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb74-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">filter</a></span>(peak_count <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>) <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb74-4" data-line-number="4"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span>() <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb74-5" data-line-number="5"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span>(<span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(origin, peak_max_lfc)) <span class="op">+</span></a>
 <a class="sourceLine" id="cb74-6" data-line-number="6"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/geom_boxplot.html">geom_boxplot</a></span>()</a></code></pre></div>
-<p><img src="fluentGenomics_files/figure-html/unnamed-chunk-29-1.png" width="700"></p>
+<p><img src="fluentGenomics_files/figure-html/unnamed-chunk-30-1.png" width="700"></p>
 <p>In general, the DE genes have larger DA fold changes relative to the non-DE genes.</p>
 <p>Next we examine how changes in DA LFC alter enrichment for DE genes. First, we want to know how the number of peaks within DE genes and non-DE genes change as we change threshold values on the peak LFC. As an example, we could compute this by arbitrarily chosen LFC thresholds as follows:</p>
 <div class="sourceCode" id="cb75"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb75-1" data-line-number="1">origin_peak_lfc &lt;-<span class="st"> </span>genes_olap_peaks <span class="op">%&gt;%</span></a>
@@ -607,101 +612,108 @@ data.frame(rmu = rowMeans(assay(atac)), -->
 <pre><code>## DataFrame with 2 rows and 4 columns
 ##     origin peak_count lfc1_peak_count lfc2_peak_count
 ##   &lt;factor&gt;  &lt;numeric&gt;       &lt;numeric&gt;       &lt;numeric&gt;
-## 1   de         3416.0          1097.0           234.0
-## 2   not_de     2362.3           443.8            32.3</code></pre>
+## 1   not_de     2362.3           443.8            32.3
+## 2   de         3416.0          1097.0           234.0</code></pre>
 <p>Then for all variables except for the <code>origin</code> column we divide the first rows values by the second row, which will be the enrichment of peaks in DE genes compared to other genes. We see that the relative enrichment increases for a ‘larger’ LFC:</p>
 <div class="sourceCode" id="cb77"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb77-1" data-line-number="1">origin_peak_lfc <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb77-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span>() <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb77-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">select</a></span>(<span class="op">-</span>origin) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb77-4" data-line-number="4"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/summarise_all.html">summarize_all</a></span>(<span class="dt">.funs =</span> <span class="op">~</span><span class="kw"><a href="https://rdrr.io/r/base/funprog.html">Reduce</a></span>(<span class="st">"/"</span>, .))</a></code></pre></div>
+<a class="sourceLine" id="cb77-4" data-line-number="4"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/summarise_all.html">summarize_all</a></span>(<span class="dt">.funs =</span> <span class="op">~</span><span class="kw"><a href="https://rdrr.io/r/base/funprog.html">Reduce</a></span>(<span class="cf">function</span>(x,y) y<span class="op">/</span>x, .))</a></code></pre></div>
 <pre><code>##   peak_count lfc1_peak_count lfc2_peak_count
 ## 1   1.446048        2.471834        7.244582</code></pre>
+<p>Un-tidy but avoid <code>.funs=~Reduce</code>?</p>
+<div class="sourceCode" id="cb79"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb79-1" data-line-number="1">m &lt;-<span class="st"> </span>origin_peak_lfc <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb79-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb79-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">select</a></span>(<span class="op">-</span>origin) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb79-4" data-line-number="4"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/r/base/matrix.html">as.matrix</a></span>()</a>
+<a class="sourceLine" id="cb79-5" data-line-number="5">m[<span class="dv">2</span>,] <span class="op">/</span><span class="st"> </span>m[<span class="dv">1</span>,]</a></code></pre></div>
+<pre><code>##      peak_count lfc1_peak_count lfc2_peak_count 
+##        1.446048        2.471834        7.244582</code></pre>
 <p>Due to the one-to-many mappings of DE genes to peaks, it is unknown if we have the same number of DE genes participating or less, as we increase the threshold on the peak LFC. This can be accounted for by grouping and aggregating twice. First, the number of peaks that meet the thresholds are computed within each gene, origin and resample group. Second, within the origin column, we compute the total number of peaks that meet the target threshold and the number of genes that have more than zero peaks (again averaging over the number of resamples).</p>
-<div class="sourceCode" id="cb79"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb79-1" data-line-number="1">genes_olap_peaks <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb79-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">group_by</a></span>(gene_id, origin, resample) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb79-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/ranges-reduce.html">reduce_ranges_directed</a></span>(</a>
-<a class="sourceLine" id="cb79-4" data-line-number="4">    <span class="dt">lfc1 =</span><span class="kw"><a href="https://rdrr.io/r/base/sum.html">sum</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span>(da_log2FC) <span class="op">&gt;</span><span class="st"> </span><span class="dv">1</span>, <span class="dt">na.rm=</span><span class="ot">TRUE</span>),</a>
-<a class="sourceLine" id="cb79-5" data-line-number="5">    <span class="dt">lfc2=</span> <span class="kw"><a href="https://rdrr.io/r/base/sum.html">sum</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span>(da_log2FC) <span class="op">&gt;</span><span class="st"> </span><span class="dv">2</span>, <span class="dt">na.rm=</span><span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb79-6" data-line-number="6">  ) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb79-7" data-line-number="7"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">group_by</a></span>(origin) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb79-8" data-line-number="8"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">summarize</a></span>(</a>
-<a class="sourceLine" id="cb79-9" data-line-number="9">    <span class="dt">lfc1_gene_count =</span> <span class="kw"><a href="https://rdrr.io/r/base/sum.html">sum</a></span>(lfc1 <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>) <span class="op">/</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/n_distinct.html">n_distinct</a></span>(resample),</a>
-<a class="sourceLine" id="cb79-10" data-line-number="10">    <span class="dt">lfc1_peak_count =</span> <span class="kw"><a href="https://rdrr.io/r/base/sum.html">sum</a></span>(lfc1) <span class="op">/</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/n_distinct.html">n_distinct</a></span>(resample),</a>
-<a class="sourceLine" id="cb79-11" data-line-number="11">    <span class="dt">lfc2_gene_count =</span> <span class="kw"><a href="https://rdrr.io/r/base/sum.html">sum</a></span>(lfc2 <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>) <span class="op">/</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/n_distinct.html">n_distinct</a></span>(resample),</a>
-<a class="sourceLine" id="cb79-12" data-line-number="12">    <span class="dt">lfc2_peak_count =</span> <span class="kw"><a href="https://rdrr.io/r/base/sum.html">sum</a></span>(lfc2) <span class="op">/</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/n_distinct.html">n_distinct</a></span>(resample)</a>
-<a class="sourceLine" id="cb79-13" data-line-number="13">  )</a></code></pre></div>
+<div class="sourceCode" id="cb81"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb81-1" data-line-number="1">genes_olap_peaks <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb81-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">group_by</a></span>(gene_id, origin, resample) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb81-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/ranges-reduce.html">reduce_ranges_directed</a></span>(</a>
+<a class="sourceLine" id="cb81-4" data-line-number="4">    <span class="dt">lfc1 =</span><span class="kw"><a href="https://rdrr.io/r/base/sum.html">sum</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span>(da_log2FC) <span class="op">&gt;</span><span class="st"> </span><span class="dv">1</span>, <span class="dt">na.rm=</span><span class="ot">TRUE</span>),</a>
+<a class="sourceLine" id="cb81-5" data-line-number="5">    <span class="dt">lfc2=</span> <span class="kw"><a href="https://rdrr.io/r/base/sum.html">sum</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span>(da_log2FC) <span class="op">&gt;</span><span class="st"> </span><span class="dv">2</span>, <span class="dt">na.rm=</span><span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb81-6" data-line-number="6">  ) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb81-7" data-line-number="7"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">group_by</a></span>(origin) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb81-8" data-line-number="8"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">summarize</a></span>(</a>
+<a class="sourceLine" id="cb81-9" data-line-number="9">    <span class="dt">lfc1_gene_count =</span> <span class="kw"><a href="https://rdrr.io/r/base/sum.html">sum</a></span>(lfc1 <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>) <span class="op">/</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/n_distinct.html">n_distinct</a></span>(resample),</a>
+<a class="sourceLine" id="cb81-10" data-line-number="10">    <span class="dt">lfc1_peak_count =</span> <span class="kw"><a href="https://rdrr.io/r/base/sum.html">sum</a></span>(lfc1) <span class="op">/</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/n_distinct.html">n_distinct</a></span>(resample),</a>
+<a class="sourceLine" id="cb81-11" data-line-number="11">    <span class="dt">lfc2_gene_count =</span> <span class="kw"><a href="https://rdrr.io/r/base/sum.html">sum</a></span>(lfc2 <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>) <span class="op">/</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/n_distinct.html">n_distinct</a></span>(resample),</a>
+<a class="sourceLine" id="cb81-12" data-line-number="12">    <span class="dt">lfc2_peak_count =</span> <span class="kw"><a href="https://rdrr.io/r/base/sum.html">sum</a></span>(lfc2) <span class="op">/</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/n_distinct.html">n_distinct</a></span>(resample)</a>
+<a class="sourceLine" id="cb81-13" data-line-number="13">  )</a></code></pre></div>
 <pre><code>## DataFrame with 2 rows and 5 columns
 ##     origin lfc1_gene_count lfc1_peak_count lfc2_gene_count lfc2_peak_count
 ##   &lt;factor&gt;       &lt;numeric&gt;       &lt;numeric&gt;       &lt;numeric&gt;       &lt;numeric&gt;
-## 1   de               515.0          1097.0           151.0           234.0
-## 2   not_de           301.4           443.8            30.4            32.3</code></pre>
+## 1   not_de           301.4           443.8            30.4            32.3
+## 2   de               515.0          1097.0           151.0           234.0</code></pre>
 <p>To do this for many thresholds is cumbersome and would create a lot of duplicate code, instead we create a single function called <code>count_above_threshold</code> that accepts a GRanges object, and computes the peak count that meets the threshold.</p>
-<div class="sourceCode" id="cb81"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb81-1" data-line-number="1">count_if_above_threshold &lt;-<span class="st"> </span><span class="cf">function</span>(.data, threshold) {</a>
-<a class="sourceLine" id="cb81-2" data-line-number="2">  <span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/ranges-reduce.html">reduce_ranges_directed</a></span>(.data,</a>
-<a class="sourceLine" id="cb81-3" data-line-number="3">                         <span class="dt">threshold =</span> threshold,</a>
-<a class="sourceLine" id="cb81-4" data-line-number="4">                         <span class="dt">value =</span> <span class="kw"><a href="https://rdrr.io/r/base/sum.html">sum</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span>(da_log2FC) <span class="op">&gt;</span><span class="st"> </span>threshold, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb81-5" data-line-number="5">  )</a>
-<a class="sourceLine" id="cb81-6" data-line-number="6">}</a></code></pre></div>
+<div class="sourceCode" id="cb83"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb83-1" data-line-number="1">count_if_above_threshold &lt;-<span class="st"> </span><span class="cf">function</span>(.data, threshold) {</a>
+<a class="sourceLine" id="cb83-2" data-line-number="2">  <span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/ranges-reduce.html">reduce_ranges_directed</a></span>(.data,</a>
+<a class="sourceLine" id="cb83-3" data-line-number="3">                         <span class="dt">threshold =</span> threshold,</a>
+<a class="sourceLine" id="cb83-4" data-line-number="4">                         <span class="dt">value =</span> <span class="kw"><a href="https://rdrr.io/r/base/sum.html">sum</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span>(da_log2FC) <span class="op">&gt;</span><span class="st"> </span>threshold, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb83-5" data-line-number="5">  )</a>
+<a class="sourceLine" id="cb83-6" data-line-number="6">}</a></code></pre></div>
 <p>The above function will compute the counts for any arbitrary threshold, now we need to apply it over possible LFC thresholds of interest. We choose a grid of one hundred thresholds based on the range of absolute LFC values in the <code>da_peaks</code> <em>GRanges</em> object:</p>
-<div class="sourceCode" id="cb82"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb82-1" data-line-number="1">thresholds &lt;-<span class="st"> </span>da_peaks <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb82-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">mutate</a></span>(<span class="dt">abs_lfc =</span> <span class="kw"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span>(da_log2FC)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb82-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/r/base/with.html">with</a></span>(</a>
-<a class="sourceLine" id="cb82-4" data-line-number="4">    <span class="kw"><a href="https://rdrr.io/r/base/seq.html">seq</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/Extremes.html">min</a></span>(abs_lfc), <span class="kw"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span>(abs_lfc), <span class="dt">length.out =</span> <span class="dv">100</span>)</a>
-<a class="sourceLine" id="cb82-5" data-line-number="5">  )</a></code></pre></div>
+<div class="sourceCode" id="cb84"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb84-1" data-line-number="1">thresholds &lt;-<span class="st"> </span>da_peaks <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb84-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">mutate</a></span>(<span class="dt">abs_lfc =</span> <span class="kw"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span>(da_log2FC)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb84-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/r/base/with.html">with</a></span>(</a>
+<a class="sourceLine" id="cb84-4" data-line-number="4">    <span class="kw"><a href="https://rdrr.io/r/base/seq.html">seq</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/Extremes.html">min</a></span>(abs_lfc), <span class="kw"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span>(abs_lfc), <span class="dt">length.out =</span> <span class="dv">100</span>)</a>
+<a class="sourceLine" id="cb84-5" data-line-number="5">  )</a></code></pre></div>
 <p>The peaks are computed for each threshold value by applying the function <code>count_if_above_threshold()</code> on a <em>GRanges</em> object that has been grouped by the gene, origin and the number of resamples variables. This could be done easily in parallel with <code>BiocParallel</code> but here we compute everything serially .</p>
-<div class="sourceCode" id="cb83"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb83-1" data-line-number="1">by_gene_origin &lt;-<span class="st"> </span>genes_olap_peaks <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb83-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">group_by</a></span>(gene_id, origin, resample)</a>
-<a class="sourceLine" id="cb83-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb83-4" data-line-number="4">genes_peak_all_thresholds &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/ranges-bind.html">bind_ranges</a></span>(</a>
-<a class="sourceLine" id="cb83-5" data-line-number="5">  <span class="kw"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span>(thresholds, count_if_above_threshold, <span class="dt">.data =</span> by_gene_origin)</a>
-<a class="sourceLine" id="cb83-6" data-line-number="6">)</a></code></pre></div>
+<div class="sourceCode" id="cb85"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb85-1" data-line-number="1">by_gene_origin &lt;-<span class="st"> </span>genes_olap_peaks <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb85-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">group_by</a></span>(gene_id, origin, resample)</a>
+<a class="sourceLine" id="cb85-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb85-4" data-line-number="4">genes_peak_all_thresholds &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/ranges-bind.html">bind_ranges</a></span>(</a>
+<a class="sourceLine" id="cb85-5" data-line-number="5">  <span class="kw"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span>(thresholds, count_if_above_threshold, <span class="dt">.data =</span> by_gene_origin)</a>
+<a class="sourceLine" id="cb85-6" data-line-number="6">)</a></code></pre></div>
 <p>This creates a very <em>long</em> GRanges object. To compute the peak and gene counts for each threshold, we apply the same summarization as before:</p>
-<div class="sourceCode" id="cb84"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb84-1" data-line-number="1">origin_peak_all_thresholds &lt;-<span class="st"> </span>genes_peak_all_thresholds <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb84-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">group_by</a></span>(origin, threshold) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb84-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">summarize</a></span>(</a>
-<a class="sourceLine" id="cb84-4" data-line-number="4">    <span class="dt">gene_count =</span> <span class="kw"><a href="https://rdrr.io/r/base/sum.html">sum</a></span>(value <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>) <span class="op">/</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/n_distinct.html">n_distinct</a></span>(resample),</a>
-<a class="sourceLine" id="cb84-5" data-line-number="5">    <span class="dt">peak_count =</span> <span class="kw"><a href="https://rdrr.io/r/base/sum.html">sum</a></span>(value) <span class="op">/</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/n_distinct.html">n_distinct</a></span>(resample)</a>
-<a class="sourceLine" id="cb84-6" data-line-number="6">  )</a>
-<a class="sourceLine" id="cb84-7" data-line-number="7">origin_peak_all_thresholds</a></code></pre></div>
+<div class="sourceCode" id="cb86"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb86-1" data-line-number="1">origin_peak_all_thresholds &lt;-<span class="st"> </span>genes_peak_all_thresholds <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb86-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">group_by</a></span>(origin, threshold) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb86-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">summarize</a></span>(</a>
+<a class="sourceLine" id="cb86-4" data-line-number="4">    <span class="dt">gene_count =</span> <span class="kw"><a href="https://rdrr.io/r/base/sum.html">sum</a></span>(value <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>) <span class="op">/</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/n_distinct.html">n_distinct</a></span>(resample),</a>
+<a class="sourceLine" id="cb86-5" data-line-number="5">    <span class="dt">peak_count =</span> <span class="kw"><a href="https://rdrr.io/r/base/sum.html">sum</a></span>(value) <span class="op">/</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/n_distinct.html">n_distinct</a></span>(resample)</a>
+<a class="sourceLine" id="cb86-6" data-line-number="6">  )</a>
+<a class="sourceLine" id="cb86-7" data-line-number="7">origin_peak_all_thresholds</a></code></pre></div>
 <pre><code>## DataFrame with 200 rows and 4 columns
 ##       origin threshold gene_count peak_count
 ##     &lt;factor&gt; &lt;numeric&gt;  &lt;numeric&gt;  &lt;numeric&gt;
-## 1         de 0.0658243        727       3416
-## 2         de 0.1184840        727       3392
-## 3         de 0.1711436        727       3304
-## 4         de 0.2238033        724       3160
-## 5         de 0.2764629        723       3045
+## 1     not_de 0.0658243      696.0     2362.2
+## 2     not_de 0.1184840      688.7     2309.9
+## 3     not_de 0.1711436      678.6     2197.8
+## 4     not_de 0.2238033      666.4     2045.6
+## 5     not_de 0.2764629      649.6     1878.0
 ## ...      ...       ...        ...        ...
-## 196   not_de   5.06849          0          0
-## 197   not_de   5.12115          0          0
-## 198   not_de   5.17381          0          0
-## 199   not_de   5.22647          0          0
-## 200   not_de   5.27913          0          0</code></pre>
+## 196       de   5.06849          2          2
+## 197       de   5.12115          0          0
+## 198       de   5.17381          0          0
+## 199       de   5.22647          0          0
+## 200       de   5.27913          0          0</code></pre>
 <p>Again we can compute the relative enrichment in LFCs in the same manner as before and visualize how enrichment changes as the threshold value increases:</p>
-<div class="sourceCode" id="cb86"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb86-1" data-line-number="1">peak_enrichment &lt;-<span class="st"> </span>origin_peak_all_thresholds <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb86-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span>() <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb86-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">group_by</a></span>(threshold) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb86-4" data-line-number="4"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">summarize</a></span>(<span class="dt">enrichment =</span> <span class="kw"><a href="https://rdrr.io/r/base/funprog.html">Reduce</a></span>(<span class="st">"/"</span>, peak_count))</a>
-<a class="sourceLine" id="cb86-5" data-line-number="5"></a>
-<a class="sourceLine" id="cb86-6" data-line-number="6">peak_enrichment <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb86-7" data-line-number="7"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span>(<span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="dt">x =</span> threshold, <span class="dt">y =</span> enrichment)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb86-8" data-line-number="8"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html">geom_line</a></span>() <span class="op">+</span></a>
-<a class="sourceLine" id="cb86-9" data-line-number="9"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs</a></span>(<span class="dt">x =</span> <span class="st">"logFC threshold"</span>, <span class="dt">y =</span> <span class="st">"Relative Enrichment"</span>)</a></code></pre></div>
-<pre><code>## Warning: Removed 4 rows containing missing values (geom_path).</code></pre>
-<p><img src="fluentGenomics_files/figure-html/unnamed-chunk-37-1.png" width="700"></p>
-<p>We computed the sum of DA peaks near the DE genes, for increasing LFC thresholds on the accessibility change. As we increased the threshold, the number of total peaks went down (likewise the mean number of DA peaks per gene). It is also likely the number of DE genes with a DA peak nearby with such a large change went down - we can check this by plotting the number of DE genes against the number of DA peaks:</p>
-<div class="sourceCode" id="cb88"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb88-1" data-line-number="1">origin_peak_all_thresholds <span class="op">%&gt;%</span></a>
+<div class="sourceCode" id="cb88"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb88-1" data-line-number="1">peak_enrichment &lt;-<span class="st"> </span>origin_peak_all_thresholds <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb88-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span>() <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb88-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span>(<span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="dt">x =</span> gene_count,</a>
-<a class="sourceLine" id="cb88-4" data-line-number="4">             <span class="dt">y =</span> peak_count,</a>
-<a class="sourceLine" id="cb88-5" data-line-number="5">             <span class="dt">color =</span> threshold)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb88-6" data-line-number="6"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span>() <span class="op">+</span></a>
-<a class="sourceLine" id="cb88-7" data-line-number="7"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html">scale_color_viridis_c</a></span>() <span class="op">+</span></a>
-<a class="sourceLine" id="cb88-8" data-line-number="8"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html">facet_wrap</a></span>(<span class="op">~</span><span class="st"> </span>origin) <span class="op">+</span></a>
-<a class="sourceLine" id="cb88-9" data-line-number="9"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs</a></span>(<span class="dt">x =</span> <span class="st">"Number of Genes"</span>,</a>
-<a class="sourceLine" id="cb88-10" data-line-number="10">       <span class="dt">y =</span> <span class="st">"Number of Peaks"</span>,</a>
-<a class="sourceLine" id="cb88-11" data-line-number="11">       <span class="dt">color =</span> <span class="st">"LFC threshold"</span>)</a></code></pre></div>
-<p><img src="fluentGenomics_files/figure-html/unnamed-chunk-38-1.png" width="700"></p>
+<a class="sourceLine" id="cb88-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">group_by</a></span>(threshold) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb88-4" data-line-number="4"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">summarize</a></span>(<span class="dt">enrichment =</span> <span class="kw"><a href="https://rdrr.io/r/base/funprog.html">Reduce</a></span>(<span class="cf">function</span>(x,y) y<span class="op">/</span>x, peak_count))</a>
+<a class="sourceLine" id="cb88-5" data-line-number="5">peak_enrichment <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb88-6" data-line-number="6"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span>(<span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="dt">x =</span> threshold, <span class="dt">y =</span> enrichment)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb88-7" data-line-number="7"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html">geom_line</a></span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb88-8" data-line-number="8"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs</a></span>(<span class="dt">x =</span> <span class="st">"logFC threshold"</span>, <span class="dt">y =</span> <span class="st">"Relative Enrichment"</span>)</a></code></pre></div>
+<pre><code>## Warning: Removed 4 rows containing missing values (geom_path).</code></pre>
+<p><img src="fluentGenomics_files/figure-html/unnamed-chunk-39-1.png" width="700"></p>
+<p>We computed the sum of DA peaks near the DE genes, for increasing LFC thresholds on the accessibility change. As we increased the threshold, the number of total peaks went down (likewise the mean number of DA peaks per gene). It is also likely the number of DE genes with a DA peak nearby with such a large change went down - we can check this by plotting the number of DE genes against the number of DA peaks:</p>
+<div class="sourceCode" id="cb90"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb90-1" data-line-number="1">origin_peak_all_thresholds <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb90-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb90-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span>(<span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="dt">x =</span> gene_count,</a>
+<a class="sourceLine" id="cb90-4" data-line-number="4">             <span class="dt">y =</span> peak_count,</a>
+<a class="sourceLine" id="cb90-5" data-line-number="5">             <span class="dt">color =</span> threshold)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb90-6" data-line-number="6"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb90-7" data-line-number="7"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html">scale_color_viridis_c</a></span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb90-8" data-line-number="8"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html">facet_wrap</a></span>(<span class="op">~</span><span class="st"> </span>origin) <span class="op">+</span></a>
+<a class="sourceLine" id="cb90-9" data-line-number="9"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs</a></span>(<span class="dt">x =</span> <span class="st">"Number of Genes"</span>,</a>
+<a class="sourceLine" id="cb90-10" data-line-number="10">       <span class="dt">y =</span> <span class="st">"Number of Peaks"</span>,</a>
+<a class="sourceLine" id="cb90-11" data-line-number="11">       <span class="dt">color =</span> <span class="st">"LFC threshold"</span>)</a></code></pre></div>
+<p><img src="fluentGenomics_files/figure-html/unnamed-chunk-40-1.png" width="700"></p>
 </div>
 </div>
 <div id="discussion" class="section level1">
@@ -720,8 +732,8 @@ data.frame(rmu = rowMeans(assay(atac)), -->
 <div id="session-info" class="section level2">
 <h2 class="hasAnchor">
 <a href="#session-info" class="anchor"></a>Session Info</h2>
-<div class="sourceCode" id="cb89"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb89-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo</a></span>()</a></code></pre></div>
-<pre><code>## R Under development (unstable) (2019-12-21 r77612)
+<div class="sourceCode" id="cb91"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb91-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo</a></span>()</a></code></pre></div>
+<pre><code>## R Under development (unstable) (2020-01-11 r77654)
 ## Platform: x86_64-pc-linux-gnu (64-bit)
 ## Running under: Ubuntu 16.04.6 LTS
 ## 
@@ -743,47 +755,66 @@ data.frame(rmu = rowMeans(assay(atac)), -->
 ## 
 ## other attached packages:
 ##  [1] ggplot2_3.2.1               plyranges_1.7.6            
-##  [3] DESeq2_1.27.17              GenomicFeatures_1.39.2     
+##  [3] DESeq2_1.27.19              GenomicFeatures_1.39.2     
 ##  [5] AnnotationDbi_1.49.0        SummarizedExperiment_1.17.1
-##  [7] DelayedArray_0.13.0         BiocParallel_1.21.2        
+##  [7] DelayedArray_0.13.2         BiocParallel_1.21.2        
 ##  [9] matrixStats_0.55.0          Biobase_2.47.2             
-## [11] GenomicRanges_1.39.1        GenomeInfoDb_1.23.1        
-## [13] IRanges_2.21.2              S4Vectors_0.25.8           
+## [11] GenomicRanges_1.39.1        GenomeInfoDb_1.23.2        
+## [13] IRanges_2.21.2              S4Vectors_0.25.9           
 ## [15] BiocGenerics_0.33.0         readr_1.3.1                
-## [17] dplyr_0.8.3                 tximeta_1.5.6              
+## [17] dplyr_0.8.3                 tximeta_1.5.15             
 ## [19] fluentGenomics_0.0.3       
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] ProtGenerics_1.19.2      bitops_1.0-6             fs_1.3.1                
-##  [4] bit64_0.9-7              RColorBrewer_1.1-2       progress_1.2.2          
-##  [7] httr_1.4.1               rprojroot_1.3-2          tools_4.0.0             
-## [10] backports_1.1.5          utf8_1.1.4               R6_2.4.1                
-## [13] colorspace_1.4-1         DBI_1.1.0                lazyeval_0.2.2          
-## [16] withr_2.1.2              tidyselect_0.2.5         prettyunits_1.0.2       
-## [19] bit_1.1-14               curl_4.3                 compiler_4.0.0          
-## [22] cli_2.0.0                desc_1.2.0               labeling_0.3            
-## [25] rtracklayer_1.47.0       bookdown_0.16            scales_1.1.0            
-## [28] genefilter_1.69.0        askpass_1.1              rappdirs_0.3.1          
-## [31] pkgdown_1.4.1            stringr_1.4.0            digest_0.6.23           
-## [34] Rsamtools_2.3.2          rmarkdown_2.0            XVector_0.27.0          
-## [37] pkgconfig_2.0.3          htmltools_0.4.0          dbplyr_1.4.2            
-## [40] ensembldb_2.11.2         rlang_0.4.2              RSQLite_2.1.5           
-## [43] farver_2.0.1             jsonlite_1.6             RCurl_1.95-4.12         
-## [46] magrittr_1.5             GenomeInfoDbData_1.2.2   Matrix_1.2-18           
-## [49] munsell_0.5.0            Rcpp_1.0.3               fansi_0.4.0             
-## [52] lifecycle_0.1.0          stringi_1.4.3            yaml_2.2.0              
-## [55] MASS_7.3-51.5            zlibbioc_1.33.0          BiocFileCache_1.11.4    
-## [58] grid_4.0.0               blob_1.2.0               crayon_1.3.4            
-## [61] lattice_0.20-38          Biostrings_2.55.4        splines_4.0.0           
-## [64] annotate_1.65.0          hms_0.5.2                locfit_1.5-9.1          
-## [67] zeallot_0.1.0            knitr_1.26               pillar_1.4.3            
-## [70] geneplotter_1.65.0       biomaRt_2.43.0           XML_3.98-1.20           
-## [73] glue_1.3.1               evaluate_0.14            vctrs_0.2.1             
-## [76] gtable_0.3.0             openssl_1.4.1            purrr_0.3.3             
-## [79] assertthat_0.2.1         xfun_0.11                xtable_1.8-4            
-## [82] AnnotationFilter_1.11.0  viridisLite_0.3.0        survival_3.1-8          
-## [85] tibble_2.1.3             GenomicAlignments_1.23.1 memoise_1.1.0           
-## [88] tximport_1.15.5</code></pre>
+##  [1] colorspace_1.4-1              rprojroot_1.3-2              
+##  [3] XVector_0.27.0                fs_1.3.1                     
+##  [5] farver_2.0.1                  bit64_0.9-7                  
+##  [7] interactiveDisplayBase_1.25.0 fansi_0.4.1                  
+##  [9] splines_4.0.0                 tximport_1.15.5              
+## [11] geneplotter_1.65.0            knitr_1.26                   
+## [13] zeallot_0.1.0                 jsonlite_1.6                 
+## [15] Rsamtools_2.3.2               annotate_1.65.0              
+## [17] dbplyr_1.4.2                  shiny_1.4.0                  
+## [19] BiocManager_1.30.10           compiler_4.0.0               
+## [21] httr_1.4.1                    backports_1.1.5              
+## [23] assertthat_0.2.1              Matrix_1.2-18                
+## [25] fastmap_1.0.1                 lazyeval_0.2.2               
+## [27] cli_2.0.1                     later_1.0.0                  
+## [29] htmltools_0.4.0               prettyunits_1.1.0            
+## [31] tools_4.0.0                   gtable_0.3.0                 
+## [33] glue_1.3.1                    GenomeInfoDbData_1.2.2       
+## [35] rappdirs_0.3.1                Rcpp_1.0.3                   
+## [37] pkgdown_1.4.1                 vctrs_0.2.1                  
+## [39] Biostrings_2.55.4             rtracklayer_1.47.0           
+## [41] xfun_0.11                     stringr_1.4.0                
+## [43] mime_0.8                      lifecycle_0.1.0              
+## [45] ensembldb_2.11.2              XML_3.98-1.20                
+## [47] AnnotationHub_2.19.3          zlibbioc_1.33.0              
+## [49] MASS_7.3-51.5                 scales_1.1.0                 
+## [51] hms_0.5.3                     promises_1.1.0               
+## [53] ProtGenerics_1.19.3           AnnotationFilter_1.11.0      
+## [55] RColorBrewer_1.1-2            yaml_2.2.0                   
+## [57] curl_4.3                      memoise_1.1.0                
+## [59] biomaRt_2.43.1                stringi_1.4.5                
+## [61] RSQLite_2.2.0                 BiocVersion_3.11.1           
+## [63] genefilter_1.69.0             desc_1.2.0                   
+## [65] rlang_0.4.2                   pkgconfig_2.0.3              
+## [67] bitops_1.0-6                  evaluate_0.14                
+## [69] lattice_0.20-38               purrr_0.3.3                  
+## [71] GenomicAlignments_1.23.1      labeling_0.3                 
+## [73] bit_1.1-14                    tidyselect_0.2.5             
+## [75] magrittr_1.5                  bookdown_0.17                
+## [77] R6_2.4.1                      DBI_1.1.0                    
+## [79] pillar_1.4.3                  withr_2.1.2                  
+## [81] survival_3.1-8                RCurl_1.95-4.12              
+## [83] tibble_2.1.3                  crayon_1.3.4                 
+## [85] utf8_1.1.4                    BiocFileCache_1.11.4         
+## [87] rmarkdown_2.0                 progress_1.2.2               
+## [89] locfit_1.5-9.1                grid_4.0.0                   
+## [91] blob_1.2.0                    digest_0.6.23                
+## [93] xtable_1.8-4                  httpuv_1.5.2                 
+## [95] openssl_1.4.1                 munsell_0.5.0                
+## [97] viridisLite_0.3.0             askpass_1.1</code></pre>
 </div>
 <div id="author-contributions" class="section level2">
 <h2 class="hasAnchor">
@@ -799,7 +830,7 @@ data.frame(rmu = rowMeans(assay(atac)), -->
 <h2 class="hasAnchor">
 <a href="#funding" class="anchor"></a>Funding</h2>
 <p>SL is supported by an Australian Government Research Training Program (RTP) scholarship with a top up scholarship from CSL Limited.</p>
-<!-- other authors to fill in here -->
+<p>MIL’s contribution is supported by NIH grant R01 HG009937.</p>
 <p><strong>I confirm that the funders had no role in study design, data collection and analysis, decision to publish, or preparation of the manuscript.</strong></p>
 </div>
 <div id="acknowledgements" class="section level2">
@@ -825,7 +856,7 @@ data.frame(rmu = rowMeans(assay(atac)), -->
 <p>Frankish, A, GENCODE-consoritum, and P Flicek. 2018. “GENCODE reference annotation for the human and mouse genomes.” <em>Nucleic Acids Research</em>. <a href="https://doi.org/10.1093/nar/gky955" class="uri">https://doi.org/10.1093/nar/gky955</a>.</p>
 </div>
 <div id="ref-Hansen2012">
-<p>Hansen, KD, RA Irizarry, and Wu Z. 2012. “Removing technical variability in RNA-seq data using condition quantile normalization.” <em>Biostatistics</em> 13 (2): 204–16. <a href="https://doi.org/10.1093/biostatistics/kxr054" class="uri">https://doi.org/10.1093/biostatistics/kxr054</a>.</p>
+<p>Hansen, Kasper D., Rafael A. Irizarry, and Zhijin Wu. 2012. “Removing technical variability in RNA-seq data using condition quantile normalization.” <em>Biostatistics</em> 13 (2): 204–16. <a href="https://doi.org/10.1093/biostatistics/kxr054" class="uri">https://doi.org/10.1093/biostatistics/kxr054</a>.</p>
 </div>
 <div id="ref-snakemake">
 <p>Köster, Johannes, and Sven Rahmann. 2012. “Snakemake—a scalable bioinformatics workflow engine.” <em>Bioinformatics</em> 28 (19): 2520–2. <a href="https://doi.org/10.1093/bioinformatics/bts480" class="uri">https://doi.org/10.1093/bioinformatics/bts480</a>.</p>
@@ -892,7 +923,7 @@ data.frame(rmu = rowMeans(assay(atac)), -->
 </li>
       <li>
 <a href="#se">Import Data as a <em>SummarizedExperiment</em></a><ul class="nav nav-pills nav-stacked">
-<li><a href="#using-tximeta-to-import-rna-seq-quantifications">Using <em>tximeta</em> to import RNA-seq quantifications</a></li>
+<li><a href="#using-tximeta-to-import-rna-seq-quantification-data">Using <em>tximeta</em> to import RNA-seq quantification data</a></li>
       <li><a href="#importing-atac-seq-data-as-a-summarizedexperiment-object">Importing ATAC-seq data as a <em>SummarizedExperiment</em> object</a></li>
       </ul>
 </li>
