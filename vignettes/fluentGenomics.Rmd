@@ -174,7 +174,7 @@ have been gzipped, but would typically not have the 'gz' ending if used from
 operator,`%>%`, which can be read as "then", i.e. first read the data,
 *then* select columns, *then* mutate them.
 
-Now we have a data frame summarizing the experimental design and the locations
+Now we have a data.frame summarizing the experimental design and the locations
 of the quantifications. The following
 lines of code do a lot of work for the analyst: importing the RNA-seq
 quantification (dropping *inferential replicates* in this case), locating the
@@ -224,14 +224,14 @@ gse <- summarizeToGene(se)
 ## Importing ATAC-seq data as a *SummarizedExperiment* object
 
 The *SummarizedExperiment* object containing ATAC-seq peaks can be created from
-the following tab-delimited files found in [@alasooZenodo]:
+the following tab-delimited files from @alasooZenodo:
 
 * The sample metadata: `ATAC_sample_metadata.txt.gz` (<1M)
 * The matrix of normalized read counts: `ATAC_cqn_matrix.txt.gz` (109M)
 * The annotated peaks: `ATAC_peak_metadata.txt.gz` (5.6M)
 
 To begin we read in the sample metadata, following similar steps 
-to those we used to generate the `coldata` data frame for the RNA-seq
+to those we used to generate the `coldata` data.frame for the RNA-seq
 experiment:
 
 ```{r eval=FALSE}
@@ -263,7 +263,7 @@ We read in the peak metadata (locations in the genome), and convert it
 to a *GRanges* object. The `as_granges()` function automatically converts the
 data.frame into a *GRanges* object, from that result, we extract the peak_id
 column and set the genome information to the build "GRCh38". We know this from
-the [Zenodo entry](https://zenodo.org/record/1188300#.XJOFSlNKiL5)
+the [Zenodo entry](https://zenodo.org/record/1188300#.XJOFSlNKiL5).
 
 ```{r eval=FALSE}
 library(plyranges)
@@ -278,9 +278,9 @@ peaks_gr <- peaks_df %>%
 ```
 
 Finally, we construct a *SummarizedExperiment* object. 
-We place the matrix into the assays slot as a named list; we place
-the annotated peaks into the rowwise ranges slot; and the sample
-metadata into the columnwise data slot:
+We place the matrix into the assays slot as a named list,
+the annotated peaks into the row-wise ranges slot, and the sample
+metadata into the column-wise data slot:
 
 ```{r eval=FALSE}
 atac <- SummarizedExperiment(assays = list(cqndata=atac_mat),
@@ -293,10 +293,11 @@ atac <- SummarizedExperiment(assays = list(cqndata=atac_mat),
 ## RNA-seq differential gene expression analysis
 
 We can easily run a differential expression analysis with *DESeq2* using the
-following code chunks [@Love2014]. The design indicates that we want to control
-for the donor (`line`) and test for differences in gene expression on the
-condition. For a more comprehensive discussion of DE analysis see
-@Love2016-f1000 and @Law2018-f1000.
+following code chunks [@Love2014]. The design formula indicates that
+we want to control for the donor baselines (`line`) and test for
+differences in gene expression on the condition. For a more
+comprehensive discussion of DE workflows in Bioconductor see
+@Love2016-f1000 and @Law2018-f1000. 
 
 ```{r}
 library(DESeq2)
@@ -307,13 +308,18 @@ keep <- rowSums(counts(dds) >= 10) >= 6
 dds <- dds[keep,]
 ```
 
+The model is fit with the following line of code:
+
+```{r}
+dds <- DESeq(dds)
+```
+
 Below we set the contrasts on the condition variable, indicating we are
 estimating log2 fold changes of IFNg stimulated cell lines against naive cell
 lines. We are interested in log fold changes greater than 1 at a false
 discovery rate at of 1%.
 
 ```{r}
-dds <- DESeq(dds)
 res <- results(dds,
                contrast=c("condition","IFNg","naive"),
                lfcThreshold=1, alpha=0.01)
@@ -332,9 +338,10 @@ We now output the results as a *GRanges* object, due to the conventions of
 the results. Each row now contains the genomic region (`seqnames`, `start`,
 `end`, `strand`) along with corresponding metadata columns (the `gene_id` and
 the results of the test). Note that *tximeta* has correctly identified the
-reference genome as "hg38", this has also been annotated onto the target
-*GRanges*. This kind of book-keeping is vital once overlap operations are
-performed to ensure that *plyranges*
+reference genome as "hg38", and this has also been added to the
+*GRanges* along the results columns. This kind of book-keeping is
+vital once overlap operations are performed to ensure that *plyranges*
+is not comparing across incompatible genomes.
 
 ```{r}
 suppressPackageStartupMessages(library(plyranges))
@@ -345,8 +352,10 @@ de_genes <- results(dds,
   names_to_column("gene_id")
 de_genes
 ```
-From this, we can restrict the results where that meet our FDR threshold and
-select (and rename) the metadata columns we're interested in:
+
+From this, we can restrict the results to those that meet our FDR
+threshold and select (and rename) the metadata columns we're
+interested in: 
 
 ```{r}
 de_genes <- de_genes %>%
@@ -354,9 +363,11 @@ de_genes <- de_genes %>%
   select(gene_id, de_log2FC = log2FoldChange, de_padj = padj)
 ```
 
-Next we re-run `results` because we don't want to use an `lfcThreshold` this
-time. This will extract genes which are not differentially expressed according
-to the *DESeq2* significance test.
+We now wish to extract genes for which we could *not* reject the null hypothesis
+(we select based on an un-adjusted p-value larger than 0.1 for example).
+We must re-run `results` because we don't want to use an `lfcThreshold` this
+time. For brevity we will label these genes as `other_genes`, and
+later on we will use these for comparison with our `de_genes` set. 
 
 ```{r}
 other_genes <- results(dds,
@@ -372,7 +383,7 @@ other_genes <- results(dds,
 ## ATAC-seq peak differential abundance analysis 
 
 The following section describes the process we have used for generating a
-*GRanges* object of differential peaks from that ATAC-seq data in @alasoo.
+*GRanges* object of differential peaks from the ATAC-seq data in @alasoo.
 
 The code chunks for the remainder of this section are not run.
 
