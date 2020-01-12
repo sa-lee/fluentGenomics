@@ -711,6 +711,7 @@ everything serially .
 by_gene_origin <- genes_olap_peaks %>%
   group_by(gene_id, origin, resample)
 
+# Mike: I'm concerned about how long this takes, can we make it more efficient?
 genes_peak_all_thresholds <- bind_ranges(
   lapply(thresholds, count_if_above_threshold, .data = by_gene_origin)
 )
@@ -747,33 +748,32 @@ We computed the sum of DA peaks near the DE genes, for increasing LFC
 thresholds on the accessibility change. As we increased the threshold, the
 number of total peaks went down (likewise the mean number of DA peaks per
 gene). It is also likely the number of DE genes with a DA peak nearby with such
-a large change went down - we can check this by plotting the number of DE genes
-against the number of DA peaks:
+a large change went down. We can investigate this with a plot that
+summarizes many of the aspects underlying the enrichment plot above.
 
 ```{r}
 origin_peak_all_thresholds %>%
   as.data.frame() %>%
-  ggplot(aes(x = gene_count,
-             y = peak_count,
-             color = threshold)) +
-  geom_point() +
-  scale_color_viridis_c() +
-  facet_wrap(~ origin) +
-  labs(x = "Number of Genes",
-       y = "Number of Peaks",
-       color = "LFC threshold")
+  tidyr::gather(type, count, gene_count:peak_count) %>%
+  mutate(type = sub("_count","",type)) %>%
+  ggplot(aes(x = threshold,
+             y = count + 1,
+             color = origin,
+             linetype = type)) + 
+  geom_line() +
+  scale_y_log10()
 ```
 
 # Discussion
 
 We have shown that using *plyranges* and *tximeta* (with support of
 Bioconductor and *tidyverse* packages) that we can fluently iterate through the
-biological data science workflow: from import, through to modelling, wrangling
+biological data science workflow: from import, through to modeling, wrangling
 and visualization.
 
 Using *tximeta*, we have shown that it is straightforward to import RNA-seq
-quantification data, and that by ensuring the proper metadata is associated
-with it, we can guard against any mistakes in downstream analyses.
+quantification data such that proper metadata and the genomic ranges
+giving the context of the features are automatically attached.
 
 Using *plyranges*, we have extended the principles of the *tidyverse* to
 genomic ranges, and that by design we can leverage those packages to understand
@@ -784,16 +784,19 @@ clarifies how the features of a genomic range is being modified.
 
 There are several further steps that would be interesting to perform in this
 analysis; for example, we could modify window size around the TSS to see how it
-effects enrichment and vary the cut-offs applied to FDR percentages applied to
-both the DE and DA peaks.
-
+effects enrichment, and vary the cut-offs applied to FDR percentages applied to
+both the DE and DA peaks. We could also have computed variance in addition
+to the mean of the bootstrap set, and so drawn an interval around the
+enrichment line.
 
 # Software Availability
 
 The workflow materials, including this article can be fully reproduced
 following the instructions found at the Github repository
 [sa-lee/fluentGenomics](https://github.com/sa-lee/fluentGenomics). Moreover,
-the workflow and all downstream dependencies can be installed
+the workflow and all downstream dependencies can be installed... 
+
+**Finish line above...**
 
 This article and the analyses were performed with R [@baser] using the
 *rmarkdown* [@rmarkdown], *knitr* [@knitr; @xie2015] and *BiocWorkflowTools*
