@@ -733,11 +733,11 @@ origin_peak_all_thresholds
 Again we can compute the relative enrichment in LFCs in the same manner as
 before and visualize how enrichment changes as the threshold value increases:
 ```{r}
-
 peak_enrichment <- origin_peak_all_thresholds %>%
   as.data.frame() %>%
   group_by(threshold) %>%
   summarize(enrichment = Reduce(function(x,y) y/x, peak_count))
+
 peak_enrichment %>%
   ggplot(aes(x = threshold, y = enrichment)) +
   geom_line() +
