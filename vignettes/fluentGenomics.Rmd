@@ -16,10 +16,7 @@ vignette: >
 ---
 
 ```{r setup, include = FALSE}
-# check if there's a cache installed,
-# if not we won't update it
 library(fluentGenomics)
-retrieve_cache <- FALSE
 dir <- system.file("extdata", package="macrophage")
 
 library(tximeta)
@@ -33,11 +30,6 @@ makeLinkedTxome(
   gtf=file.path(dir, "gencode.v29.annotation.gtf.gz"), # local version
   write=FALSE
 )
-# if (requireNamespace("BiocFileCache", quietly = TRUE)) {
-#   bfc <- retrieve_cache()
-#   res <- BiocFileCache::bfcquery(bfc, "macrophage_atac_se")
-#   retrieve_cache <- BiocFileCache::bfccount(res) == 1L
-# }
 ```
 
 
@@ -623,23 +615,41 @@ changes for various DA LFC thresholds.
 
 For all variables except for the `origin` column we divide
 the first rows values by the second row, which will be the
-enrichment of peaks in DE genes compared to other genes. 
-We see that the relative enrichment increases  for a 'larger' LFC:
+enrichment of peaks in DE genes compared to other genes. This requires us
+to reshape the summary table to long form back to wide form using the
+*tidyr* package. First we pivot the results of the peak_count columns 
+into name-value pairs, then pivot again to place values into the origin column.
+Then we create a new column with the relative enrichment:
 
+```{r}
+origin_peak_lfc %>% 
+  as.data.frame() %>% 
+  tidyr::pivot_longer(cols = -origin) %>% 
+  tidyr::pivot_wider(names_from = origin, values_from = value) %>% 
+  mutate(enrichment = de / not_de)
+
+```
+
+The above table shows that relative enrichment increases for a larger
+LFC threshold.
+
+<!--
 ```{r}
 origin_peak_lfc %>%
   as.data.frame() %>%
   select(-origin) %>%
-  summarize_all(.funs = ~Reduce(function(x,y) y/x, .))
+  summarize_all(.funs = ~Reduce(``, .))
 ```
+-->
 
-The above code makes use of the *dplyr* framework, but is admittedly a
-bit complicated to read if one is not familiar with `.funs` or
-`Reduce`. We can also perform a simple ratio of two rows of a 
-matrix, giving the same result. The above code however allows us to
-perform the operation as a single composition of verbs, rather than
-needing to save an intermediate object.
+<!-- The above code makes use of the *dplyr* framework, but is admittedly a -->
+<!-- bit complicated to read if one is not familiar with `.funs` or -->
+<!-- `Reduce`. We can also perform a simple ratio of two rows of a  -->
+<!-- matrix, giving the same result. The above code however allows us to -->
+<!-- perform the operation as a single composition of verbs, rather than -->
+<!-- needing to save an intermediate object. -->
 
+<!--
 ```{r}
 m <- origin_peak_lfc %>%
   as.data.frame() %>%
@@ -647,6 +657,7 @@ m <- origin_peak_lfc %>%
   as.matrix()
 m[2,] / m[1,]
 ```
+-->
 
 Due to the one-to-many mappings of genes to peaks, it is unknown if we have
 the same number of DE genes participating or less, as we increase the threshold
@@ -682,7 +693,6 @@ count that meets the DA LFC threshold.
 ```{r}
 count_if_above_threshold <- function(.data, threshold) {
   reduce_ranges_directed(.data,
-                         threshold = threshold,
                          value = sum(abs(da_log2FC) > threshold, na.rm = TRUE)
   )
 }
