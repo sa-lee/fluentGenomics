@@ -96,7 +96,7 @@ The following code loads the path to the cached data file, or if it is not
 present will create the cache and generate a *SummarizedExperiment* using the
 the *BiocFileCache* package [@bcfilecache].
 
-```{r cache-path, eval = retrieve_cache}
+```{r cache-path, eval = FALSE}
 library(fluentGenomics)
 path_to_se <- cache_atac_se()
 ```
@@ -104,7 +104,7 @@ path_to_se <- cache_atac_se()
 We can then read the cached file and assign it to an object called `atac`. Note
 that this step is not strictly necessary to run the workflow.
 
-```{r read-cache, eval = retrieve_cache}
+```{r read-cache, eval = FALSE}
 atac <- readRDS(path_to_se)
 ```
 
@@ -383,7 +383,7 @@ The code chunks for the remainder of this section are not run.
 <!-- We can check the standard deviation over mean plot, to assess for any -->
 <!-- systematic trends: -->
 
-<!-- ```{r, eval = retrieve_cache} --> <!-- library(ggplot2) --> <!-- mv <-
+<!-- ```{r, eval = FALSE} --> <!-- library(ggplot2) --> <!-- mv <-
 data.frame(rmu = rowMeans(assay(atac)), --> <!-- rvar = rowVars(assay(atac)))
 --> <!-- ggplot(data =mv , aes(x = rmu, y = sqrt(rvar))) + --> <!-- geom_hex()
 --> <!-- ``` -->
@@ -391,7 +391,7 @@ data.frame(rmu = rowMeans(assay(atac)), --> <!-- rvar = rowVars(assay(atac)))
 For assessing differential accessibility, we run *limma* [@Smyth2004], and
 generate the a summary of log fold changes and adjusted p-values for the peaks:
 
-```{r, eval = retrieve_cache}
+```{r, eval = FALSE}
 library(limma)
 design <- model.matrix(~donor + condition, colData(atac))
 fit <- lmFit(assay(atac), design)
@@ -405,7 +405,7 @@ and adjusted p-value from *limma*, so that we can consider the overlap with
 differential expression. Note that we set the genome build to "hg38" and
 restyle the chromosome information to use the "UCSC" style.
 
-```{r, eval = retrieve_cache}
+```{r, eval = FALSE}
 atac_peaks <- rowRanges(atac) %>%
   remove_names() %>%
   mutate(
@@ -687,19 +687,18 @@ genes_olap_peaks %>%
 
 To do this for many thresholds is cumbersome and would create a lot of
 duplicate code, instead we create a single function called
-`count_above_threshold` that accepts a GRanges object, and computes the peak
-count that meets the DA LFC threshold.
+`count_above_threshold` that accepts a variable and a vector of
+thresholds, and computes the sum of the absolute value
+of the variable for each element in the thresholds vector.
 
 ```{r}
-count_if_above_threshold <- function(.data, threshold) {
-  reduce_ranges_directed(.data,
-                         value = sum(abs(da_log2FC) > threshold, na.rm = TRUE)
-  )
+count_if_above_threshold <- function(var, thresholds) {
+  lapply(thresholds, function(.) sum(abs(var) > ., na.rm = TRUE))
 }
 ```
 
 The above function will compute the counts for any arbitrary threshold, now we
-need to apply it over possible LFC thresholds of interest. We choose a grid of
+apply it over possible LFC thresholds of interest. We choose a grid of
 one hundred thresholds based on the range of absolute LFC values in the
 `da_peaks` *GRanges* object:
 
@@ -711,27 +710,30 @@ thresholds <- da_peaks %>%
   )
 ```
 
-The peaks are computed for each threshold value by applying the function
-`count_if_above_threshold()` on a *GRanges* object that has been grouped
-by the gene, origin and the number of resamples variables.
-This could be done easily in parallel with `BiocParallel` but here we compute
-everything serially .
-
+The peak counts for each threshold 
+are computed as a new list-column called `value`. First, the *GRanges* 
+object  has been grouped by the gene, origin and the number of resamples 
+columns. Then we aggregate over those columns,so each row will contain
+the peak counts for all of the thresholds for a within gene, origin
+and resample. We also maintain another list-column that contains
+the threshold values. 
 ```{r}
-by_gene_origin <- genes_olap_peaks %>%
-  group_by(gene_id, origin, resample)
-
-# Mike: I'm concerned about how long this takes, can we make it more efficient?
-genes_peak_all_thresholds <- bind_ranges(
-  lapply(thresholds, count_if_above_threshold, .data = by_gene_origin)
-)
+genes_peak_all_thresholds <- genes_olap_peaks %>%
+  group_by(gene_id, origin, resample) %>% 
+  reduce_ranges_directed(
+    value = count_if_above_threshold(da_log2FC, thresholds),
+    threshold = list(thresholds)
+  )
+genes_peak_all_thresholds
 ```
 
-This creates a very *long* GRanges object. To compute the peak and gene counts
+Now we can expand these list-columns into a long *GRanges* object (since
+we have used . To compute the peak and gene counts
 for each threshold, we apply the same summarization as before:
 
 ```{r}
 origin_peak_all_thresholds <- genes_peak_all_thresholds %>%
+  expand_ranges() %>% 
   group_by(origin, threshold) %>%
   summarize(
     gene_count = sum(value > 0) / n_distinct(resample),
@@ -741,14 +743,23 @@ origin_peak_all_thresholds
 ```
 
 Again we can compute the relative enrichment in LFCs in the same manner as
-before and visualize how enrichment changes as the threshold value increases:
-```{r}
-peak_enrichment <- origin_peak_all_thresholds %>%
-  as.data.frame() %>%
-  group_by(threshold) %>%
-  summarize(enrichment = Reduce(function(x,y) y/x, peak_count))
+before by pivoting the results to long form then back to wide form to compute
+the enrichment. Then we can visualise how the peak enrichment changes of 
+DE genes relative to other genes using a line chart:
 
-peak_enrichment %>%
+```{r}
+origin_threshold_counts <- origin_peak_all_thresholds %>%
+  as.data.frame() %>%
+  tidyr::pivot_longer(cols = -c(origin, threshold), 
+                      names_to = c("type", "var"),
+                      names_sep = "_",
+                      values_to = "count") %>% 
+  select(-var)
+
+origin_threshold_counts %>%
+  filter(type == "peak") %>%
+  tidyr::pivot_wider(names_from = origin, values_from = count) %>% 
+  mutate(enrichment =  de / not_de) %>% 
   ggplot(aes(x = threshold, y = enrichment)) +
   geom_line() +
   labs(x = "logFC threshold", y = "Relative Enrichment")
@@ -762,10 +773,7 @@ a large change went down. We can investigate this with a plot that
 summarizes many of the aspects underlying the enrichment plot above.
 
 ```{r}
-origin_peak_all_thresholds %>%
-  as.data.frame() %>%
-  tidyr::gather(type, count, gene_count:peak_count) %>%
-  mutate(type = sub("_count","",type)) %>%
+origin_threshold_counts %>% 
   ggplot(aes(x = threshold,
              y = count + 1,
              color = origin,
@@ -804,14 +812,18 @@ enrichment line.
 The workflow materials, including this article can be fully reproduced
 following the instructions found at the Github repository
 [sa-lee/fluentGenomics](https://github.com/sa-lee/fluentGenomics). Moreover,
-the workflow and all downstream dependencies can be installed... 
+the development version of the workflow and all downstream dependencies 
+can be installed using the `BiocManager` package by running: 
 
-**Finish line above...**
+```{r, eval = FALSE}
+# dev
+BiocManager::install("sa-lee/fluentGenomics")
+# stable version
+BiocManager::install("fluentGenomics")
+```
 
 This article and the analyses were performed with R [@baser] using the
-*rmarkdown* [@rmarkdown], *knitr* [@knitr; @xie2015] and *BiocWorkflowTools*
-[@bcworkflowtools] packages.
-
+*rmarkdown* [@rmarkdown], and *knitr* [@knitr; @xie2015] packages.
 
 ## Session Info
 
