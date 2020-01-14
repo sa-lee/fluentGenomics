@@ -21,7 +21,7 @@ VignetteBuilder:
     rmarkdown
 Depends: R (>= 3.6)
 Imports:
-    plyranges (>= 1.6.4),
+    plyranges (>= 1.7.7),
     tximeta (>= 1.4.2),
     macrophage (>= 1.2.0),
     SummarizedExperiment,
@@ -30,7 +30,8 @@ Imports:
     ggplot2,
     dplyr,
     readr,
-    utils
+    utils,
+    tidyr
 Suggests:
     knitr,
     rmarkdown,
