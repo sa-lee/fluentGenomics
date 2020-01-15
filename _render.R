@@ -1,5 +1,5 @@
-# based on earowang/thesis
 options(warn = 1)
+library(rmarkdown)
 
 paper <- "./vignettes/fluentGenomics.Rmd"
 
@@ -11,22 +11,22 @@ if (length(spell_res$word) > 0) {
   stop("Can you please fix typos listed above first?", call. = FALSE)
 }
 
-# compile 
+# compile as pdf to docs folder
 if (Sys.getenv("RSTUDIO") != "1" && Sys.info()['sysname'] == "Darwin") {
   Sys.setenv('RSTUDIO_PANDOC' = '/Applications/RStudio.app/Contents/MacOS/pandoc')
 }
 
-# overwrite yaml header
-f1000_rmd <- "docs/fluentGenomics.Rmd"
-f1000_yaml <- readLines("_paper.yml")
+output_dir <- "./docs/"
 
-content <- readLines(paper)
+pdfdoc <- function(...) {
+  bookdown::pdf_document2(toc = FALSE, 
+                          highlight = "pygments",
+                          fig_width = 5,
+                          keep_tex = TRUE)
+}
+  
 
-content_yaml <-  grep("^---$", content)
-content <- c(f1000_yaml, content[-seq(content_yaml[1], content_yaml[2])])
-
-writeLines(content, f1000_rmd)
-
-rmarkdown::render(f1000_rmd,  quiet = FALSE)
-
-
+render(paper,
+       output_format = pdfdoc(),
+       output_dir = "./docs/",
+       quiet = FALSE)

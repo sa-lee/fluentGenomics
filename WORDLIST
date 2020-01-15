@@ -14,6 +14,7 @@ FC
 fluentGenomics
 funders
 Gencode
+GenomicRanges
 Github
 GRanges
 GRCh
@@ -30,7 +31,10 @@ knitr
 LFC
 LFCs
 limma
+linechart
 macrophage
+maplot
+MIL's
 pluripotent
 plyranges
 quantifications
@@ -41,13 +45,17 @@ rmu
 rowMeans
 RTP
 sa
+se
 SL
 summarization
 SummarizedExperiment
+tidyr
 tidyverse
 transcriptome
 transcriptomic
 TSS
 tximeta
+unadjusted
+unlist
 UCSC
 Zenodo

@@ -5,3 +5,6 @@
 ^docs$
 ^pkgdown$
 ^LICENSE\.md$
+Makefile
+WORDLIST
+^_render\.R$
