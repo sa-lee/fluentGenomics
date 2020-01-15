@@ -8,6 +8,11 @@ output:
     toc: true
     toc_depth: 3
     fig_width: 5
+  bookdown::pdf_document2:
+    highlight: pygments
+    toc: false
+    fig_width: 5
+    keep_tex: true
 bibliography: "`r file.path(system.file(package='fluentGenomics', 'vignettes'), 'library.bib')`"
 vignette: >
   %\VignetteIndexEntry{plyrangesTximetaCaseStudy}
@@ -32,6 +37,27 @@ makeLinkedTxome(
 )
 ```
 
+(fig:workflow) An overview of the fluent genomics workflow. First, we
+*import* data as a *SummarizedExperiment* object, which enables interoperability
+with downstream analysis packages. Then we *model* our assay data, using
+the existing Bioconductor packages *DESeq2*  and *limma*. We take the results
+of our models for each assay with respect to their genomic coordinates, and *transform*
+them. First, we compute the overlap between the results of each assay, 
+then aggregate over the combined genomic regions and finally summarize to 
+compare differentially expressed genes to non differentially expressed genes.
+The final output can be used for downstream visualization or further transformation.
+
+(fig:boxplot) A boxplot of maximum LFCs for DA peaks for DE genes compared
+to non-DE genes where genes have at least one DA peak. 
+
+(fig:linechart) A line chart displaying how relative enrichment of DA peaks
+change between non-DE genes compared to DE genes as the absolute DA LFC threshold
+increases.
+
+(fig:linechart2) A line chart displaying how gene and peak counts change as
+the absolute DA LFC threshold increases. Lines are colored according to 
+whether they represent a gene that is DE or not. Note the x-axis is on a
+log-scale.
 
 # Introduction
 
@@ -45,7 +71,7 @@ differentiated induced pluripotent stem cells (iPSC) lines, and examined
 baseline quantitative trait loci (QTL) and response QTL for chromatin
 accessibility and gene expression. The authors found that many of the
 stimulus-specific expression QTL were already detectable as chromatin
-QTL in naive cells, and futher hypothesize about the nature and role
+QTL in naive cells, and further hypothesize about the nature and role
 of transcription factors implicated in the response to stimulus.
 
 In this workflow, we will perform a much simpler analysis than the one found in
@@ -58,7 +84,17 @@ stimulation may be mediated through binding of regulatory proteins to
 accessible regions, and this binding may increase the accessibility of those
 regions such that it can be detected by ATAC-seq.
 
-Throughout the workflow, we will use existing Bioconductor infrastructure to
+```{r workflow, fig.cap = "(fig:workflow)", fig.align='center'}
+knitr::include_graphics(
+  file.path(
+    system.file(package='fluentGenomics', 'vignettes'), 
+    'workflow.png'
+    )
+  )
+```
+
+Throughout the workflow (figure \@ref(fig:workflow)), we will 
+use existing Bioconductor infrastructure to
 understand these datasets. In particular, we will emphasize the use of the
 Bioconductor packages *plyranges* and *tximeta*. The first package is be used
 to perform easily-readable transformations of data tied to genomic ranges, e.g.
@@ -280,7 +316,7 @@ atac <- SummarizedExperiment(assays = list(cqndata=atac_mat),
                              colData=atac_coldata)
 ```
 
-# Model
+# Model assays
 
 ## RNA-seq differential gene expression analysis
 
@@ -320,7 +356,7 @@ res <- results(dds,
 To see the results of the expression analysis, we can generate a summary table
 and an MA plot:
 
-```{r}
+```{r ma-plot, fig.cap="Visualization of gene expression modelling results as a mean-abundance (MA) plot. Genes that have an adjusted *p-value* below 0.01 are colored red. Red points indicate significant results." }
 summary(res)
 DESeq2::plotMA(res, ylim=c(-10,10))
 ```
@@ -356,7 +392,7 @@ de_genes <- de_genes %>%
 ```
 
 We now wish to extract genes for which we could *not* reject the null hypothesis
-(we select based on an un-adjusted p-value larger than 0.1 for example).
+(we select based on an unadjusted p-value larger than 0.1 for example).
 We must re-run `results` because we don't want to use an `lfcThreshold` this
 time. For brevity we will label these genes as `other_genes` or later as
 "non-DE genes", and we will use these for comparison with our
@@ -425,7 +461,7 @@ library(fluentGenomics)
 peaks
 ```
 
-# Transform
+# Transform ranges
 
 ## Finding overlaps with *plyranges*
 
@@ -578,7 +614,7 @@ gene_peak_max_lfc <- genes_olap_peaks %>%
 We can then filter genes if they have any peaks and compare the peak fold
 changes between non-DE and DE genes using a boxplot:
 
-```{r}
+```{r boxplot, fig.cap = "(fig:boxplot)"}
 library(ggplot2)
 gene_peak_max_lfc %>%
   filter(peak_count > 0) %>%
@@ -627,37 +663,10 @@ origin_peak_lfc %>%
   tidyr::pivot_longer(cols = -origin) %>% 
   tidyr::pivot_wider(names_from = origin, values_from = value) %>% 
   mutate(enrichment = de / not_de)
-
 ```
 
 The above table shows that relative enrichment increases for a larger
 LFC threshold.
-
-<!--
-```{r}
-origin_peak_lfc %>%
-  as.data.frame() %>%
-  select(-origin) %>%
-  summarize_all(.funs = ~Reduce(``, .))
-```
--->
-
-<!-- The above code makes use of the *dplyr* framework, but is admittedly a -->
-<!-- bit complicated to read if one is not familiar with `.funs` or -->
-<!-- `Reduce`. We can also perform a simple ratio of two rows of a  -->
-<!-- matrix, giving the same result. The above code however allows us to -->
-<!-- perform the operation as a single composition of verbs, rather than -->
-<!-- needing to save an intermediate object. -->
-
-<!--
-```{r}
-m <- origin_peak_lfc %>%
-  as.data.frame() %>%
-  select(-origin) %>%
-  as.matrix()
-m[2,] / m[1,]
-```
--->
 
 Due to the one-to-many mappings of genes to peaks, it is unknown if we have
 the same number of DE genes participating or less, as we increase the threshold
@@ -697,8 +706,8 @@ count_if_above_threshold <- function(var, thresholds) {
 }
 ```
 
-The above function will compute the counts for any arbitrary threshold, now we
-apply it over possible LFC thresholds of interest. We choose a grid of
+The above function will compute the counts for any arbitrary threshold, so we
+can apply it over possible LFC thresholds of interest. We choose a grid of
 one hundred thresholds based on the range of absolute LFC values in the
 `da_peaks` *GRanges* object:
 
@@ -727,8 +736,10 @@ genes_peak_all_thresholds <- genes_olap_peaks %>%
 genes_peak_all_thresholds
 ```
 
-Now we can expand these list-columns into a long *GRanges* object (since
-we have used . To compute the peak and gene counts
+Now we can expand these list-columns into a long *GRanges* object using
+the `expand_ranges()` function. This function will unlist the `value` and
+`threshold` columns and lengthen the resulting *GRanges* object. 
+To compute the peak and gene counts
 for each threshold, we apply the same summarization as before:
 
 ```{r}
@@ -744,10 +755,10 @@ origin_peak_all_thresholds
 
 Again we can compute the relative enrichment in LFCs in the same manner as
 before by pivoting the results to long form then back to wide form to compute
-the enrichment. Then we can visualise how the peak enrichment changes of 
-DE genes relative to other genes using a line chart:
+the enrichment. We visualize how the peak enrichment changes of 
+DE genes relative to other genes as a line chart:
 
-```{r}
+```{r line-chart, fig.cap = "(fig:linechart)"}
 origin_threshold_counts <- origin_peak_all_thresholds %>%
   as.data.frame() %>%
   tidyr::pivot_longer(cols = -c(origin, threshold), 
@@ -772,7 +783,7 @@ gene). It is also likely the number of DE genes with a DA peak nearby with such
 a large change went down. We can investigate this with a plot that
 summarizes many of the aspects underlying the enrichment plot above.
 
-```{r}
+```{r linechart2, fig.cap = "(fig:linechart2)"}
 origin_threshold_counts %>% 
   ggplot(aes(x = threshold,
              y = count + 1,
@@ -818,7 +829,7 @@ can be installed using the `BiocManager` package by running:
 ```{r, eval = FALSE}
 # dev
 BiocManager::install("sa-lee/fluentGenomics")
-# stable version
+# stable version available from Bioconductor
 BiocManager::install("fluentGenomics")
 ```
 
@@ -848,7 +859,6 @@ MIL's contribution is supported by NIH grant R01 HG009937.
 
 __I confirm that the funders had no role in study design, data collection and
 analysis, decision to publish, or preparation of the manuscript.__
-
 
 ## Acknowledgements
 
