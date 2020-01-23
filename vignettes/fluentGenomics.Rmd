@@ -9,6 +9,7 @@ output:
     toc_depth: 3
     fig_width: 5
 bibliography: "`r file.path(system.file(package='fluentGenomics', 'vignettes'), 'library.bib')`"
+link-citations: true
 vignette: >
   %\VignetteIndexEntry{plyrangesTximetaCaseStudy}
   %\VignetteEngine{knitr::rmarkdown}
@@ -68,13 +69,11 @@ In this workflow, we examine a subset of the RNA-seq and ATAC-seq data from
 of human donors with interferon gamma (IFNg), *Salmonella* infection, or both
 treatments combined. @alasoo examined gene expression and chromatin
 accessibility in a subset of 86 successfully differentiated induced pluripotent
-stem cells (iPSC) lines, and examined baseline quantitative trait loci (QTL)
-and response QTL for chromatin accessibility and gene expression. The authors
-found that many of the stimulus-specific expression QTL were already detectable
-as chromatin QTL in naive cells, and further hypothesize about the nature and
-role of transcription factors implicated in the response to stimulus.
+stem cells (iPSC) lines, and compared baseline and response with respect to chromatin accessibility and gene expression at specific quantitative trait loci
+(QTL). The authors found that many of the stimulus-specific expression QTL were already detectable as chromatin QTL in naive cells, and further hypothesize about the nature and role of transcription factors implicated in the response to 
+stimulus.
 
-In this workflow, we will perform a much simpler analysis than the one found in
+We will perform a much simpler analysis than the one found in
 @alasoo, using their publicly available RNA-seq and ATAC-seq data (ignoring the
 genotypes). We will examine the effect of IFNg stimulation on gene expression
 and chromatin accessibility, and look to see if there is an enrichment of
@@ -96,10 +95,12 @@ knitr::include_graphics(
 Throughout the workflow (Figure \@ref(fig:workflow)), we will use existing
 Bioconductor infrastructure to understand these datasets. In particular, we
 will emphasize the use of the Bioconductor packages *plyranges* and *tximeta*.
-The *plyranges* package is used to perform easily-readable transformations of data
-tied to genomic ranges, e.g. shifts, windows, overlaps, etc. The *plyranges*
-package is described by @Lee2019, and leverage underlying range operations
-described by @granges. The *tximeta* package described by @Love2019-tximeta is
+The *plyranges* package fluently transforms data tied to genomic ranges
+using operations like shifting, window construction, overlap
+detection, etc. It is described by @Lee2019 and leverages underlying core
+Biocondcutor infrastructure [@granges; @bioc].
+
+The *tximeta* package described by @Love2019-tximeta is
 used to read RNA-seq quantification data into R/Bioconductor, such that the
 transcript ranges and their provenance are automatically attached to the object
 containing expression values and differential expression results.
