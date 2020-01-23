@@ -393,18 +393,21 @@ de_genes <- de_genes %>%
   select(gene_id, de_log2FC = log2FoldChange, de_padj = padj)
 ```
 
-We now wish to extract genes for which we could *not* reject the null
-hypothesis (we select based on an unadjusted p-value larger than 0.1 for
-example). We must re-run `results` because we don't want to use an
-`lfcThreshold` this time. For brevity we will label these genes as
-`other_genes` or later as "non-DE genes", and we will use these for comparison
-with our `de_genes` set.
+We now wish to extract genes for which there is evidence that the LFC
+is *not* large. We perform this test by specifying an LFC threshold
+and an alternative hypothesis (`altHypothesis`) that the LFC is less
+than the threshold in absolute value. To visualize the result of this
+test, you can run `results` without `format="GRanges"`, and pass this
+object to `plotMA` as before. We label these genes as `other_genes`
+and later as "non-DE genes", for comparison with our `de_genes` set.
 
 ```{r}
 other_genes <- results(dds,
                        contrast=c("condition","IFNg","naive"),
+                       lfcThreshold=1,
+                       altHypothesis="lessAbs",
                        format="GRanges") %>%
-  filter(pvalue > 0.1) %>%
+  filter(padj < 0.01) %>%
   names_to_column("gene_id") %>%
   dplyr::select(gene_id,
                 de_log2FC = log2FoldChange,
