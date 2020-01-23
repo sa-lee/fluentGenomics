@@ -235,8 +235,7 @@ the \emph{BiocFileCache} package (Shepherd and Morgan \protect\hyperlink{ref-bcf
 \end{Highlighting}
 \end{Shaded}
 
-We can then read the cached file and assign it to an object called \texttt{atac}. Note
-that this step is not strictly necessary to run the workflow.
+We can then read the cached file and assign it to an object called \texttt{atac}.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -928,30 +927,30 @@ samples of size equal to the number of DE-genes from the number of rows in
 ## GRanges object with 749 ranges and 3 metadata columns:
 ##         seqnames              ranges strand |            gene_id
 ##            <Rle>           <IRanges>  <Rle> |        <character>
-##     [1]    chr10   97436142-97446017      - | ENSG00000171311.12
-##     [2]     chr6 138161921-138344663      + |  ENSG00000112379.8
-##     [3]     chr7     1815793-2233243      - | ENSG00000002822.15
-##     [4]    chr16   28974804-28990775      + |  ENSG00000261067.7
-##     [5]    chr20   62388632-62407285      - | ENSG00000149679.11
+##     [1]     chr7   92457564-92491610      + |  ENSG00000244055.1
+##     [2]    chr16   29443230-29454651      - |  ENSG00000261740.6
+##     [3]    chr12   32727490-32755902      - | ENSG00000139131.12
+##     [4]     chr1     9943428-9985501      + | ENSG00000173614.13
+##     [5]     chr3   30606502-30694142      + | ENSG00000163513.17
 ##     ...      ...                 ...    ... .                ...
-##   [745]    chr19   51949134-51981367      + |  ENSG00000269235.1
-##   [746]     chr3 134485721-134575017      + | ENSG00000182923.17
-##   [747]     chr9   33041764-33076659      - |  ENSG00000122692.8
-##   [748]    chr19   35523367-35528351      - | ENSG00000189001.10
-##   [749]     chr2   60936819-60938049      - |  ENSG00000237522.1
-##                   de_log2FC           de_padj
-##                   <numeric>         <numeric>
-##     [1] -0.0956829344927486 0.545490973572015
-##     [2] -0.0106307414534406 0.987690222082515
-##     [3]  -0.148695195318644 0.649984673065136
-##     [4] -0.0680706311936801 0.892691368895957
-##     [5]  -0.141515624175246 0.681056515870893
-##     ...                 ...               ...
-##   [745]  0.0565214930075712 0.936478507255614
-##   [746]    -0.2470115038085 0.260791999839439
-##   [747]   0.114228666378735 0.450907069274931
-##   [748]   0.216056508005171 0.899561389010616
-##   [749]  -0.710321336347581 0.275572385235555
+##   [745]     chr8   22089159-22104898      + | ENSG00000158863.21
+##   [746]     chr6 122471923-122484161      + |  ENSG00000279114.1
+##   [747]     chr6     8435568-9294133      + |  ENSG00000285219.1
+##   [748]    chr10   78943328-79067895      - |  ENSG00000224596.7
+##   [749]    chr17   49495293-49515017      + |  ENSG00000064300.8
+##                  de_log2FC           de_padj
+##                  <numeric>         <numeric>
+##     [1]  0.114575011648195 0.829894799217902
+##     [2]  0.070144168645849 0.783187071663607
+##     [3] 0.0765416085265484 0.744224748940401
+##     [4] -0.178065998447147 0.346068918379835
+##     [5] -0.132574804144581 0.801333062837324
+##     ...                ...               ...
+##   [745] 0.0984554782180827 0.580375863517506
+##   [746] -0.593469269237774 0.277777185956275
+##   [747]  0.137280105680984 0.770869793358043
+##   [748]  -0.37732298864218 0.670011846917993
+##   [749]  0.288126290310843 0.851858270517919
 ##   -------
 ##   seqinfo: 25 sequences (1 circular) from hg38 genome
 \end{verbatim}
@@ -1440,7 +1439,7 @@ relative to other genes as a line chart:
 \end{Shaded}
 
 \begin{verbatim}
-## Warning: Removed 4 rows containing missing values (geom_path).
+## Warning: Removed 4 row(s) containing missing values (geom_path).
 \end{verbatim}
 
 \begin{figure}
@@ -1500,9 +1499,10 @@ context of the features are automatically attached.
 Using \emph{plyranges}, we have extended the principles of the \emph{tidyverse} to
 genomic ranges, and that, by design we can leverage those packages to understand
 data measured along the genome. We have shown that analyses performed with
-\emph{plyranges} clearly and (relatively) concisely express their intent; in most
-cases the code we have written closely matches its description in English and
-clarifies how the features of a genomic range are being modified.
+\emph{plyranges} is readable and clear; in most cases the code we have
+written closely matches its description in English and clarifies how
+the features of a genomic range are being modified. Moreover, we have shown
+how we can build up a workflow using small and modular pieces of code.
 
 There are several further steps that would be interesting to perform in this
 analysis; for example, we could modify window size around the TSS to see how it
@@ -1558,7 +1558,7 @@ This article and the analyses were performed with R (R Core Team \protect\hyperl
 ## [8] methods   base     
 ## 
 ## other attached packages:
-##  [1] ggplot2_3.2.1.9000          plyranges_1.7.8            
+##  [1] ggplot2_3.3.0.9000          plyranges_1.7.8            
 ##  [3] DESeq2_1.26.0               GenomicFeatures_1.38.0     
 ##  [5] AnnotationDbi_1.48.0        SummarizedExperiment_1.16.0
 ##  [7] DelayedArray_0.12.1         BiocParallel_1.20.0        
@@ -1571,10 +1571,10 @@ This article and the analyses were performed with R (R Core Team \protect\hyperl
 ## 
 ## loaded via a namespace (and not attached):
 ##   [1] colorspace_1.4-1         htmlTable_1.13.3         XVector_0.26.0          
-##   [4] base64enc_0.1-3          rstudioapi_0.10          farver_2.0.1            
+##   [4] base64enc_0.1-3          rstudioapi_0.10          farver_2.0.3            
 ##   [7] bit64_0.9-7              fansi_0.4.1              xml2_1.2.2              
 ##  [10] splines_3.6.1            tximport_1.14.0          geneplotter_1.64.0      
-##  [13] knitr_1.26               zeallot_0.1.0            Formula_1.2-3           
+##  [13] knitr_1.27               zeallot_0.1.0            Formula_1.2-3           
 ##  [16] jsonlite_1.6             Rsamtools_2.2.1          annotate_1.64.0         
 ##  [19] cluster_2.1.0            dbplyr_1.4.2             png_0.1-7               
 ##  [22] compiler_3.6.1           httr_1.4.1               backports_1.1.5         
@@ -1584,7 +1584,7 @@ This article and the analyses were performed with R (R Core Team \protect\hyperl
 ##  [34] glue_1.3.1               GenomeInfoDbData_1.2.2   rappdirs_0.3.1          
 ##  [37] Rcpp_1.0.3               vctrs_0.2.1              Biostrings_2.54.0       
 ##  [40] rtracklayer_1.46.0       xfun_0.12                stringr_1.4.0           
-##  [43] lifecycle_0.1.0          ensembldb_2.10.2         XML_3.99-0.2            
+##  [43] lifecycle_0.1.0          ensembldb_2.10.2         XML_3.99-0.3            
 ##  [46] zlibbioc_1.32.0          scales_1.1.0             hms_0.5.3               
 ##  [49] ProtGenerics_1.18.0      AnnotationFilter_1.10.0  RColorBrewer_1.1-2      
 ##  [52] yaml_2.2.0               curl_4.3                 memoise_1.1.0           
@@ -1598,11 +1598,11 @@ This article and the analyses were performed with R (R Core Team \protect\hyperl
 ##  [76] magrittr_1.5             bookdown_0.16            R6_2.4.1                
 ##  [79] spelling_2.1             Hmisc_4.3-0              DBI_1.1.0               
 ##  [82] withr_2.1.2              pillar_1.4.3             foreign_0.8-73          
-##  [85] survival_3.1-8           RCurl_1.95-4.13          nnet_7.3-12             
+##  [85] survival_3.1-8           RCurl_1.98-1.1           nnet_7.3-12             
 ##  [88] tibble_2.1.3             crayon_1.3.4             utf8_1.1.4              
 ##  [91] BiocFileCache_1.10.2     jpeg_0.1-8.1             progress_1.2.2          
 ##  [94] locfit_1.5-9.1           grid_3.6.1               data.table_1.12.8       
-##  [97] blob_1.2.0               digest_0.6.23            xtable_1.8-4            
+##  [97] blob_1.2.1               digest_0.6.23            xtable_1.8-4            
 ## [100] tidyr_1.0.0              openssl_1.4.1            munsell_0.5.0           
 ## [103] askpass_1.1
 \end{verbatim}
