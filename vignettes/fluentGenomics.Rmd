@@ -136,8 +136,7 @@ library(fluentGenomics)
 path_to_se <- cache_atac_se()
 ```
 
-We can then read the cached file and assign it to an object called `atac`. Note
-that this step is not strictly necessary to run the workflow.
+We can then read the cached file and assign it to an object called `atac`.
 
 ```{r read-cache, eval = FALSE}
 atac <- readRDS(path_to_se)
@@ -796,6 +795,16 @@ origin_threshold_counts %>%
 
 # Discussion
 
+<!-- lawremi comments:
+
+In the discussion, I would spend less time describing the packages
+again and more on talking about how cool it is that so many decoupled
+packages, both from Bioconductor and the tidyverse, can interoperate
+to enable seamless end-to-end workflows that are far too specialized
+to be solved by a single, monolithic tool.
+
+-->
+
 We have shown that by using *plyranges* and *tximeta* (with support of
 Bioconductor and *tidyverse* packages) we can fluently iterate through the
 biological data science workflow: from import, through to modeling, wrangling
@@ -808,9 +817,10 @@ context of the features are automatically attached.
 Using *plyranges*, we have extended the principles of the *tidyverse* to
 genomic ranges, and that, by design we can leverage those packages to understand
 data measured along the genome. We have shown that analyses performed with
-*plyranges* clearly and (relatively) concisely express their intent; in most
-cases the code we have written closely matches its description in English and
-clarifies how the features of a genomic range are being modified.
+*plyranges* is readable and clear; in most cases the code we have 
+written closely matches its description in English and clarifies how 
+the features of a genomic range are being modified. Moreover, we have shown
+how we can build up a workflow using small and modular pieces of code. 
 
 There are several further steps that would be interesting to perform in this
 analysis; for example, we could modify window size around the TSS to see how it
