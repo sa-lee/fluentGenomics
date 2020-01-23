@@ -82,7 +82,7 @@
     
         <div class="abstract">
       <p class="abstract">Abstract</p>
-      We construct a simple workflow for fluent genomics data analysis using the R/Biocondcutor ecosystem. This involves three core steps: <strong>import</strong> the data into an appropriate abstraction, <strong>model</strong> the data with respect to the biological questions of interest, and <strong>transform</strong> the results with respect to their underlying genomic coordinates. Here we show how to implement these steps to integrate published RNA-seq and ATAC-seq experiments on macrophage cell lines. Using <em>tximeta</em>, we <strong>import</strong> RNA-seq transcript quantifications into an analysis-ready data structure, called the <em>SummarizedExperiment</em>, that contains the ranges of the reference transcripts and metadata on their provenance. Using <em>SummarizedExperiment</em>s to represent the ATAC-seq and RNA-seq data, we <strong>model</strong> differentially accessible (DA) chromatin peaks and differentially expressed (DE) genes with existing Bioconductor packages. Using <em>plyranges</em> we then <strong>transform</strong> the results to see if there is an enrichment of DA peaks near DE genes by finding overlaps and aggregating over log-fold change thresholds. The combination of these packages and their integration with the Bioconductor ecosystem provide a coherent framework for analysts to iteratively and reproducibly explore their biological data.
+      We construct a simple workflow for fluent genomics data analysis using the R/Bioconductor ecosystem. This involves three core steps: <strong>import</strong> the data into an appropriate abstraction, <strong>model</strong> the data with respect to the biological questions of interest, and <strong>transform</strong> the results with respect to their underlying genomic coordinates. Here we show how to implement these steps to integrate published RNA-seq and ATAC-seq experiments on macrophage cell lines. Using <em>tximeta</em>, we <strong>import</strong> RNA-seq transcript quantifications into an analysis-ready data structure, called the <em>SummarizedExperiment</em>, that contains the ranges of the reference transcripts and metadata on their provenance. Using <em>SummarizedExperiment</em>s to represent the ATAC-seq and RNA-seq data, we <strong>model</strong> differentially accessible (DA) chromatin peaks and differentially expressed (DE) genes with existing Bioconductor packages. Using <em>plyranges</em> we then <strong>transform</strong> the results to see if there is an enrichment of DA peaks near DE genes by finding overlaps and aggregating over log-fold change thresholds. The combination of these packages and their integration with the Bioconductor ecosystem provide a coherent framework for analysts to iteratively and reproducibly explore their biological data.
     </div>
     
 <p>(ref:workflow) An overview of the fluent genomics workflow. First, we <em>import</em> data as a <em>SummarizedExperiment</em> object, which enables interoperability with downstream analysis packages. Then we <em>model</em> our assay data, using the existing Bioconductor packages <em>DESeq2</em> and <em>limma</em>. We take the results of our models for each assay with respect to their genomic coordinates, and <em>transform</em> them. First, we compute the overlap between the results of each assay, then aggregate over the combined genomic regions, and finally summarize to compare enrichment for differentially expressed genes to non differentially expressed genes. The final output can be used for downstream visualization or further transformation.</p>
@@ -93,24 +93,25 @@
 <div id="introduction" class="section level1">
 <h1 class="hasAnchor">
 <a href="#introduction" class="anchor"></a>Introduction</h1>
-<p>In this workflow, we examine a subset of the RNA-seq and ATAC-seq data from <span class="citation">Alasoo et al. (2018)</span>, a study that involved treatment of macrophage cell lines from a number of human donors with interferon gamma (IFNg), <em>Salmonella</em> infection, or both treatments combined. <span class="citation">Alasoo et al. (2018)</span> examined gene expression and chromatin accessibility in a subset of 86 successfully differentiated induced pluripotent stem cells (iPSC) lines, and examined baseline quantitative trait loci (QTL) and response QTL for chromatin accessibility and gene expression. The authors found that many of the stimulus-specific expression QTL were already detectable as chromatin QTL in naive cells, and further hypothesize about the nature and role of transcription factors implicated in the response to stimulus.</p>
-<p>In this workflow, we will perform a much simpler analysis than the one found in <span class="citation">Alasoo et al. (2018)</span>, using their publicly available RNA-seq and ATAC-seq data (ignoring the genotypes). We will examine the effect of IFNg stimulation on gene expression and chromatin accessibility, and look to see if there is an enrichment of differentially accessible (DA) ATAC-seq peaks in the vicinity of differentially expressed (DE) genes. This is plausible, as the transcriptomic response to IFNg stimulation may be mediated through binding of regulatory proteins to accessible regions, and this binding may increase the accessibility of those regions such that it can be detected by ATAC-seq.</p>
+<p>In this workflow, we examine a subset of the RNA-seq and ATAC-seq data from <span class="citation">Alasoo et al. (<a href="#ref-alasoo">2018</a>)</span>, a study that involved treatment of macrophage cell lines from a number of human donors with interferon gamma (IFNg), <em>Salmonella</em> infection, or both treatments combined. <span class="citation">Alasoo et al. (<a href="#ref-alasoo">2018</a>)</span> examined gene expression and chromatin accessibility in a subset of 86 successfully differentiated induced pluripotent stem cells (iPSC) lines, and compared baseline and response with respect to chromatin accessibility and gene expression at specific quantitative trait loci (QTL). The authors found that many of the stimulus-specific expression QTL were already detectable as chromatin QTL in naive cells, and further hypothesize about the nature and role of transcription factors implicated in the response to stimulus.</p>
+<p>We will perform a much simpler analysis than the one found in <span class="citation">Alasoo et al. (<a href="#ref-alasoo">2018</a>)</span>, using their publicly available RNA-seq and ATAC-seq data (ignoring the genotypes). We will examine the effect of IFNg stimulation on gene expression and chromatin accessibility, and look to see if there is an enrichment of differentially accessible (DA) ATAC-seq peaks in the vicinity of differentially expressed (DE) genes. This is plausible, as the transcriptomic response to IFNg stimulation may be mediated through binding of regulatory proteins to accessible regions, and this binding may increase the accessibility of those regions such that it can be detected by ATAC-seq.</p>
 <div class="figure" style="text-align: center">
 <img src="../../../../R/Library/fluentGenomics/vignettes/workflow.png" alt="(ref:workflow)" width="\textwidth"><p class="caption">
 (ref:workflow)
 </p>
 </div>
-<p>Throughout the workflow (Figure @ref(fig:workflow)), we will use existing Bioconductor infrastructure to understand these datasets. In particular, we will emphasize the use of the Bioconductor packages <em>plyranges</em> and <em>tximeta</em>. The <em>plyranges</em> package is used to perform easily-readable transformations of data tied to genomic ranges, e.g. shifts, windows, overlaps, etc. The <em>plyranges</em> package is described by <span class="citation">Lee, Cook, and Lawrence (2019)</span>, and leverage underlying range operations described by <span class="citation">Lawrence (2013)</span>. The <em>tximeta</em> package described by <span class="citation">Love et al. (2019)</span> is used to read RNA-seq quantification data into R/Bioconductor, such that the transcript ranges and their provenance are automatically attached to the object containing expression values and differential expression results.</p>
+<p>Throughout the workflow (Figure @ref(fig:workflow)), we will use existing Bioconductor infrastructure to understand these datasets. In particular, we will emphasize the use of the Bioconductor packages <em>plyranges</em> and <em>tximeta</em>. The <em>plyranges</em> package fluently transforms data tied to genomic ranges using operations like shifting, window construction, overlap detection, etc. It is described by <span class="citation">Lee, Cook, and Lawrence (<a href="#ref-Lee2019">2019</a>)</span> and leverages underlying core Bioconductor infrastructure <span class="citation">(Lawrence et al. <a href="#ref-granges">2013</a>; Huber et al. <a href="#ref-bioc">2015</a>)</span>.</p>
+<p>The <em>tximeta</em> package described by <span class="citation">Love et al. (<a href="#ref-Love2019-tximeta">2019</a>)</span> is used to read RNA-seq quantification data into R/Bioconductor, such that the transcript ranges and their provenance are automatically attached to the object containing expression values and differential expression results.</p>
 <div id="experimental-data" class="section level2">
 <h2 class="hasAnchor">
 <a href="#experimental-data" class="anchor"></a>Experimental Data</h2>
 <p>The data used in this workflow is available from two packages: the <em>macrophage</em> Bioconductor ExperimentData package and from the workflow package <em>fluentGenomics</em>.</p>
-<p>The <em>macrophage</em> package contains RNA-seq quantification from 24 RNA-seq samples, a subset of the RNA-seq samples generated and analyzed by <span class="citation">Alasoo et al. (2018)</span>. The paired-end reads were quantified using <em>Salmon</em> <span class="citation">(Patro et al. 2017)</span>, using the Gencode 29 human reference transcripts <span class="citation">(Frankish, GENCODE-consoritum, and Flicek 2018)</span>. For more details on quantification, and the exact code used, consult the vignette of the <a href="http://bioconductor.org/packages/macrophage">macrophage</a> package. The package also contains the <code>Snakemake</code> file that was used to distribute the <em>Salmon</em> quantification jobs on a cluster <span class="citation">(Köster and Rahmann 2012)</span>.</p>
-<p>The <em>fluentGenomics</em> package contains functionality to download and generate a cached <em>SummarizedExperiment</em> object from the normalized ATAC-seq data provided by <span class="citation">Alasoo and Gaffney (2017)</span>. This object contains all 145 ATAC-seq samples across all experimental conditions as analyzed by <span class="citation">Alasoo et al. (2018)</span>. The data can be also be downloaded directly from the <a href="https://zenodo.org/record/1188300#.XIAhXlNKjOQ">Zenodo</a> deposition.</p>
-<p>The following code loads the path to the cached data file, or if it is not present, will create the cache and generate a <em>SummarizedExperiment</em> using the the <em>BiocFileCache</em> package <span class="citation">(Shepherd and Morgan 2019)</span>.</p>
+<p>The <em>macrophage</em> package contains RNA-seq quantification from 24 RNA-seq samples, a subset of the RNA-seq samples generated and analyzed by <span class="citation">Alasoo et al. (<a href="#ref-alasoo">2018</a>)</span>. The paired-end reads were quantified using <em>Salmon</em> <span class="citation">(Patro et al. <a href="#ref-salmon">2017</a>)</span>, using the Gencode 29 human reference transcripts <span class="citation">(Frankish, GENCODE-consoritum, and Flicek <a href="#ref-gencode">2018</a>)</span>. For more details on quantification, and the exact code used, consult the vignette of the <a href="http://bioconductor.org/packages/macrophage">macrophage</a> package. The package also contains the <code>Snakemake</code> file that was used to distribute the <em>Salmon</em> quantification jobs on a cluster <span class="citation">(Köster and Rahmann <a href="#ref-snakemake">2012</a>)</span>.</p>
+<p>The <em>fluentGenomics</em> package contains functionality to download and generate a cached <em>SummarizedExperiment</em> object from the normalized ATAC-seq data provided by <span class="citation">Alasoo and Gaffney (<a href="#ref-alasooZenodo">2017</a>)</span>. This object contains all 145 ATAC-seq samples across all experimental conditions as analyzed by <span class="citation">Alasoo et al. (<a href="#ref-alasoo">2018</a>)</span>. The data can be also be downloaded directly from the <a href="https://zenodo.org/record/1188300#.XIAhXlNKjOQ">Zenodo</a> deposition.</p>
+<p>The following code loads the path to the cached data file, or if it is not present, will create the cache and generate a <em>SummarizedExperiment</em> using the the <em>BiocFileCache</em> package <span class="citation">(Shepherd and Morgan <a href="#ref-bcfilecache">2019</a>)</span>.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(fluentGenomics)</a>
 <a class="sourceLine" id="cb1-2" data-line-number="2">path_to_se &lt;-<span class="st"> </span><span class="kw"><a href="../reference/cache-se.html">cache_atac_se</a></span>()</a></code></pre></div>
-<p>We can then read the cached file and assign it to an object called <code>atac</code>. Note that this step is not strictly necessary to run the workflow.</p>
+<p>We can then read the cached file and assign it to an object called <code>atac</code>.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">atac &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/readRDS.html">readRDS</a></span>(path_to_se)</a></code></pre></div>
 <p>A precise description of how we obtained this <em>SummarizedExperiment</em> object can be found in section @ref(atac).</p>
 </div>
@@ -126,7 +127,7 @@
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">dir &lt;-<span class="st"> "/path/to/quant/files"</span></a></code></pre></div>
 <p>where the path is relative to your current R session. However, in this case we have distributed the files in the <em>macrophage</em> package. The relevant directory and associated files can be located using <code>system.file</code>.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">dir &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span>(<span class="st">"extdata"</span>, <span class="dt">package=</span><span class="st">"macrophage"</span>)</a></code></pre></div>
-<p>Information about the experiment is contained in the <code>coldata.csv</code> file. We leverage the <em>dplyr</em> and <em>readr</em> packages (as part of the <em>tidyverse</em>) to read this file into R <span class="citation">(Wickham et al. 2019)</span>. We will see later that <em>plyranges</em> extends these packages to accommodate genomic ranges.</p>
+<p>Information about the experiment is contained in the <code>coldata.csv</code> file. We leverage the <em>dplyr</em> and <em>readr</em> packages (as part of the <em>tidyverse</em>) to read this file into R <span class="citation">(Wickham et al. <a href="#ref-tidyverse">2019</a>)</span>. We will see later that <em>plyranges</em> extends these packages to accommodate genomic ranges.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(dplyr)</a></code></pre></div>
 <pre><code>## 
 ## Attaching package: 'dplyr'</code></pre>
@@ -226,9 +227,9 @@
 <a class="sourceLine" id="cb22-8" data-line-number="8">  <span class="dt">gtf=</span><span class="kw"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span>(dir, <span class="st">"gencode.v29.annotation.gtf.gz"</span>), <span class="co"># local version</span></a>
 <a class="sourceLine" id="cb22-9" data-line-number="9">  <span class="dt">write=</span><span class="ot">FALSE</span></a>
 <a class="sourceLine" id="cb22-10" data-line-number="10">)</a></code></pre></div>
-<p>Because <em>tximeta</em> knows the correct reference transcriptome, we can ask <em>tximeta</em> to summarize the transcript-level data to the gene level using the methods of <span class="citation">Soneson, Love, and Robinson (2015)</span>.</p>
+<p>Because <em>tximeta</em> knows the correct reference transcriptome, we can ask <em>tximeta</em> to summarize the transcript-level data to the gene level using the methods of <span class="citation">Soneson, Love, and Robinson (<a href="#ref-Soneson2015">2015</a>)</span>.</p>
 <div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" data-line-number="1">gse &lt;-<span class="st"> </span><span class="kw">summarizeToGene</span>(se)</a></code></pre></div>
-<pre><code>## loading existing TxDb created: 2020-01-22 21:45:29</code></pre>
+<pre><code>## loading existing TxDb created: 2020-01-23 00:33:45</code></pre>
 <pre><code>## Loading required package: GenomicFeatures</code></pre>
 <pre><code>## Loading required package: AnnotationDbi</code></pre>
 <pre><code>## 
@@ -251,7 +252,7 @@
 <div id="atac" class="section level2">
 <h2 class="hasAnchor">
 <a href="#atac" class="anchor"></a>Importing ATAC-seq data as a <em>SummarizedExperiment</em> object</h2>
-<p>The <em>SummarizedExperiment</em> object containing ATAC-seq peaks can be created from the following tab-delimited files from <span class="citation">Alasoo and Gaffney (2017)</span>:</p>
+<p>The <em>SummarizedExperiment</em> object containing ATAC-seq peaks can be created from the following tab-delimited files from <span class="citation">Alasoo and Gaffney (<a href="#ref-alasooZenodo">2017</a>)</span>:</p>
 <ul>
 <li>The sample metadata: <code>ATAC_sample_metadata.txt.gz</code> (&lt;1M)</li>
 <li>The matrix of normalized read counts: <code>ATAC_cqn_matrix.txt.gz</code> (109M)</li>
@@ -265,7 +266,7 @@
 <a class="sourceLine" id="cb36-5" data-line-number="5">    <span class="dt">condition =</span> condition_name</a>
 <a class="sourceLine" id="cb36-6" data-line-number="6">  ) <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb36-7" data-line-number="7"><span class="st">  </span><span class="kw"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span>(<span class="dt">condition =</span> <span class="kw"><a href="https://rdrr.io/r/stats/relevel.html">relevel</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/factor.html">factor</a></span>(condition), <span class="st">"naive"</span>))</a></code></pre></div>
-<p>The ATAC-seq counts have already been normalized with <em>cqn</em> <span class="citation">(Hansen, Irizarry, and Wu 2012)</span> and log2 transformed. Loading the <em>cqn</em>-normalized matrix of log2 transformed read counts takes ~30 seconds and loads an object of ~370 Mb. We set the column names so that the first column contains the rownames of the matrix, and the remaining columns are the sample identities from the <code>atac_coldata</code> object.</p>
+<p>The ATAC-seq counts have already been normalized with <em>cqn</em> <span class="citation">(Hansen, Irizarry, and Wu <a href="#ref-Hansen2012">2012</a>)</span> and log2 transformed. Loading the <em>cqn</em>-normalized matrix of log2 transformed read counts takes ~30 seconds and loads an object of ~370 Mb. We set the column names so that the first column contains the rownames of the matrix, and the remaining columns are the sample identities from the <code>atac_coldata</code> object.</p>
 <div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb37-1" data-line-number="1">atac_mat &lt;-<span class="st"> </span><span class="kw"><a href="https://readr.tidyverse.org/reference/read_delim.html">read_tsv</a></span>(<span class="st">"ATAC_cqn_matrix.txt.gz"</span>,</a>
 <a class="sourceLine" id="cb37-2" data-line-number="2">                     <span class="dt">skip =</span> <span class="dv">1</span>,</a>
 <a class="sourceLine" id="cb37-3" data-line-number="3">                     <span class="dt">col_names =</span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"rownames"</span>, atac_coldata[[<span class="st">"sample_id"</span>]]))</a>
@@ -294,7 +295,7 @@
 <div id="rna-seq-differential-gene-expression-analysis" class="section level2">
 <h2 class="hasAnchor">
 <a href="#rna-seq-differential-gene-expression-analysis" class="anchor"></a>RNA-seq differential gene expression analysis</h2>
-<p>We can easily run a differential expression analysis with <em>DESeq2</em> using the following code chunks <span class="citation">(Love, Huber, and Anders 2014)</span>. The design formula indicates that we want to control for the donor baselines (<code>line</code>) and test for differences in gene expression on the condition. For a more comprehensive discussion of DE workflows in Bioconductor see <span class="citation">Love et al. (2016)</span> and <span class="citation">Law et al. (2018)</span>.</p>
+<p>We can easily run a differential expression analysis with <em>DESeq2</em> using the following code chunks <span class="citation">(Love, Huber, and Anders <a href="#ref-Love2014">2014</a>)</span>. The design formula indicates that we want to control for the donor baselines (<code>line</code>) and test for differences in gene expression on the condition. For a more comprehensive discussion of DE workflows in Bioconductor see <span class="citation">Love et al. (<a href="#ref-Love2016-f1000">2016</a>)</span> and <span class="citation">Law et al. (<a href="#ref-Law2018-f1000">2018</a>)</span>.</p>
 <div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb40-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(DESeq2)</a>
 <a class="sourceLine" id="cb40-2" data-line-number="2">dds &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/DESeq2/man/DESeqDataSet.html">DESeqDataSet</a></span>(gse, <span class="op">~</span>line <span class="op">+</span><span class="st"> </span>condition)</a></code></pre></div>
 <pre><code>## using counts and average transcript lengths from tximeta</code></pre>
@@ -387,7 +388,7 @@
 <div id="atac-seq-peak-differential-abundance-analysis" class="section level2">
 <h2 class="hasAnchor">
 <a href="#atac-seq-peak-differential-abundance-analysis" class="anchor"></a>ATAC-seq peak differential abundance analysis</h2>
-<p>The following section describes the process we have used for generating a <em>GRanges</em> object of differential peaks from the ATAC-seq data in <span class="citation">Alasoo et al. (2018)</span>.</p>
+<p>The following section describes the process we have used for generating a <em>GRanges</em> object of differential peaks from the ATAC-seq data in <span class="citation">Alasoo et al. (<a href="#ref-alasoo">2018</a>)</span>.</p>
 <p>The code chunks for the remainder of this section are not run.</p>
 <!-- We can check the standard deviation over mean plot, to assess for any -->
 <!-- systematic trends: -->
@@ -401,7 +402,7 @@ data.frame(rmu = rowMeans(assay(atac)), -->
 <!-- geom_hex()
 -->
 <!-- ``` -->
-<p>For assessing differential accessibility, we run <em>limma</em> <span class="citation">(Smyth 2004)</span>, and generate the a summary of LFCs and adjusted p-values for the peaks:</p>
+<p>For assessing differential accessibility, we run <em>limma</em> <span class="citation">(Smyth <a href="#ref-Smyth2004">2004</a>)</span>, and generate the a summary of LFCs and adjusted p-values for the peaks:</p>
 <div class="sourceCode" id="cb59"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb59-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(limma)</a>
 <a class="sourceLine" id="cb59-2" data-line-number="2">design &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/stats/model.matrix.html">model.matrix</a></span>(<span class="op">~</span>donor <span class="op">+</span><span class="st"> </span>condition, <span class="kw"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">colData</a></span>(atac))</a>
 <a class="sourceLine" id="cb59-3" data-line-number="3">fit &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/limma/man/lmFit.html">lmFit</a></span>(<span class="kw"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html">assay</a></span>(atac), design)</a>
@@ -459,7 +460,7 @@ data.frame(rmu = rowMeans(assay(atac)), -->
 <h2 class="hasAnchor">
 <a href="#finding-overlaps-with-plyranges" class="anchor"></a>Finding overlaps with <em>plyranges</em>
 </h2>
-<p>We have already used <em>plyranges</em> a number of times above, to <code>filter</code>, <code>mutate</code>, and <code>select</code> on <em>GRanges</em> objects, as well as ensuring the correct genome annotation and style has been used. The <em>plyranges</em> package provides a grammar for performing transformations of genomic data <span class="citation">(Lee, Cook, and Lawrence 2019)</span>. Computations resulting from compositions of <em>plyranges</em> “verbs” are performed using underlying, highly optimized range operations in the <em>GenomicRanges</em> package <span class="citation">(Lawrence 2013)</span>.</p>
+<p>We have already used <em>plyranges</em> a number of times above, to <code>filter</code>, <code>mutate</code>, and <code>select</code> on <em>GRanges</em> objects, as well as ensuring the correct genome annotation and style has been used. The <em>plyranges</em> package provides a grammar for performing transformations of genomic data <span class="citation">(Lee, Cook, and Lawrence <a href="#ref-Lee2019">2019</a>)</span>. Computations resulting from compositions of <em>plyranges</em> “verbs” are performed using underlying, highly optimized range operations in the <em>GenomicRanges</em> package <span class="citation">(Lawrence et al. <a href="#ref-granges">2013</a>)</span>.</p>
 <p>For the overlap analysis, we filter the annotated peaks to have a nominal FDR bound of 1%.</p>
 <div class="sourceCode" id="cb63"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb63-1" data-line-number="1">da_peaks &lt;-<span class="st"> </span>peaks <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb63-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">filter</a></span>(da_padj <span class="op">&lt;</span><span class="st"> </span><span class="fl">0.01</span>)</a></code></pre></div>
@@ -472,32 +473,32 @@ data.frame(rmu = rowMeans(assay(atac)), -->
 <div class="sourceCode" id="cb64"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb64-1" data-line-number="1">size &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/length.html">length</a></span>(de_genes)</a>
 <a class="sourceLine" id="cb64-2" data-line-number="2"><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">slice</a></span>(other_genes, <span class="kw"><a href="https://rdrr.io/r/base/sample.html">sample.int</a></span>(<span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/n.html">n</a></span>(), size))</a></code></pre></div>
 <pre><code>## GRanges object with 749 ranges and 3 metadata columns:
-##         seqnames            ranges strand |            gene_id  de_log2FC
-##            &lt;Rle&gt;         &lt;IRanges&gt;  &lt;Rle&gt; |        &lt;character&gt;  &lt;numeric&gt;
-##     [1]    chr11   7513298-7657127      + | ENSG00000166387.12 -0.1442215
-##     [2]    chr10   1049538-1132384      + | ENSG00000047056.15 -0.0971355
-##     [3]    chr21 42843094-42879568      - | ENSG00000160193.11 -0.1402244
-##     [4]     chr4     212610-255985      + |  ENSG00000198155.5  0.1536866
-##     [5]    chr11   3380961-3408978      + |  ENSG00000223756.6  0.0236867
-##     ...      ...               ...    ... .                ...        ...
-##   [745]     chr6   5102593-5260939      - | ENSG00000214113.10 -0.0476942
-##   [746]    chr22 28883592-29057487      + | ENSG00000183579.15 -0.0751228
-##   [747]    chr11   3671083-3797792      - | ENSG00000110713.16  0.0326701
-##   [748]     chr5 74766991-74780113      + |  ENSG00000164346.9 -0.1443672
-##   [749]    chr13 48037567-48047222      + |  ENSG00000136159.3 -0.2632695
+##         seqnames              ranges strand |            gene_id  de_log2FC
+##            &lt;Rle&gt;           &lt;IRanges&gt;  &lt;Rle&gt; |        &lt;character&gt;  &lt;numeric&gt;
+##     [1]     chr9   92840955-92841688      - |  ENSG00000275318.1  0.5595985
+##     [2]     chr3   49015488-49022293      - | ENSG00000178149.16  0.0665082
+##     [3]     chr4   74445134-74455009      + | ENSG00000109321.10  0.1279143
+##     [4]     chr5 116083807-116085416      - |  ENSG00000271918.1  0.4878101
+##     [5]     chr4   13777377-13782157      - |  ENSG00000250497.1 -0.1425738
+##     ...      ...                 ...    ... .                ...        ...
+##   [745]     chr1   87129765-87169198      + |  ENSG00000267272.5  0.3618115
+##   [746]    chr17     7549099-7561601      + |  ENSG00000248871.1 -0.5415316
+##   [747]    chr12   57610180-57619379      + |  ENSG00000240771.6 -0.2209090
+##   [748]    chr12   14767999-14771131      - |  ENSG00000197837.3 -0.0156832
+##   [749]     chr4     2071918-2242121      - | ENSG00000130997.16  0.3132261
 ##           de_padj
 ##         &lt;numeric&gt;
-##     [1]  0.649592
-##     [2]  0.705538
-##     [3]  0.658679
-##     [4]  0.813313
-##     [5]  0.980255
+##     [1]  0.263798
+##     [2]  0.766996
+##     [3]  0.909410
+##     [4]  0.373830
+##     [5]  0.804976
 ##     ...       ...
-##   [745]  0.837023
-##   [746]  0.894846
-##   [747]  0.801293
-##   [748]  0.301126
-##   [749]  0.233121
+##   [745]  0.698606
+##   [746]  0.904489
+##   [747]  0.802090
+##   [748]  0.981954
+##   [749]  0.598666
 ##   -------
 ##   seqinfo: 25 sequences (1 circular) from an unspecified genome; no seqlengths</code></pre>
 <p>We can repeat this many times to create many samples via <code>replicate</code>. By replicating the sub-sampling multiple times, we minimize the variance on the enrichment statistics induced by the sampling process.</p>
@@ -777,9 +778,18 @@ data.frame(rmu = rowMeans(assay(atac)), -->
 <div id="discussion" class="section level1">
 <h1 class="hasAnchor">
 <a href="#discussion" class="anchor"></a>Discussion</h1>
+<!-- lawremi comments:
+
+In the discussion, I would spend less time describing the packages
+again and more on talking about how cool it is that so many decoupled
+packages, both from Bioconductor and the tidyverse, can interoperate
+to enable seamless end-to-end workflows that are far too specialized
+to be solved by a single, monolithic tool.
+
+-->
 <p>We have shown that by using <em>plyranges</em> and <em>tximeta</em> (with support of Bioconductor and <em>tidyverse</em> packages) we can fluently iterate through the biological data science workflow: from import, through to modeling, wrangling and visualization.</p>
 <p>Using <em>tximeta</em>, we have shown that it is straightforward to import RNA-seq quantification data such that proper metadata and the genomic ranges giving the context of the features are automatically attached.</p>
-<p>Using <em>plyranges</em>, we have extended the principles of the <em>tidyverse</em> to genomic ranges, and that, by design we can leverage those packages to understand data measured along the genome. We have shown that analyses performed with <em>plyranges</em> clearly and (relatively) concisely express their intent; in most cases the code we have written closely matches its description in English and clarifies how the features of a genomic range are being modified.</p>
+<p>Using <em>plyranges</em>, we have extended the principles of the <em>tidyverse</em> to genomic ranges, and that, by design we can leverage those packages to understand data measured along the genome. We have shown that analyses performed with <em>plyranges</em> is readable and clear; in most cases the code we have written closely matches its description in English and clarifies how the features of a genomic range are being modified. Moreover, we have shown how we can build up a workflow using small and modular pieces of code.</p>
 <p>There are several further steps that would be interesting to perform in this analysis; for example, we could modify window size around the TSS to see how it affects enrichment, and vary the FDR cut-offs for both the DE gene and DA peak sets. We could also have computed variance in addition to the mean of the bootstrap set, and so drawn an interval around the enrichment line.</p>
 </div>
 <div id="software-availability" class="section level1">
@@ -790,12 +800,12 @@ data.frame(rmu = rowMeans(assay(atac)), -->
 <a class="sourceLine" id="cb91-2" data-line-number="2">BiocManager<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/BiocManager/man/install.html">install</a></span>(<span class="st">"sa-lee/fluentGenomics"</span>)</a>
 <a class="sourceLine" id="cb91-3" data-line-number="3"><span class="co"># stable version available from Bioconductor</span></a>
 <a class="sourceLine" id="cb91-4" data-line-number="4">BiocManager<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/BiocManager/man/install.html">install</a></span>(<span class="st">"fluentGenomics"</span>)</a></code></pre></div>
-<p>This article and the analyses were performed with R <span class="citation">(R Core Team 2019)</span> using the <em>rmarkdown</em> <span class="citation">(Allaire et al. 2019)</span>, and <em>knitr</em> <span class="citation">(Xie 2019, 2015)</span> packages.</p>
+<p>This article and the analyses were performed with R <span class="citation">(R Core Team <a href="#ref-baser">2019</a>)</span> using the <em>rmarkdown</em> <span class="citation">(Allaire et al. <a href="#ref-rmarkdown">2019</a>)</span>, and <em>knitr</em> <span class="citation">(Xie <a href="#ref-knitr">2019</a>, <a href="#ref-xie2015">2015</a>)</span> packages.</p>
 <div id="session-info" class="section level2">
 <h2 class="hasAnchor">
 <a href="#session-info" class="anchor"></a>Session Info</h2>
 <div class="sourceCode" id="cb92"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb92-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo</a></span>()</a></code></pre></div>
-<pre><code>## R Under development (unstable) (2020-01-22 r77695)
+<pre><code>## R Under development (unstable) (2020-01-22 r77696)
 ## Platform: x86_64-pc-linux-gnu (64-bit)
 ## Running under: Ubuntu 16.04.6 LTS
 ## 
@@ -921,20 +931,23 @@ data.frame(rmu = rowMeans(assay(atac)), -->
 <div id="ref-Hansen2012">
 <p>Hansen, Kasper D., Rafael A. Irizarry, and Zhijin Wu. 2012. “Removing technical variability in RNA-seq data using condition quantile normalization.” <em>Biostatistics</em> 13 (2): 204–16. <a href="https://doi.org/10.1093/biostatistics/kxr054" class="uri">https://doi.org/10.1093/biostatistics/kxr054</a>.</p>
 </div>
+<div id="ref-bioc">
+<p>Huber, Wolfgang, Vincent J Carey, Robert Gentleman, Simon Anders, Marc Carlson, Benilton S Carvalho, Hector Corrada Bravo, et al. 2015. “Orchestrating High-Throughput Genomic Analysis with Bioconductor.” <em>Nature Methods</em> 12 (2). Springer Nature: 115–21. <a href="https://doi.org/10.1038/nmeth.3252" class="uri">https://doi.org/10.1038/nmeth.3252</a>.</p>
+</div>
 <div id="ref-snakemake">
 <p>Köster, Johannes, and Sven Rahmann. 2012. “Snakemake—a scalable bioinformatics workflow engine.” <em>Bioinformatics</em> 28 (19): 2520–2. <a href="https://doi.org/10.1093/bioinformatics/bts480" class="uri">https://doi.org/10.1093/bioinformatics/bts480</a>.</p>
 </div>
 <div id="ref-Law2018-f1000">
-<p>Law, Charity W, Monther Alhamdoosh, Shian Su, Xueyi Dong, Luyi Tian, Gordon K Smyth, and Matthew E Ritchie. 2018. “RNA-seq Analysis Is Easy as 1-2-3 with Limma, Glimma and edgeR.” <em>F1000Res.</em> 5 (1408). F1000 Research Limited: 1408. <a href="https://doi.org/10.12688/f1000research.9005.3" class="uri">https://doi.org/10.12688/f1000research.9005.3</a>.</p>
+<p>Law, Charity W, Monther Alhamdoosh, Shian Su, Xueyi Dong, Luyi Tian, Gordon K Smyth, and Matthew E Ritchie. 2018. “RNA-seq Analysis Is Easy as 1-2-3 with Limma, Glimma and edgeR.” <em>F1000 Research</em> 5 (1408). F1000 Research Limited: 1408. <a href="https://doi.org/10.12688/f1000research.9005.3" class="uri">https://doi.org/10.12688/f1000research.9005.3</a>.</p>
 </div>
 <div id="ref-granges">
-<p>Lawrence, Wolfgang AND Pagès, Michael AND Huber. 2013. “Software for Computing and Annotating Genomic Ranges.” <em>PLOS Computational Biology</em> 9 (8). Public Library of Science: 1–10. <a href="https://doi.org/10.1371/journal.pcbi.1003118" class="uri">https://doi.org/10.1371/journal.pcbi.1003118</a>.</p>
+<p>Lawrence, Michael, Wolfgang Huber, Hervé Pagès, Patrick Aboyoun, Marc Carlson, Robert Gentleman, Martin Morgan, and Vincent Carey. 2013. “Software for Computing and Annotating Genomic Ranges.” <em>PLoS Comput. Biol.</em> 9. <a href="https://doi.org/10.1371/journal.pcbi.1003118" class="uri">https://doi.org/10.1371/journal.pcbi.1003118</a>.</p>
 </div>
 <div id="ref-Lee2019">
 <p>Lee, Stuart, Dianne Cook, and Michael Lawrence. 2019. “Plyranges: A Grammar of Genomic Data Transformation.” <em>Genome Biology</em> 20 (1): 4. <a href="https://doi.org/10.1186/s13059-018-1597-8" class="uri">https://doi.org/10.1186/s13059-018-1597-8</a>.</p>
 </div>
 <div id="ref-Love2016-f1000">
-<p>Love, Michael I, Simon Anders, Vladislav Kim, and Wolfgang Huber. 2016. “RNA-Seq Workflow: Gene-Level Exploratory Analysis and Differential Expression.” <em>F1000Res.</em> 4 (1070). F1000 Research Limited: 1070. <a href="https://doi.org/10.12688/f1000research.7035.2" class="uri">https://doi.org/10.12688/f1000research.7035.2</a>.</p>
+<p>Love, Michael I, Simon Anders, Vladislav Kim, and Wolfgang Huber. 2016. “RNA-Seq Workflow: Gene-Level Exploratory Analysis and Differential Expression.” <em>F1000 Research</em> 4 (1070). F1000 Research Limited: 1070. <a href="https://doi.org/10.12688/f1000research.7035.2" class="uri">https://doi.org/10.12688/f1000research.7035.2</a>.</p>
 </div>
 <div id="ref-Love2014">
 <p>Love, Michael I., Wolfgang Huber, and Simon Anders. 2014. “Moderated estimation of fold change and dispersion for RNA-seq data with DESeq2.” <em>Genome Biology</em> 15 (12): 550. <a href="https://doi.org/10.1186/s13059-014-0550-8" class="uri">https://doi.org/10.1186/s13059-014-0550-8</a>.</p>
