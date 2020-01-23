@@ -773,19 +773,22 @@ select (and rename) the metadata columns we're interested in:
 \end{Highlighting}
 \end{Shaded}
 
-We now wish to extract genes for which we could \emph{not} reject the null
-hypothesis (we select based on an unadjusted p-value larger than 0.1 for
-example). We must re-run \texttt{results} because we don't want to use an
-\texttt{lfcThreshold} this time. For brevity we will label these genes as
-\texttt{other\_genes} or later as ``non-DE genes'', and we will use these for comparison
-with our \texttt{de\_genes} set.
+We now wish to extract genes for which there is evidence that the LFC
+is \emph{not} large. We perform this test by specifying an LFC threshold
+and an alternative hypothesis (\texttt{altHypothesis}) that the LFC is less
+than the threshold in absolute value. To visualize the result of this
+test, you can run \texttt{results} without \texttt{format="GRanges"}, and pass this
+object to \texttt{plotMA} as before. We label these genes as \texttt{other\_genes}
+and later as ``non-DE genes'', for comparison with our \texttt{de\_genes} set.
 
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{other_genes <-}\StringTok{ }\KeywordTok{results}\NormalTok{(dds,}
                        \DataTypeTok{contrast=}\KeywordTok{c}\NormalTok{(}\StringTok{"condition"}\NormalTok{,}\StringTok{"IFNg"}\NormalTok{,}\StringTok{"naive"}\NormalTok{),}
+                       \DataTypeTok{lfcThreshold=}\DecValTok{1}\NormalTok{,}
+                       \DataTypeTok{altHypothesis=}\StringTok{"lessAbs"}\NormalTok{,}
                        \DataTypeTok{format=}\StringTok{"GRanges"}\NormalTok{) }\OperatorTok{%>%}
-\StringTok{  }\KeywordTok{filter}\NormalTok{(pvalue }\OperatorTok{>}\StringTok{ }\FloatTok{0.1}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{filter}\NormalTok{(padj }\OperatorTok{<}\StringTok{ }\FloatTok{0.01}\NormalTok{) }\OperatorTok{%>%}
 \StringTok{  }\KeywordTok{names_to_column}\NormalTok{(}\StringTok{"gene_id"}\NormalTok{) }\OperatorTok{%>%}
 \StringTok{  }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{select}\NormalTok{(gene_id,}
                 \DataTypeTok{de_log2FC =}\NormalTok{ log2FoldChange,}
@@ -927,30 +930,30 @@ samples of size equal to the number of DE-genes from the number of rows in
 ## GRanges object with 749 ranges and 3 metadata columns:
 ##         seqnames              ranges strand |            gene_id
 ##            <Rle>           <IRanges>  <Rle> |        <character>
-##     [1]     chr7   92457564-92491610      + |  ENSG00000244055.1
-##     [2]    chr16   29443230-29454651      - |  ENSG00000261740.6
-##     [3]    chr12   32727490-32755902      - | ENSG00000139131.12
-##     [4]     chr1     9943428-9985501      + | ENSG00000173614.13
-##     [5]     chr3   30606502-30694142      + | ENSG00000163513.17
+##     [1]    chr20   44496221-44522109      - | ENSG00000132824.13
+##     [2]    chr12 121000486-121016502      - | ENSG00000157895.11
+##     [3]    chr11   56027654-56038191      + |  ENSG00000181785.2
+##     [4]    chr16     3112560-3120517      + | ENSG00000122386.10
+##     [5]    chr11       767220-777488      - | ENSG00000177225.16
 ##     ...      ...                 ...    ... .                ...
-##   [745]     chr8   22089159-22104898      + | ENSG00000158863.21
-##   [746]     chr6 122471923-122484161      + |  ENSG00000279114.1
-##   [747]     chr6     8435568-9294133      + |  ENSG00000285219.1
-##   [748]    chr10   78943328-79067895      - |  ENSG00000224596.7
-##   [749]    chr17   49495293-49515017      + |  ENSG00000064300.8
-##                  de_log2FC           de_padj
-##                  <numeric>         <numeric>
-##     [1]  0.114575011648195 0.829894799217902
-##     [2]  0.070144168645849 0.783187071663607
-##     [3] 0.0765416085265484 0.744224748940401
-##     [4] -0.178065998447147 0.346068918379835
-##     [5] -0.132574804144581 0.801333062837324
-##     ...                ...               ...
-##   [745] 0.0984554782180827 0.580375863517506
-##   [746] -0.593469269237774 0.277777185956275
-##   [747]  0.137280105680984 0.770869793358043
-##   [748]  -0.37732298864218 0.670011846917993
-##   [749]  0.288126290310843 0.851858270517919
+##   [745]    chr14   20256558-20305994      - | ENSG00000136319.11
+##   [746]     chr2   75646783-75690851      + | ENSG00000115364.13
+##   [747]    chr10 100486642-100519864      - | ENSG00000075826.16
+##   [748]     chr6 170290703-170407065      + | ENSG00000112584.13
+##   [749]    chr12 132768909-132828858      - | ENSG00000090615.14
+##                    de_log2FC              de_padj
+##                    <numeric>            <numeric>
+##     [1]    0.089441566950955 6.45014712058601e-24
+##     [2]    0.120898676816152 1.33259537724307e-14
+##     [3]   0.0578177028829071  0.00321379012964941
+##     [4]   0.0416518646388173 2.06887382556731e-09
+##     [5]   -0.302992108059424 9.31485925023845e-05
+##     ...                  ...                  ...
+##   [745]   -0.232143995416463 5.08197572767657e-05
+##   [746]   0.0968631192600452 2.33343988709373e-07
+##   [747]   -0.265891973707238  0.00101219594791163
+##   [748]   -0.341092802352758 7.19536511778289e-06
+##   [749] -0.00977637320132764  3.9891705401492e-18
 ##   -------
 ##   seqinfo: 25 sequences (1 circular) from hg38 genome
 \end{verbatim}
@@ -1008,11 +1011,11 @@ object, this is given a missing value which we recode to a 0 using \texttt{mutat
 ##      [4]     chr7 150800403-150805120      + |  ENSG00000002933.8
 ##      [5]     chr4   15778275-15853230      + | ENSG00000004468.12
 ##      ...      ...                 ...    ... .                ...
-##   [8235]     chr3   72749277-72861914      - | ENSG00000144736.13
-##   [8236]    chr17   29566052-29573157      + | ENSG00000167543.15
-##   [8237]     chr7 129225023-129430211      + | ENSG00000158467.16
-##   [8238]     chr2   24029340-24049575      - | ENSG00000163026.11
-##   [8239]    chr16     1826941-1840207      + | ENSG00000180185.11
+##   [8235]    chr17   43527844-43579620      - | ENSG00000175832.12
+##   [8236]    chr17   18260534-18266552      + | ENSG00000177427.12
+##   [8237]    chr20   63895182-63936031      + | ENSG00000101152.10
+##   [8238]     chr1   39081316-39487177      + | ENSG00000127603.25
+##   [8239]     chr8   41577187-41625001      + | ENSG00000158669.11
 ##                   de_log2FC              de_padj  resample   origin
 ##                   <numeric>            <numeric> <integer> <factor>
 ##      [1]   4.98711071930695 1.37057050625117e-13         0       de
@@ -1021,11 +1024,11 @@ object, this is given a missing value which we recode to a 0 using \texttt{mutat
 ##      [4]   3.16721751137972 1.07359906028984e-08         0       de
 ##      [5]   5.40894352968188 4.82904694023763e-18         0       de
 ##      ...                ...                  ...       ...      ...
-##   [8235] -0.324057975853188    0.531385106367204        10   not_de
-##   [8236] 0.0582048743660616    0.681056515870893        10   not_de
-##   [8237]  0.284556421479042    0.378275048382877        10   not_de
-##   [8238] -0.130576070173704    0.601621121971093        10   not_de
-##   [8239]  0.173903843804872    0.568644093307946        10   not_de
+##   [8235] -0.240918426099239  0.00991611085813261        10   not_de
+##   [8236] -0.166059030395757  9.1205141062356e-05        10   not_de
+##   [8237]  0.250538999517482 1.74084544559733e-09        10   not_de
+##   [8238] -0.385053503003028  0.00265539384929076        10   not_de
+##   [8239]  0.155922038318879  2.9637514745875e-17        10   not_de
 ##   -------
 ##   seqinfo: 25 sequences (1 circular) from hg38 genome
 \end{verbatim}
@@ -1090,7 +1093,7 @@ overlaps, the DA peak columns will have \texttt{NA}'s.
 \end{Shaded}
 
 \begin{verbatim}
-## GRanges object with 27591 ranges and 8 metadata columns:
+## GRanges object with 27766 ranges and 8 metadata columns:
 ##           seqnames              ranges strand |            gene_id
 ##              <Rle>           <IRanges>  <Rle> |        <character>
 ##       [1]     chr1 196641878-196661877      + | ENSG00000000971.15
@@ -1099,11 +1102,11 @@ overlaps, the DA peak columns will have \texttt{NA}'s.
 ##       [4]     chr4   17567192-17587191      + | ENSG00000002549.12
 ##       [5]     chr4   17567192-17587191      + | ENSG00000002549.12
 ##       ...      ...                 ...    ... .                ...
-##   [27587]    chr17   29556052-29576051      + | ENSG00000167543.15
-##   [27588]     chr7 129215023-129235022      + | ENSG00000158467.16
-##   [27589]     chr2   24039575-24059574      - | ENSG00000163026.11
-##   [27590]    chr16     1816941-1836940      + | ENSG00000180185.11
-##   [27591]    chr16     1816941-1836940      + | ENSG00000180185.11
+##   [27762]     chr1   39071316-39091315      + | ENSG00000127603.25
+##   [27763]     chr1   39071316-39091315      + | ENSG00000127603.25
+##   [27764]     chr8   41567187-41587186      + | ENSG00000158669.11
+##   [27765]     chr8   41567187-41587186      + | ENSG00000158669.11
+##   [27766]     chr8   41567187-41587186      + | ENSG00000158669.11
 ##                    de_log2FC              de_padj  resample   origin
 ##                    <numeric>            <numeric> <integer> <factor>
 ##       [1]   4.98711071930695 1.37057050625117e-13         0       de
@@ -1112,11 +1115,11 @@ overlaps, the DA peak columns will have \texttt{NA}'s.
 ##       [4]   2.93372501059128  2.0131038573066e-11         0       de
 ##       [5]   2.93372501059128  2.0131038573066e-11         0       de
 ##       ...                ...                  ...       ...      ...
-##   [27587] 0.0582048743660616    0.681056515870893        10   not_de
-##   [27588]  0.284556421479042    0.378275048382877        10   not_de
-##   [27589] -0.130576070173704    0.601621121971093        10   not_de
-##   [27590]  0.173903843804872    0.568644093307946        10   not_de
-##   [27591]  0.173903843804872    0.568644093307946        10   not_de
+##   [27762] -0.385053503003028  0.00265539384929076        10   not_de
+##   [27763] -0.385053503003028  0.00265539384929076        10   not_de
+##   [27764]  0.155922038318879  2.9637514745875e-17        10   not_de
+##   [27765]  0.155922038318879  2.9637514745875e-17        10   not_de
+##   [27766]  0.155922038318879  2.9637514745875e-17        10   not_de
 ##                    peak_id          da_log2FC              da_padj
 ##                <character>          <numeric>            <numeric>
 ##       [1]  ATAC_peak_21236 -0.546582189082724 0.000115273676444232
@@ -1125,11 +1128,11 @@ overlaps, the DA peak columns will have \texttt{NA}'s.
 ##       [4] ATAC_peak_193579 -0.281615137872819 7.99888515457195e-05
 ##       [5] ATAC_peak_193580  0.673705317951604 7.60042918890061e-15
 ##       ...              ...                ...                  ...
-##   [27587] ATAC_peak_109304  0.211750928531232  0.00111289505290053
-##   [27588] ATAC_peak_255700  0.177364068655037 5.25384772617076e-09
-##   [27589] ATAC_peak_133247 -0.266265981992122  1.0155043266685e-07
-##   [27590]  ATAC_peak_97065 -0.405271356218346 1.28054921946532e-05
-##   [27591]  ATAC_peak_97067  0.289105317951603 5.87369828076092e-07
+##   [27762]   ATAC_peak_5357  -1.05823584693303 3.69051674661467e-16
+##   [27763]   ATAC_peak_5358  -1.31411238041643 6.44280493172654e-26
+##   [27764] ATAC_peak_263396 -0.904080135059089 8.19576651692093e-13
+##   [27765] ATAC_peak_263397  0.364737985368599 2.08834835864614e-08
+##   [27766] ATAC_peak_263399  0.317386691052334 1.20088116314111e-08
 ##   -------
 ##   seqinfo: 25 sequences (1 circular) from hg38 genome
 \end{verbatim}
@@ -1210,7 +1213,7 @@ thresholds of 1 or 2 as follows:
 ## DataFrame with 2 rows and 4 columns
 ##     origin peak_count lfc1_peak_count lfc2_peak_count
 ##   <factor>  <numeric>       <numeric>       <numeric>
-## 1   not_de     2362.3           443.8            32.3
+## 1   not_de     2391.8           369.5            32.5
 ## 2       de       3416            1097             234
 \end{verbatim}
 
@@ -1241,9 +1244,9 @@ enrichment:
 ## # A tibble: 3 x 4
 ##   name            not_de    de enrichment
 ##   <chr>            <dbl> <dbl>      <dbl>
-## 1 peak_count      2362.   3416       1.45
-## 2 lfc1_peak_count  444.   1097       2.47
-## 3 lfc2_peak_count   32.3   234       7.24
+## 1 peak_count      2392.   3416       1.43
+## 2 lfc1_peak_count  370.   1097       2.97
+## 3 lfc2_peak_count   32.5   234       7.2
 \end{verbatim}
 
 The above table shows that relative enrichment increases for a larger LFC
@@ -1280,7 +1283,7 @@ than zero peaks (again averaging over the number of resamples).
 ## DataFrame with 2 rows and 5 columns
 ##     origin lfc1_gene_count lfc1_peak_count lfc2_gene_count lfc2_peak_count
 ##   <factor>       <numeric>       <numeric>       <numeric>       <numeric>
-## 1   not_de           301.4           443.8            30.4            32.3
+## 1   not_de           271.2           369.5            30.3            32.5
 ## 2       de             515            1097             151             234
 \end{verbatim}
 
@@ -1342,11 +1345,11 @@ threshold values.
 ##      [4]     chr7 150790403-150810402      + |  ENSG00000002933.8       de
 ##      [5]     chr4   15768275-15788274      + | ENSG00000004468.12       de
 ##      ...      ...                 ...    ... .                ...      ...
-##   [8235]     chr3   72851914-72871913      - | ENSG00000144736.13   not_de
-##   [8236]    chr17   29556052-29576051      + | ENSG00000167543.15   not_de
-##   [8237]     chr7 129215023-129235022      + | ENSG00000158467.16   not_de
-##   [8238]     chr2   24039575-24059574      - | ENSG00000163026.11   not_de
-##   [8239]    chr16     1816941-1836940      + | ENSG00000180185.11   not_de
+##   [8235]    chr17   43569620-43589619      - | ENSG00000175832.12   not_de
+##   [8236]    chr17   18250534-18270533      + | ENSG00000177427.12   not_de
+##   [8237]    chr20   63885182-63905181      + | ENSG00000101152.10   not_de
+##   [8238]     chr1   39071316-39091315      + | ENSG00000127603.25   not_de
+##   [8239]     chr8   41567187-41587186      + | ENSG00000158669.11   not_de
 ##           resample         value
 ##          <integer> <IntegerList>
 ##      [1]         0     1,1,1,...
@@ -1355,11 +1358,11 @@ threshold values.
 ##      [4]         0     4,4,4,...
 ##      [5]         0  11,11,11,...
 ##      ...       ...           ...
-##   [8235]        10     0,0,0,...
-##   [8236]        10     7,7,7,...
-##   [8237]        10     1,1,1,...
-##   [8238]        10     1,1,1,...
-##   [8239]        10     2,2,2,...
+##   [8235]        10     1,1,1,...
+##   [8236]        10     3,3,2,...
+##   [8237]        10     5,5,5,...
+##   [8238]        10     3,3,3,...
+##   [8239]        10     3,3,3,...
 ##                                                           threshold
 ##                                                       <NumericList>
 ##      [1] 0.0658243106359027,0.118483961449043,0.171143612262182,...
@@ -1400,11 +1403,11 @@ before:
 ## DataFrame with 200 rows and 4 columns
 ##       origin          threshold gene_count peak_count
 ##     <factor>          <numeric>  <numeric>  <numeric>
-## 1     not_de 0.0658243106359027        696     2362.2
-## 2     not_de  0.118483961449043      688.7     2309.9
-## 3     not_de  0.171143612262182      678.6     2197.8
-## 4     not_de  0.223803263075322      666.4     2045.6
-## 5     not_de  0.276462913888462      649.6       1878
+## 1     not_de 0.0658243106359027        708     2391.4
+## 2     not_de  0.118483961449043      698.8     2320.6
+## 3     not_de  0.171143612262182      686.2     2178.6
+## 4     not_de  0.223803263075322      672.4     1989.4
+## 5     not_de  0.276462913888462      650.4     1785.8
 ## ...      ...                ...        ...        ...
 ## 196       de   5.06849113788419          2          2
 ## 197       de   5.12115078869733          0          0
