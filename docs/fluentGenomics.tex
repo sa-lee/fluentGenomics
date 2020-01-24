@@ -928,32 +928,32 @@ samples of size equal to the number of DE-genes from the number of rows in
 
 \begin{verbatim}
 ## GRanges object with 749 ranges and 3 metadata columns:
-##         seqnames              ranges strand |            gene_id
-##            <Rle>           <IRanges>  <Rle> |        <character>
-##     [1]    chr20   44496221-44522109      - | ENSG00000132824.13
-##     [2]    chr12 121000486-121016502      - | ENSG00000157895.11
-##     [3]    chr11   56027654-56038191      + |  ENSG00000181785.2
-##     [4]    chr16     3112560-3120517      + | ENSG00000122386.10
-##     [5]    chr11       767220-777488      - | ENSG00000177225.16
-##     ...      ...                 ...    ... .                ...
-##   [745]    chr14   20256558-20305994      - | ENSG00000136319.11
-##   [746]     chr2   75646783-75690851      + | ENSG00000115364.13
-##   [747]    chr10 100486642-100519864      - | ENSG00000075826.16
-##   [748]     chr6 170290703-170407065      + | ENSG00000112584.13
-##   [749]    chr12 132768909-132828858      - | ENSG00000090615.14
-##                    de_log2FC              de_padj
-##                    <numeric>            <numeric>
-##     [1]    0.089441566950955 6.45014712058601e-24
-##     [2]    0.120898676816152 1.33259537724307e-14
-##     [3]   0.0578177028829071  0.00321379012964941
-##     [4]   0.0416518646388173 2.06887382556731e-09
-##     [5]   -0.302992108059424 9.31485925023845e-05
-##     ...                  ...                  ...
-##   [745]   -0.232143995416463 5.08197572767657e-05
-##   [746]   0.0968631192600452 2.33343988709373e-07
-##   [747]   -0.265891973707238  0.00101219594791163
-##   [748]   -0.341092802352758 7.19536511778289e-06
-##   [749] -0.00977637320132764  3.9891705401492e-18
+##         seqnames            ranges strand |            gene_id
+##            <Rle>         <IRanges>  <Rle> |        <character>
+##     [1]     chr1 40464319-40466767      + |  ENSG00000260920.2
+##     [2]     chr8 23385783-23457695      - | ENSG00000197217.12
+##     [3]    chr16 69299682-69322700      + |  ENSG00000260914.3
+##     [4]    chr20 49903391-49915508      - | ENSG00000158480.10
+##     [5]    chr17 64854312-64919480      - | ENSG00000176809.10
+##     ...      ...               ...    ... .                ...
+##   [745]     chr3 49359145-49412998      - | ENSG00000067560.10
+##   [746]     chrX 13689125-13710506      + |  ENSG00000123595.7
+##   [747]     chr1   1253909-1273885      - | ENSG00000160087.20
+##   [748]     chr6 43307134-43369478      - | ENSG00000171467.15
+##   [749]    chr17   7402975-7404137      - |  ENSG00000205544.3
+##                   de_log2FC              de_padj
+##                   <numeric>            <numeric>
+##     [1]  0.0361231204640872 0.000235710889954686
+##     [2]   0.150157932674516 4.75279023559999e-08
+##     [3]   0.300145293963725 7.96548867585358e-33
+##     [4]  0.0415438758470776 1.66804153823191e-18
+##     [5] -0.0753291474692551 0.000553765151068586
+##     ...                 ...                  ...
+##   [745] -0.0990824775557732 2.45025122339732e-30
+##   [746]   0.153155394148403 9.05410642889974e-11
+##   [747] -0.0794696732761527 1.64275096444335e-29
+##   [748]  -0.431530973640365  0.00428938844160663
+##   [749]  -0.609058719414445  0.00247680999616502
 ##   -------
 ##   seqinfo: 25 sequences (1 circular) from hg38 genome
 \end{verbatim}
@@ -1477,14 +1477,14 @@ many of the aspects underlying the enrichment plot above.
 
 \begin{figure}
 
-{\centering \includegraphics{/Users/lee.s/fluentGenomics/docs/fluentGenomics_files/figure-latex/linechart2-1} 
+{\centering \includegraphics{/Users/lee.s/fluentGenomics/docs/fluentGenomics_files/figure-latex/line-chart2-1} 
 
 }
 
 \caption{A line chart displaying how gene and peak counts change as the
 absolute DA LFC threshold increases. Lines are colored according to whether
 they represent a gene that is DE or not. Note the x-axis is on a \(\log_10\)
-scale.}\label{fig:linechart2}
+scale.}\label{fig:line-chart2}
 \end{figure}
 
 \hypertarget{discussion}{%
