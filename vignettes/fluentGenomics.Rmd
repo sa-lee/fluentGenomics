@@ -155,7 +155,7 @@ be found in section \@ref(atac).
 First, we specify a directory `dir`, where the quantification files are stored.
 You could simply specify this directory with:
 
-```{r eval=FALSE}
+```{r dir, eval=FALSE}
 dir <- "/path/to/quant/files"
 ```
 
@@ -163,7 +163,7 @@ where the path is relative to your current R session. However, in this case we
 have distributed the files in the *macrophage* package. The relevant directory
 and associated files can be located using `system.file`.
 
-```{r}
+```{r setdir}
 dir <- system.file("extdata", package="macrophage")
 ```
 
@@ -172,7 +172,7 @@ leverage the *dplyr* and *readr* packages (as part of the *tidyverse*) to read
 this file into R [@tidyverse]. We will see later that *plyranges* extends these
 packages to accommodate genomic ranges.
 
-```{r}
+```{r coldata-rna}
 library(dplyr)
 library(readr)
 colfile <- file.path(dir, "coldata.csv")
@@ -211,7 +211,7 @@ perform gene-level analysis.
 
 The result is a *SummarizedExperiment* object.
 
-```{r}
+```{r tximeta-run}
 suppressPackageStartupMessages(library(SummarizedExperiment))
 library(tximeta)
 se <- tximeta(coldata, dropInfReps=TRUE)
@@ -225,7 +225,7 @@ metadata via FTP, unless it is already cached locally. The *tximeta* package
 can also be used without an internet connection, in this case the linked
 transcriptome can be created directly from a *Salmon* index and gtf.
 
-```{r, eval = FALSE}
+```{r linkedtxome-ex, eval = FALSE}
 makeLinkedTxome(
   indexDir=file.path(dir, "gencode.v29_salmon_0.12.0"),
   source="Gencode",
@@ -242,7 +242,7 @@ Because *tximeta* knows the correct reference transcriptome, we can ask
 *tximeta* to summarize the transcript-level data to the gene level using the
 methods of @Soneson2015.
 
-```{r}
+```{r gse}
 gse <- summarizeToGene(se)
 ```
 
@@ -267,7 +267,7 @@ the following tab-delimited files from @alasooZenodo:
 To begin, we read in the sample metadata, following similar steps to those we
 used to generate the `coldata` table for the RNA-seq experiment:
 
-```{r eval=FALSE}
+```{r coldata-atac, eval=FALSE}
 atac_coldata <- read_tsv("ATAC_sample_metadata.txt.gz") %>%
  select(
     sample_id,
@@ -283,7 +283,7 @@ counts takes ~30 seconds and loads an object of ~370 Mb. We set the column
 names so that the first column contains the rownames of the matrix, and the
 remaining columns are the sample identities from the `atac_coldata` object.
 
-```{r eval=FALSE}
+```{r mat-atac, eval=FALSE}
 atac_mat <- read_tsv("ATAC_cqn_matrix.txt.gz",
                      skip = 1,
                      col_names =c("rownames", atac_coldata[["sample_id"]]))
@@ -298,7 +298,7 @@ We read in the peak metadata (locations in the genome), and convert it to a
 column and set the genome information to the build "GRCh38". We know this from
 the [Zenodo entry](https://zenodo.org/record/1188300#.XJOFSlNKiL5).
 
-```{r eval=FALSE}
+```{r peaks-atac, eval=FALSE}
 library(plyranges)
 peaks_df <- read_tsv("ATAC_peak_metadata.txt.gz",
   col_types = c("cidciicdc")
@@ -314,7 +314,7 @@ Finally, we construct a *SummarizedExperiment* object.  We place the matrix
 into the assays slot as a named list, the annotated peaks into the row-wise
 ranges slot, and the sample metadata into the column-wise data slot:
 
-```{r eval=FALSE}
+```{r atac-se, eval=FALSE}
 atac <- SummarizedExperiment(assays = list(cqndata=atac_mat),
                              rowRanges=peaks_gr,
                              colData=atac_coldata)
@@ -330,7 +330,7 @@ control for the donor baselines (`line`) and test for differences in gene
 expression on the condition. For a more comprehensive discussion of DE
 workflows in Bioconductor see @Love2016-f1000 and @Law2018-f1000.
 
-```{r}
+```{r setup-deseq}
 library(DESeq2)
 dds <- DESeqDataSet(gse, ~line + condition)
 # filter out lowly expressed genes
@@ -341,7 +341,7 @@ dds <- dds[keep,]
 
 The model is fit with the following line of code:
 
-```{r}
+```{r fit-model}
 dds <- DESeq(dds)
 ```
 
@@ -350,7 +350,7 @@ estimating the $\log_2$ fold change (LFC) of IFNg stimulated cell lines against 
 lines. We are interested in LFC greater than 1 at a nominal false discovery
 rate (FDR) of 1%.
 
-```{r}
+```{r results-DFrame}
 res <- results(dds,
                contrast=c("condition","IFNg","naive"),
                lfcThreshold=1, alpha=0.01)
@@ -374,7 +374,7 @@ the results columns. This kind of book-keeping is vital once overlap operations
 are performed to ensure that *plyranges* is not comparing across incompatible
 genomes.
 
-```{r}
+```{r results-GRanges}
 suppressPackageStartupMessages(library(plyranges))
 de_genes <- results(dds,
                     contrast=c("condition","IFNg","naive"),
@@ -387,7 +387,7 @@ de_genes
 From this, we can restrict the results to those that meet our FDR threshold and
 select (and rename) the metadata columns we're interested in:
 
-```{r}
+```{r de-genes}
 de_genes <- de_genes %>%
   filter(padj < 0.01) %>%
   select(gene_id, de_log2FC = log2FoldChange, de_padj = padj)
@@ -401,7 +401,7 @@ test, you can run `results` without `format="GRanges"`, and pass this
 object to `plotMA` as before. We label these genes as `other_genes`
 and later as "non-DE genes", for comparison with our `de_genes` set.
 
-```{r}
+```{r not-de-genes}
 other_genes <- results(dds,
                        contrast=c("condition","IFNg","naive"),
                        lfcThreshold=1,
@@ -432,7 +432,7 @@ data.frame(rmu = rowMeans(assay(atac)), --> <!-- rvar = rowVars(assay(atac)))
 For assessing differential accessibility, we run *limma* [@Smyth2004], and
 generate the a summary of LFCs and adjusted p-values for the peaks:
 
-```{r, eval = FALSE}
+```{r limma, eval = FALSE}
 library(limma)
 design <- model.matrix(~donor + condition, colData(atac))
 fit <- lmFit(assay(atac), design)
@@ -448,7 +448,7 @@ restyle the chromosome information to use the "UCSC" style
 (e.g. "chr1", "chr2", etc.). Again, we know the genome build from the
 Zenodo entry for the ATAC-seq data.
 
-```{r, eval = FALSE}
+```{r peaks-tidy, eval = FALSE}
 atac_peaks <- rowRanges(atac) %>%
   remove_names() %>%
   mutate(
@@ -463,7 +463,7 @@ seqlevelsStyle(atac_peaks) <- "UCSC"
 The final *GRanges* object containing the DA peaks is included in the workflow
 package and can be loaded as follows:
 
-```{r}
+```{r load-peaks}
 library(fluentGenomics)
 peaks
 ```
@@ -483,7 +483,7 @@ underlying, highly optimized range operations in the *GenomicRanges* package
 For the overlap analysis, we filter the annotated peaks to have a nominal FDR
 bound of 1%.
 
-```{r}
+```{r filter-peaks}
 da_peaks <- peaks %>%
   filter(da_padj < 0.01)
 ```
@@ -501,7 +501,7 @@ the rows of the `other_genes`. The `sample.int` function will generate random
 samples of size equal to the number of DE-genes from the number of rows in
 `other_genes`:
 
-```{r}
+```{r slice-example}
 size <- length(de_genes)
 slice(other_genes, sample.int(n(), size))
 ```
@@ -510,7 +510,7 @@ We can repeat this many times to create many samples via `replicate`. By
 replicating the sub-sampling multiple times, we minimize the variance on the
 enrichment statistics induced by the sampling process.
 
-```{r}
+```{r boot-set-01}
 # set a seed for the results
 set.seed(2019-08-02)
 boot_genes <- replicate(10,
@@ -522,7 +522,7 @@ This creates a list of *GRanges* objects as a list, and we can bind these togeth
 using the `bind_ranges` function. This function creates a new column called
 "resample" on the result that identifies each of the input *GRanges* objects:
 
-```{r}
+```{r boot-set-02}
 boot_genes <- bind_ranges(boot_genes, .id = "resample")
 ```
 
@@ -530,7 +530,7 @@ Similarly, we can then combine the `boot_genes` *GRanges*, with the DE
 *GRanges* object. As the resample column was not present on the DE *GRanges*
 object, this is given a missing value which we recode to a 0 using `mutate()`
 
-```{r}
+```{r combine-results}
 all_genes <- bind_ranges(
   de=de_genes,
   not_de = boot_genes,
@@ -554,7 +554,7 @@ width, and strand of a *GRanges* object, we define anchors to fix one of
 the TSS, we can anchor by the 5' end of the range and modify the width of the
 range to equal 1.
 
-```{r}
+```{r resize-01}
 all_genes <- all_genes %>%
   anchor_5p() %>%
   mutate(width = 1)
@@ -567,7 +567,7 @@ We can then repeat the same pattern but this time using `anchor_center()` to
 tell *plyranges* that we are making the TSS the midpoint of a range that has
 total width of 20kb, or 10kb both upstream and downstream of the TSS.
 
-```{r}
+```{r resize-02}
 all_genes <- all_genes %>%
   anchor_center() %>%
   mutate(width=2*1e4)
@@ -588,7 +588,7 @@ returns to us the `all_genes` ranges (potentially with duplication), but with
 the metadata columns from those overlapping DA peaks.  For any gene that has no
 overlaps, the DA peak columns will have `NA`'s.
 
-```{r}
+```{r olap-join}
 genes_olap_peaks <- all_genes %>%
   join_overlap_left(da_peaks)
 genes_olap_peaks
@@ -609,7 +609,7 @@ merging ranges (genes) via the groups we mentioned above. We also have to
 account for the number of resamples we have performed when counting if there
 are any peaks, to ensure we do not double count the same peak:
 
-```{r}
+```{r reduce-ex01}
 gene_peak_max_lfc <- genes_olap_peaks %>%
   group_by(gene_id, origin)  %>%
   reduce_ranges_directed(
@@ -639,7 +639,7 @@ peaks within DE genes and non-DE genes change as we change threshold values on
 the peak LFC. As an example, we could compute this by arbitrarily chosen LFC
 thresholds of 1 or 2 as follows:
 
-```{r}
+```{r summarize-ex01}
 origin_peak_lfc <- genes_olap_peaks %>%
   group_by(origin) %>%
   summarize(
@@ -663,7 +663,7 @@ the `peak_count` columns into name-value pairs, then pivot again to place values
 into the `origin` column. Then we create a new column with the relative
 enrichment:
 
-```{r}
+```{r pivot-enrich}
 origin_peak_lfc %>%
   as.data.frame() %>%
   tidyr::pivot_longer(cols = -origin) %>%
@@ -683,7 +683,7 @@ resample group. Second, within the origin column, we compute the total number
 of peaks that meet the DA LFC threshold and the number of genes that have more
 than zero peaks (again averaging over the number of resamples).
 
-```{r}
+```{r reduce-summarize}
 genes_olap_peaks %>%
   group_by(gene_id, origin, resample) %>%
   reduce_ranges_directed(
@@ -705,7 +705,7 @@ duplicate code. Instead we create a single function called
 computes the sum of the absolute value of the variable for each element in the
 `thresholds` vector.
 
-```{r}
+```{r count-fn}
 count_if_above_threshold <- function(var, thresholds) {
   lapply(thresholds, function(.) sum(abs(var) > ., na.rm = TRUE))
 }
@@ -716,7 +716,7 @@ can apply it over possible LFC thresholds of interest. We choose a grid of one
 hundred thresholds based on the range of absolute LFC values in the `da_peaks`
 *GRanges* object:
 
-```{r}
+```{r thresholds}
 thresholds <- da_peaks %>%
   mutate(abs_lfc = abs(da_log2FC)) %>%
   with(
@@ -731,7 +731,7 @@ row will contain the peak counts for all of the thresholds for a gene,
 origin, and resample. We also maintain another list-column that contains the
 threshold values.
 
-```{r}
+```{r reduce-ex02}
 genes_peak_all_thresholds <- genes_olap_peaks %>%
   group_by(gene_id, origin, resample) %>%
   reduce_ranges_directed(
@@ -747,7 +747,7 @@ Now we can expand these list-columns into a long *GRanges* object using the
 the peak and gene counts for each threshold, we apply the same summarization as
 before:
 
-```{r}
+```{r expand-summarize}
 origin_peak_all_thresholds <- genes_peak_all_thresholds %>%
   expand_ranges() %>%
   group_by(origin, threshold) %>%
@@ -788,7 +788,7 @@ gene). It is also likely the number of DE genes with a DA peak nearby with such
 a large change went down. We can investigate this with a plot that summarizes
 many of the aspects underlying the enrichment plot above.
 
-```{r linechart2, fig.cap = "(ref:linechart2)"}
+```{r line-chart2, fig.cap = "(ref:linechart2)"}
 origin_threshold_counts %>%
   ggplot(aes(x = threshold,
              y = count + 1,
