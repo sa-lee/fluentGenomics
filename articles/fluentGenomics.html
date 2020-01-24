@@ -310,7 +310,7 @@ transcriptome can be created directly from a <em>Salmon</em> index and gtf.</p>
 <em>tximeta</em> to summarize the transcript-level data to the gene level using the
 methods of <span class="citation">Soneson, Love, and Robinson (<a href="#ref-Soneson2015">2015</a>)</span>.</p>
 <div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" data-line-number="1">gse &lt;-<span class="st"> </span><span class="kw">summarizeToGene</span>(se)</a></code></pre></div>
-<pre><code>## loading existing TxDb created: 2020-01-24 01:28:18</code></pre>
+<pre><code>## loading existing TxDb created: 2020-01-24 02:28:02</code></pre>
 <pre><code>## Loading required package: GenomicFeatures</code></pre>
 <pre><code>## Loading required package: AnnotationDbi</code></pre>
 <pre><code>## 
@@ -621,32 +621,32 @@ samples of size equal to the number of DE-genes from the number of rows in
 <div class="sourceCode" id="cb63"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb63-1" data-line-number="1">size &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/length.html">length</a></span>(de_genes)</a>
 <a class="sourceLine" id="cb63-2" data-line-number="2"><span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">slice</a></span>(other_genes, <span class="kw"><a href="https://rdrr.io/r/base/sample.html">sample.int</a></span>(<span class="kw"><a href="https://rdrr.io/pkg/plyranges/man/n.html">n</a></span>(), size))</a></code></pre></div>
 <pre><code>## GRanges object with 749 ranges and 3 metadata columns:
-##         seqnames              ranges strand |            gene_id  de_log2FC
-##            &lt;Rle&gt;           &lt;IRanges&gt;  &lt;Rle&gt; |        &lt;character&gt;  &lt;numeric&gt;
-##     [1]     chr5   65624716-65666233      + | ENSG00000113597.17   0.330267
-##     [2]     chr5   83940554-84384793      - | ENSG00000164176.12  -0.121964
-##     [3]     chr3 149129584-149173732      + |  ENSG00000163755.8   0.398913
-##     [4]    chr12 112013316-112023451      + |  ENSG00000089248.6   0.360540
-##     [5]    chr17   60443149-60526219      - |  ENSG00000062725.9   0.138391
-##     ...      ...                 ...    ... .                ...        ...
-##   [745]    chr22   40044817-40335808      + | ENSG00000100354.20  0.4411022
-##   [746]    chr13   94601903-94634645      + |  ENSG00000152749.7 -0.2151195
-##   [747]     chr3 149964904-150050788      - | ENSG00000070087.14 -0.1882490
-##   [748]     chr1     1471769-1497848      + | ENSG00000160072.19 -0.1647642
-##   [749]     chr6   36968141-36986298      - | ENSG00000137409.19  0.0731343
+##         seqnames              ranges strand |            gene_id   de_log2FC
+##            &lt;Rle&gt;           &lt;IRanges&gt;  &lt;Rle&gt; |        &lt;character&gt;   &lt;numeric&gt;
+##     [1]    chr14   20989770-20997035      + | ENSG00000165792.17 -0.49731569
+##     [2]    chr17   36486629-36499310      + |  ENSG00000273611.4  0.00530483
+##     [3]     chr5 115841481-115914081      + | ENSG00000177879.15  0.23488480
+##     [4]    chr19   43525497-43536130      + | ENSG00000176472.10  0.20163830
+##     [5]     chr1 150996086-151008375      - | ENSG00000143409.15  0.08913123
+##     ...      ...                 ...    ... .                ...         ...
+##   [745]     chrM           4470-5511      + |  ENSG00000198763.3  -0.0662797
+##   [746]    chr17   39461511-39564907      + | ENSG00000167258.13   0.3565820
+##   [747]    chr19     9604680-9621399      - | ENSG00000171469.10  -0.2721032
+##   [748]    chr11     3339261-3379222      - | ENSG00000005801.17   0.1968118
+##   [749]    chr19   19515736-19529054      + | ENSG00000186010.18  -0.2823653
 ##             de_padj
 ##           &lt;numeric&gt;
-##     [1] 7.92275e-10
-##     [2] 7.04164e-03
-##     [3] 9.35148e-03
-##     [4] 1.33576e-07
-##     [5] 3.88137e-04
+##     [1] 1.15247e-06
+##     [2] 1.50720e-23
+##     [3] 4.81984e-14
+##     [4] 5.41040e-03
+##     [5] 5.00539e-07
 ##     ...         ...
-##   [745] 4.20347e-03
-##   [746] 2.45385e-04
-##   [747] 3.05741e-03
-##   [748] 1.44959e-04
-##   [749] 1.81808e-20
+##   [745] 5.59625e-15
+##   [746] 5.19783e-12
+##   [747] 5.21325e-05
+##   [748] 9.32147e-11
+##   [749] 1.00705e-16
 ##   -------
 ##   seqinfo: 25 sequences (1 circular) from hg38 genome</code></pre>
 <p>We can repeat this many times to create many samples via <code>replicate</code>. By
@@ -1002,8 +1002,8 @@ many of the aspects underlying the enrichment plot above.</p>
 <a class="sourceLine" id="cb89-6" data-line-number="6"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html">geom_line</a></span>() <span class="op">+</span></a>
 <a class="sourceLine" id="cb89-7" data-line-number="7"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html">scale_y_log10</a></span>()</a></code></pre></div>
 <div class="figure" style="text-align: center">
-<span id="fig:linechart2"></span>
-<img src="fluentGenomics_files/figure-html/linechart2-1.png" alt="(ref:linechart2)" width="480"><p class="caption">
+<span id="fig:line-chart2"></span>
+<img src="fluentGenomics_files/figure-html/line-chart2-1.png" alt="(ref:linechart2)" width="480"><p class="caption">
 Figure 4.3: (ref:linechart2)
 </p>
 </div>
