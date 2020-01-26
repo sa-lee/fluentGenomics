@@ -46,11 +46,12 @@ existing Bioconductor packages *DESeq2* and *limma*. We take the results of our
 models for each assay with respect to their genomic coordinates, and
 *integrate* them. First, we compute the overlap between the results of each
 assay, then aggregate over the combined genomic regions, and finally summarize
-to compare enrichment for differentially expressed genes to non differentially expressed
-genes. The final output can be used for downstream visualization or further
-transformation.
+to compare enrichment for differentially expressed genes to non differentially
+expressed genes. The final output can be used for downstream visualization or
+further transformation.
 
-(ref:maplot) Visualization of *DESeq2* results as an "MA plot". Genes that have an adjusted *p-value* below 0.01 are colored red.
+(ref:maplot) Visualization of *DESeq2* results as an "MA plot". Genes that have
+an adjusted *p-value* below 0.01 are colored red.
 
 (ref:boxplot) A boxplot of maximum LFCs for DA peaks for DE genes compared to
 non-DE genes where genes have at least one DA peak.
@@ -71,19 +72,22 @@ In this workflow, we examine a subset of the RNA-seq and ATAC-seq data from
 of human donors with interferon gamma (IFNg), *Salmonella* infection, or both
 treatments combined. @alasoo examined gene expression and chromatin
 accessibility in a subset of 86 successfully differentiated induced pluripotent
-stem cells (iPSC) lines, and compared baseline and response with respect to chromatin accessibility and gene expression at specific quantitative trait loci
-(QTL). The authors found that many of the stimulus-specific expression QTL were already detectable as chromatin QTL in naive cells, and further hypothesize about the nature and role of transcription factors implicated in the response to 
-stimulus.
+stem cells (iPSC) lines, and compared baseline and response with respect to
+chromatin accessibility and gene expression at specific quantitative trait loci
+(QTL). The authors found that many of the stimulus-specific expression QTL were
+already detectable as chromatin QTL in naive cells, and further hypothesize
+about the nature and role of transcription factors implicated in the response
+to stimulus.
 
-We will perform a much simpler analysis than the one found in
-@alasoo, using their publicly available RNA-seq and ATAC-seq data (ignoring the
-genotypes). We will examine the effect of IFNg stimulation on gene expression
-and chromatin accessibility, and look to see if there is an enrichment of
-differentially accessible (DA) ATAC-seq peaks in the vicinity of differentially
-expressed (DE) genes. This is plausible, as the transcriptomic response to IFNg
-stimulation may be mediated through binding of regulatory proteins to
-accessible regions, and this binding may increase the accessibility of those
-regions such that it can be detected by ATAC-seq.
+We will perform a much simpler analysis than the one found in @alasoo, using
+their publicly available RNA-seq and ATAC-seq data (ignoring the genotypes). We
+will examine the effect of IFNg stimulation on gene expression and chromatin
+accessibility, and look to see if there is an enrichment of differentially
+accessible (DA) ATAC-seq peaks in the vicinity of differentially expressed (DE)
+genes. This is plausible, as the transcriptomic response to IFNg stimulation
+may be mediated through binding of regulatory proteins to accessible regions,
+and this binding may increase the accessibility of those regions such that it
+can be detected by ATAC-seq.
 
 ```{r workflow, fig.cap = "(ref:workflow)", fig.align='center', out.width="\\textwidth", echo = FALSE}
 knitr::include_graphics(
@@ -97,15 +101,15 @@ knitr::include_graphics(
 Throughout the workflow (Figure \@ref(fig:workflow)), we will use existing
 Bioconductor infrastructure to understand these datasets. In particular, we
 will emphasize the use of the Bioconductor packages *plyranges* and *tximeta*.
-The *plyranges* package fluently transforms data tied to genomic ranges
-using operations like shifting, window construction, overlap
-detection, etc. It is described by @Lee2019 and leverages underlying core
-Bioconductor infrastructure [@granges; @bioc].
+The *plyranges* package fluently transforms data tied to genomic ranges using
+operations like shifting, window construction, overlap detection, etc. It is
+described by @Lee2019 and leverages underlying core Bioconductor infrastructure
+[@granges; @bioc] and the *tidyverse* design principles @tidyverse.
 
-The *tximeta* package described by @Love2019-tximeta is
-used to read RNA-seq quantification data into R/Bioconductor, such that the
-transcript ranges and their provenance are automatically attached to the object
-containing expression values and differential expression results.
+The *tximeta* package described by @Love2019-tximeta is used to read RNA-seq
+quantification data into R/Bioconductor, such that the transcript ranges and
+their provenance are automatically attached to the object containing expression
+values and differential expression results.
 
 ## Experimental Data
 
@@ -195,13 +199,13 @@ After we have read the `coldata.csv` file, we select relevant columns from this
 table, create a new column called `files`, and transform the existing `line`
 and `condition` columns into factors.  In the case of `condition`, we specify
 the "naive" cell line as the reference level.  The `files` column points to the
-quantifications for each observation -- these files have been gzipped, but would
-typically not have the 'gz' ending if used from *Salmon* directly. One other
-thing to note is the use of the pipe operator,`%>%`, which can be read as
+quantifications for each observation -- these files have been gzipped, but
+would typically not have the 'gz' ending if used from *Salmon* directly. One
+other thing to note is the use of the pipe operator,`%>%`, which can be read as
 "then", i.e. first read the data, *then* select columns, *then* mutate them.
 
-Now we have a table summarizing the experimental design and the locations
-of the quantifications. The following lines of code do a lot of work for the
+Now we have a table summarizing the experimental design and the locations of
+the quantifications. The following lines of code do a lot of work for the
 analyst: importing the RNA-seq quantification (dropping *inferential
 replicates* in this case), locating the relevant reference transcriptome,
 attaching the transcript ranges to the data, and fetching genome information.
@@ -246,14 +250,13 @@ methods of @Soneson2015.
 gse <- summarizeToGene(se)
 ```
 
-One final note is that the `start` of positive strand genes and the
-`end` of negative strand genes is now dictated by the genomic extent of
-the isoforms of the gene (so the `start` and `end` of the reduced *GRanges*).
-Another alternative would be to either operate on transcript
-abundance, and perform differential analysis on transcript (and so
-avoid defining the TSS of a set of isoforms), or to use gene-level
-summarized expression but to pick the most representative TSS based on
-isoform expression.
+One final note is that the `start` of positive strand genes and the `end` of
+negative strand genes is now dictated by the genomic extent of the isoforms of
+the gene (so the `start` and `end` of the reduced *GRanges*). Another
+alternative would be to either operate on transcript abundance, and perform
+differential analysis on transcript (and so avoid defining the TSS of a set of
+isoforms), or to use gene-level summarized expression but to pick the most
+representative TSS based on isoform expression.
 
 ## Importing ATAC-seq data as a *SummarizedExperiment* object {#atac}
 
@@ -346,9 +349,9 @@ dds <- DESeq(dds)
 ```
 
 Below we set the contrast on the condition variable, indicating we are
-estimating the $\log_2$ fold change (LFC) of IFNg stimulated cell lines against naive cell
-lines. We are interested in LFC greater than 1 at a nominal false discovery
-rate (FDR) of 1%.
+estimating the $\log_2$ fold change (LFC) of IFNg stimulated cell lines against
+naive cell lines. We are interested in LFC greater than 1 at a nominal false
+discovery rate (FDR) of 1%.
 
 ```{r results-DFrame}
 res <- results(dds,
@@ -393,13 +396,13 @@ de_genes <- de_genes %>%
   select(gene_id, de_log2FC = log2FoldChange, de_padj = padj)
 ```
 
-We now wish to extract genes for which there is evidence that the LFC
-is *not* large. We perform this test by specifying an LFC threshold
-and an alternative hypothesis (`altHypothesis`) that the LFC is less
-than the threshold in absolute value. To visualize the result of this
-test, you can run `results` without `format="GRanges"`, and pass this
-object to `plotMA` as before. We label these genes as `other_genes`
-and later as "non-DE genes", for comparison with our `de_genes` set.
+We now wish to extract genes for which there is evidence that the LFC is *not*
+large. We perform this test by specifying an LFC threshold and an alternative
+hypothesis (`altHypothesis`) that the LFC is less than the threshold in
+absolute value. To visualize the result of this test, you can run `results`
+without `format="GRanges"`, and pass this object to `plotMA` as before. We
+label these genes as `other_genes` and later as "non-DE genes", for comparison
+with our `de_genes` set.
 
 ```{r not-de-genes}
 other_genes <- results(dds,
@@ -444,9 +447,9 @@ tt <- topTable(fit, coef=idx, sort.by="none", n=nrow(atac))
 We now take the `rowRanges` of the *SummarizedExperiment* and attach the LFCs
 and adjusted p-values from *limma*, so that we can consider the overlap with
 differential expression. Note that we set the genome build to "hg38" and
-restyle the chromosome information to use the "UCSC" style
-(e.g. "chr1", "chr2", etc.). Again, we know the genome build from the
-Zenodo entry for the ATAC-seq data.
+restyle the chromosome information to use the "UCSC" style (e.g. "chr1",
+"chr2", etc.). Again, we know the genome build from the Zenodo entry for the
+ATAC-seq data.
 
 ```{r peaks-tidy, eval = FALSE}
 atac_peaks <- rowRanges(atac) %>%
@@ -472,10 +475,10 @@ peaks
 
 ## Finding overlaps with *plyranges*
 
-We have already used *plyranges* a number of times above, to `filter`, `mutate`,
-and `select` on *GRanges* objects, as well as ensuring the correct genome
-annotation and style has been used. The *plyranges* package provides a grammar
-for performing transformations of genomic data [@Lee2019]. Computations
+We have already used *plyranges* a number of times above, to `filter`,
+`mutate`, and `select` on *GRanges* objects, as well as ensuring the correct
+genome annotation and style has been used. The *plyranges* package provides a
+grammar for performing transformations of genomic data [@Lee2019]. Computations
 resulting from compositions of *plyranges* "verbs" are performed using
 underlying, highly optimized range operations in the *GenomicRanges* package
 [@granges].
@@ -496,8 +499,8 @@ without sufficient DE signal?
 ## Down sampling non-differentially expressed genes
 
 As *plyranges* is built on top of *dplyr*, it implements methods for many of
-its verbs for *GRanges* objects. Here we can use `slice` to randomly sample
-the rows of the `other_genes`. The `sample.int` function will generate random
+its verbs for *GRanges* objects. Here we can use `slice` to randomly sample the
+rows of the `other_genes`. The `sample.int` function will generate random
 samples of size equal to the number of DE-genes from the number of rows in
 `other_genes`:
 
@@ -518,9 +521,10 @@ boot_genes <- replicate(10,
                         simplify = FALSE)
 ```
 
-This creates a list of *GRanges* objects as a list, and we can bind these together
-using the `bind_ranges` function. This function creates a new column called
-"resample" on the result that identifies each of the input *GRanges* objects:
+This creates a list of *GRanges* objects as a list, and we can bind these
+together using the `bind_ranges` function. This function creates a new column
+called "resample" on the result that identifies each of the input *GRanges*
+objects:
 
 ```{r boot-set-02}
 boot_genes <- bind_ranges(boot_genes, .id = "resample")
@@ -657,11 +661,11 @@ genes, so we can see how this ratio changes for various DA LFC thresholds.
 
 For all variables except for the `origin` column we divide the first row's
 values by the second row, which will be the enrichment of peaks in DE genes
-compared to other genes. This requires us to reshape the summary table from long
-form back to wide form using the *tidyr* package. First we pivot the results of
-the `peak_count` columns into name-value pairs, then pivot again to place values
-into the `origin` column. Then we create a new column with the relative
-enrichment:
+compared to other genes. This requires us to reshape the summary table from
+long form back to wide form using the *tidyr* package. First we pivot the
+results of the `peak_count` columns into name-value pairs, then pivot again to
+place values into the `origin` column. Then we create a new column with the
+relative enrichment:
 
 ```{r pivot-enrich}
 origin_peak_lfc %>%
@@ -727,9 +731,9 @@ thresholds <- da_peaks %>%
 The peak counts for each threshold are computed as a new list-column called
 `value`. First, the *GRanges* object has been grouped by the gene, origin, and
 the number of resamples columns. Then we aggregate over those columns, so each
-row will contain the peak counts for all of the thresholds for a gene,
-origin, and resample. We also maintain another list-column that contains the
-threshold values.
+row will contain the peak counts for all of the thresholds for a gene, origin,
+and resample. We also maintain another list-column that contains the threshold
+values.
 
 ```{r reduce-ex02}
 genes_peak_all_thresholds <- genes_olap_peaks %>%
@@ -760,8 +764,8 @@ origin_peak_all_thresholds
 
 Again we can compute the relative enrichment in LFCs in the same manner as
 before, by pivoting the results to long form then back to wide form to compute
-the enrichment. We visualize the peak enrichment changes of DE genes
-relative to other genes as a line chart:
+the enrichment. We visualize the peak enrichment changes of DE genes relative
+to other genes as a line chart:
 
 ```{r line-chart, fig.cap = "(ref:linechart)"}
 origin_threshold_counts <- origin_peak_all_thresholds %>%
@@ -800,39 +804,26 @@ origin_threshold_counts %>%
 
 # Discussion
 
-<!-- lawremi comments:
-
-In the discussion, I would spend less time describing the packages
-again and more on talking about how cool it is that so many decoupled
-packages, both from Bioconductor and the tidyverse, can interoperate
-to enable seamless end-to-end workflows that are far too specialized
-to be solved by a single, monolithic tool.
-
--->
-
 We have shown that by using *plyranges* and *tximeta* (with support of
-Bioconductor and *tidyverse* packages) we can fluently iterate through the
-biological data science workflow: from import, through to modeling, wrangling
-and visualization.
-
-Using *tximeta*, we have shown that it is straightforward to import RNA-seq
-quantification data such that proper metadata and the genomic ranges giving the
-context of the features are automatically attached.
-
-Using *plyranges*, we have extended the principles of the *tidyverse* to
-genomic ranges, and that, by design we can leverage those packages to understand
-data measured along the genome. We have shown that analyses performed with
-*plyranges* is readable and clear; in most cases the code we have 
-written closely matches its description in English and clarifies how 
-the features of a genomic range are being modified. Moreover, we have shown
-how we can build up a workflow using small and modular pieces of code. 
+Bioconductor and *tidyverse* ecosystems) we can fluently iterate through the
+biological data science workflow: from import, through to modeling, and data
+integration.
 
 There are several further steps that would be interesting to perform in this
 analysis; for example, we could modify window size around the TSS to see how it
-affects enrichment, and vary the FDR cut-offs for
-both the DE gene and DA peak sets. We could also have computed variance in addition to
-the mean of the bootstrap set, and so drawn an interval around the enrichment
-line.
+affects enrichment, and vary the FDR cut-offs for both the DE gene and DA peak
+sets. We could also have computed variance in addition to the mean of the
+bootstrap set, and so drawn an interval around the enrichment line.
+
+Finally, our workflow illustrates the benefits of using appropriate data
+abstractions provided by Bioconductor such as the *SummarizedExperiment* and
+*GRanges*. These abstractions provide users with a mental model of their
+experimental data and are the building blocks for constructing the modular and
+iterative analyses we have shown here. Consequently, we have been able to
+interoperate many decoupled R packages (from both Bioconductor and the
+tidyverse) to construct a seamless end-to-end workflow that is far too
+specialized for a single monolithic tool.
+
 
 # Software Availability
 
