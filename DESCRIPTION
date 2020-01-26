@@ -1,7 +1,7 @@
 Package: fluentGenomics
 Type: Package
 Title: A plyranges and tximeta workflow
-Version: 0.0.5
+Version: 0.0.6
 Authors@R: c(
              person(role = c("aut", "cre"), "Stuart", "Lee", email = "stuart.andrew.lee@gmail.com"),
              person(role=c("aut", "ctb"), "Michael", "Love", email = "michaelisaiahlove@gmail.com")
@@ -39,5 +39,6 @@ Suggests:
     rappdirs,
     BiocFileCache
 biocViews: Workflow, BasicWorkflow, GeneExpressionWorkflow
+Workflow: true
 URL: https://github.com/sa-lee/fluentGenomics
 BugReports: https://github.com/sa-lee/fluentGenomics/issues
