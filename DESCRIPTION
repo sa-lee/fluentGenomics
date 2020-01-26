@@ -1,7 +1,7 @@
 Package: fluentGenomics
 Type: Package
 Title: A plyranges and tximeta workflow
-Version: 0.0.6
+Version: 0.0.7
 Authors@R: c(
              person(role = c("aut", "cre"), "Stuart", "Lee", email = "stuart.andrew.lee@gmail.com"),
              person(role=c("aut", "ctb"), "Michael", "Love", email = "michaelisaiahlove@gmail.com")
@@ -22,22 +22,23 @@ VignetteBuilder:
 Depends: R (>= 3.6)
 Imports:
     plyranges (>= 1.7.7),
-    tximeta (>= 1.4.2),
-    macrophage (>= 1.2.0),
-    SummarizedExperiment,
-    DESeq2,
-    limma,
-    ggplot2,
     dplyr,
+    SummarizedExperiment
     readr,
-    utils,
-    tidyr
+    stats,
+    utils
 Suggests:
     knitr,
     rmarkdown,
     bookdown,
     rappdirs,
-    BiocFileCache
+    BiocFileCache,
+    DESeq2,
+    limma,
+    ggplot2,
+    tidyr,
+    tximeta (>= 1.4.2),
+    macrophage (>= 1.2.0),
 biocViews: Workflow, BasicWorkflow, GeneExpressionWorkflow
 Workflow: true
 URL: https://github.com/sa-lee/fluentGenomics
