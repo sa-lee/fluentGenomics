@@ -8,7 +8,7 @@ output:
     toc: true
     toc_depth: 3
     fig_width: 5
-bibliography: "`r file.path(system.file(package='fluentGenomics', 'vignettes'), 'library.bib')`"
+bibliography: library.bib
 link-citations: true
 vignette: >
   %\VignetteIndexEntry{plyrangesTximetaCaseStudy}
@@ -88,12 +88,7 @@ and this binding may increase the accessibility of those regions such that it
 can be detected by ATAC-seq.
 
 ```{r workflow, fig.cap = "(ref:workflow)", fig.align='center', out.width="\\textwidth", echo = FALSE}
-knitr::include_graphics(
-  file.path(
-    system.file(package='fluentGenomics', 'vignettes'),
-    'workflow.png'
-  )
-)
+knitr::include_graphics("workflow.png")
 ```
 
 Throughout the workflow (Figure \@ref(fig:workflow)), we will use existing
