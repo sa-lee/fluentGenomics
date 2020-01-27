@@ -11,11 +11,9 @@ output:
 bibliography: "`r file.path(system.file(package='fluentGenomics', 'vignettes'), 'library.bib')`"
 link-citations: true
 vignette: >
-%\VignetteIndexEntry{plyrangesTximetaCaseStudy}
+  %\VignetteIndexEntry{plyrangesTximetaCaseStudy}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding[utf8]{inputenc}
-  pkgdown:
-  as_is: true
 ---
 
 ```{r setup, include = FALSE}
