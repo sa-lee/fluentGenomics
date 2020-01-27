@@ -13,7 +13,7 @@ retrieve_cache()
 cache_atac_se(verbose = FALSE)
 }
 \arguments{
-\item{verbose}{Provide progress bar for downloading and update the cache?
+\item{verbose}{Provide progress bar for downloading and updating the cache?
 (Default is FALSE)}
 }
 \value{
@@ -24,5 +24,11 @@ Download, retrieve and cache macrophage ATAC seq results
 }
 \details{
 This code generates the SummarizedExperiment object
-used for ATAC seq peaks data used in the vignette.
+used for ATAC seq peaks data analysis as discussed in the vignette.
+}
+\examples{
+if (interactive()) {
+ path_to_se <- cache_atac_se()
+ atac <- readRDS(path_to_se)
+}
 }

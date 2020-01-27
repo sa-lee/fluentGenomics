@@ -11,10 +11,10 @@ output:
 bibliography: "`r file.path(system.file(package='fluentGenomics', 'vignettes'), 'library.bib')`"
 link-citations: true
 vignette: >
-  %\VignetteIndexEntry{plyrangesTximetaCaseStudy}
+%\VignetteIndexEntry{plyrangesTximetaCaseStudy}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding[utf8]{inputenc}
-pkgdown:
+  pkgdown:
   as_is: true
 ---
 
@@ -94,8 +94,8 @@ knitr::include_graphics(
   file.path(
     system.file(package='fluentGenomics', 'vignettes'),
     'workflow.png'
-    )
   )
+)
 ```
 
 Throughout the workflow (Figure \@ref(fig:workflow)), we will use existing
@@ -272,7 +272,7 @@ used to generate the `coldata` table for the RNA-seq experiment:
 
 ```{r coldata-atac, eval=FALSE}
 atac_coldata <- read_tsv("ATAC_sample_metadata.txt.gz") %>%
- select(
+  select(
     sample_id,
     donor,
     condition = condition_name
@@ -304,7 +304,7 @@ the [Zenodo entry](https://zenodo.org/record/1188300#.XJOFSlNKiL5).
 ```{r peaks-atac, eval=FALSE}
 library(plyranges)
 peaks_df <- read_tsv("ATAC_peak_metadata.txt.gz",
-  col_types = c("cidciicdc")
+                     col_types = c("cidciicdc")
 )
 
 peaks_gr <- peaks_df %>%
@@ -539,7 +539,7 @@ all_genes <- bind_ranges(
   de=de_genes,
   not_de = boot_genes,
   .id="origin"
-  ) %>%
+) %>%
   mutate(
     origin = factor(origin, c("not_de", "de")),
     resample = ifelse(is.na(resample), 0L, as.integer(resample))

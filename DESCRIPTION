@@ -1,14 +1,14 @@
 Package: fluentGenomics
 Type: Package
 Title: A plyranges and tximeta workflow
-Version: 0.0.7
+Version: 0.0.8
 Authors@R: c(
-             person(role = c("aut", "cre"), "Stuart", "Lee", email = "stuart.andrew.lee@gmail.com"),
+             person(role = c("aut", "cre"), "Stuart", "Lee", email = "lee.s@wehi.edu.au"),
              person(role=c("aut", "ctb"), "Michael", "Love", email = "michaelisaiahlove@gmail.com")
              )
 Description: An extended workflow using the plyranges and tximeta
     packages for fluent genomic data analysis. Use tximeta to correctly import 
-    RNA-seq transcript  quantifications and summarise them to gene counts for 
+    RNA-seq transcript  quantifications and summarize them to gene counts for 
     downstream analysis. Use plyranges for clearly expressing operations
     over genomic coordinates and to combine results from differential
     expression and differential accessibility analyses.
@@ -23,7 +23,7 @@ Depends: R (>= 3.6)
 Imports:
     plyranges (>= 1.7.7),
     dplyr,
-    SummarizedExperiment
+    SummarizedExperiment,
     readr,
     stats,
     utils
