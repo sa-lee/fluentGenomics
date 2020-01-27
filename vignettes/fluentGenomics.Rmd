@@ -60,7 +60,7 @@ threshold increases.
 
 (ref:linechart2) A line chart displaying how gene and peak counts change as the
 absolute DA LFC threshold increases. Lines are colored according to whether
-they represent a gene that is DE or not. Note the x-axis is on a $\log_10$
+they represent a gene that is DE or not. Note the x-axis is on a $\log_{10}$
 scale.
 
 # Introduction
