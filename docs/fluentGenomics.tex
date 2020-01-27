@@ -120,8 +120,9 @@
 \begin{document}
 \maketitle
 \begin{abstract}
-We construct a simple workflow for fluent genomics data analysis using the R/Bioconductor ecosystem. This involves three core steps: \textbf{import} the data into an appropriate abstraction, \textbf{model} the data with respect to the biological questions of interest, and \textbf{transform} the results with respect to their underlying genomic coordinates. Here we show how to implement these steps to integrate published RNA-seq and ATAC-seq experiments on macrophage cell lines. Using \emph{tximeta}, we \textbf{import} RNA-seq transcript quantifications into an analysis-ready data structure, called the \emph{SummarizedExperiment}, that contains the ranges of the reference transcripts and metadata on their provenance. Using \emph{SummarizedExperiment}s to represent the ATAC-seq and RNA-seq data, we \textbf{model} differentially accessible (DA) chromatin peaks and differentially expressed (DE) genes with existing Bioconductor packages. Using \emph{plyranges} we then \textbf{transform} the results to see if there is an enrichment of DA peaks near DE genes by finding overlaps and aggregating over log-fold change thresholds. The combination of these packages and their integration with the Bioconductor ecosystem provide a coherent framework for analysts to iteratively and reproducibly explore their biological data.
+We construct a simple workflow for fluent genomics data analysis using the R/Bioconductor ecosystem. This involves three core steps: \textbf{import} the data into an appropriate abstraction, \textbf{model} the data with respect to the biological questions of interest, and \textbf{integrate} the results with respect to their underlying genomic coordinates. Here we show how to implement these steps to integrate published RNA-seq and ATAC-seq experiments on macrophage cell lines. Using \emph{tximeta}, we \textbf{import} RNA-seq transcript quantifications into an analysis-ready data structure, called the \emph{SummarizedExperiment}, that contains the ranges of the reference transcripts and metadata on their provenance. Using \emph{SummarizedExperiment}s to represent the ATAC-seq and RNA-seq data, we \textbf{model} differentially accessible (DA) chromatin peaks and differentially expressed (DE) genes with existing Bioconductor packages. Using \emph{plyranges} we then \textbf{integrate} the results to see if there is an enrichment of DA peaks near DE genes by finding overlaps and aggregating over log-fold change thresholds. The combination of these packages and their integration with the Bioconductor ecosystem provide a coherent framework for analysts to iteratively and reproducibly explore their biological data.
 \end{abstract}
+
 
 
 
@@ -156,19 +157,22 @@ K Alasoo et al. (\protect\hyperlink{ref-alasoo}{2018}), a study that involved tr
 of human donors with interferon gamma (IFNg), \emph{Salmonella} infection, or both
 treatments combined. K Alasoo et al. (\protect\hyperlink{ref-alasoo}{2018}) examined gene expression and chromatin
 accessibility in a subset of 86 successfully differentiated induced pluripotent
-stem cells (iPSC) lines, and compared baseline and response with respect to chromatin accessibility and gene expression at specific quantitative trait loci
-(QTL). The authors found that many of the stimulus-specific expression QTL were already detectable as chromatin QTL in naive cells, and further hypothesize about the nature and role of transcription factors implicated in the response to
-stimulus.
+stem cells (iPSC) lines, and compared baseline and response with respect to
+chromatin accessibility and gene expression at specific quantitative trait loci
+(QTL). The authors found that many of the stimulus-specific expression QTL were
+already detectable as chromatin QTL in naive cells, and further hypothesize
+about the nature and role of transcription factors implicated in the response
+to stimulus.
 
-We will perform a much simpler analysis than the one found in
-K Alasoo et al. (\protect\hyperlink{ref-alasoo}{2018}), using their publicly available RNA-seq and ATAC-seq data (ignoring the
-genotypes). We will examine the effect of IFNg stimulation on gene expression
-and chromatin accessibility, and look to see if there is an enrichment of
-differentially accessible (DA) ATAC-seq peaks in the vicinity of differentially
-expressed (DE) genes. This is plausible, as the transcriptomic response to IFNg
-stimulation may be mediated through binding of regulatory proteins to
-accessible regions, and this binding may increase the accessibility of those
-regions such that it can be detected by ATAC-seq.
+We will perform a much simpler analysis than the one found in K Alasoo et al. (\protect\hyperlink{ref-alasoo}{2018}), using
+their publicly available RNA-seq and ATAC-seq data (ignoring the genotypes). We
+will examine the effect of IFNg stimulation on gene expression and chromatin
+accessibility, and look to see if there is an enrichment of differentially
+accessible (DA) ATAC-seq peaks in the vicinity of differentially expressed (DE)
+genes. This is plausible, as the transcriptomic response to IFNg stimulation
+may be mediated through binding of regulatory proteins to accessible regions,
+and this binding may increase the accessibility of those regions such that it
+can be detected by ATAC-seq.
 
 \begin{figure}
 
@@ -181,25 +185,25 @@ data as a \emph{SummarizedExperiment} object, which enables interoperability wit
 downstream analysis packages. Then we \emph{model} our assay data, using the
 existing Bioconductor packages \emph{DESeq2} and \emph{limma}. We take the results of our
 models for each assay with respect to their genomic coordinates, and
-\emph{transform} them. First, we compute the overlap between the results of each
+\emph{integrate} them. First, we compute the overlap between the results of each
 assay, then aggregate over the combined genomic regions, and finally summarize
-to compare enrichment for differentially expressed genes to non differentially expressed
-genes. The final output can be used for downstream visualization or further
-transformation.}\label{fig:workflow}
+to compare enrichment for differentially expressed genes to non differentially
+expressed genes. The final output can be used for downstream visualization or
+further transformation.}\label{fig:workflow}
 \end{figure}
 
 Throughout the workflow (Figure \ref{fig:workflow}), we will use existing
 Bioconductor infrastructure to understand these datasets. In particular, we
 will emphasize the use of the Bioconductor packages \emph{plyranges} and \emph{tximeta}.
-The \emph{plyranges} package fluently transforms data tied to genomic ranges
-using operations like shifting, window construction, overlap
-detection, etc. It is described by Lee, Cook, and Lawrence (\protect\hyperlink{ref-Lee2019}{2019}) and leverages underlying core
-Bioconductor infrastructure (Lawrence et al. \protect\hyperlink{ref-granges}{2013}; Huber et al. \protect\hyperlink{ref-bioc}{2015}).
+The \emph{plyranges} package fluently transforms data tied to genomic ranges using
+operations like shifting, window construction, overlap detection, etc. It is
+described by Lee, Cook, and Lawrence (\protect\hyperlink{ref-Lee2019}{2019}) and leverages underlying core Bioconductor infrastructure
+(Lawrence et al. \protect\hyperlink{ref-granges}{2013}; Huber et al. \protect\hyperlink{ref-bioc}{2015}) and the \emph{tidyverse} design principles Wickham et al. (\protect\hyperlink{ref-tidyverse}{2019}).
 
-The \emph{tximeta} package described by Love et al. (\protect\hyperlink{ref-Love2019-tximeta}{2019}) is
-used to read RNA-seq quantification data into R/Bioconductor, such that the
-transcript ranges and their provenance are automatically attached to the object
-containing expression values and differential expression results.
+The \emph{tximeta} package described by Love et al. (\protect\hyperlink{ref-Love2019-tximeta}{2019}) is used to read RNA-seq
+quantification data into R/Bioconductor, such that the transcript ranges and
+their provenance are automatically attached to the object containing expression
+values and differential expression results.
 
 \hypertarget{experimental-data}{%
 \subsection{Experimental Data}\label{experimental-data}}
@@ -364,13 +368,13 @@ After we have read the \texttt{coldata.csv} file, we select relevant columns fro
 table, create a new column called \texttt{files}, and transform the existing \texttt{line}
 and \texttt{condition} columns into factors. In the case of \texttt{condition}, we specify
 the ``naive'' cell line as the reference level. The \texttt{files} column points to the
-quantifications for each observation -- these files have been gzipped, but would
-typically not have the `gz' ending if used from \emph{Salmon} directly. One other
-thing to note is the use of the pipe operator,\texttt{\%\textgreater{}\%}, which can be read as
+quantifications for each observation -- these files have been gzipped, but
+would typically not have the `gz' ending if used from \emph{Salmon} directly. One
+other thing to note is the use of the pipe operator,\texttt{\%\textgreater{}\%}, which can be read as
 ``then'', i.e.~first read the data, \emph{then} select columns, \emph{then} mutate them.
 
-Now we have a table summarizing the experimental design and the locations
-of the quantifications. The following lines of code do a lot of work for the
+Now we have a table summarizing the experimental design and the locations of
+the quantifications. The following lines of code do a lot of work for the
 analyst: importing the RNA-seq quantification (dropping \emph{inferential
 replicates} in this case), locating the relevant reference transcriptome,
 attaching the transcript ranges to the data, and fetching genome information.
@@ -488,14 +492,13 @@ methods of Soneson, Love, and Robinson (\protect\hyperlink{ref-Soneson2015}{2015
 ## summarizing length
 \end{verbatim}
 
-One final note is that the \texttt{start} of positive strand genes and the
-\texttt{end} of negative strand genes is now dictated by the genomic extent of
-the isoforms of the gene (so the \texttt{start} and \texttt{end} of the reduced \emph{GRanges}).
-Another alternative would be to either operate on transcript
-abundance, and perform differential analysis on transcript (and so
-avoid defining the TSS of a set of isoforms), or to use gene-level
-summarized expression but to pick the most representative TSS based on
-isoform expression.
+One final note is that the \texttt{start} of positive strand genes and the \texttt{end} of
+negative strand genes is now dictated by the genomic extent of the isoforms of
+the gene (so the \texttt{start} and \texttt{end} of the reduced \emph{GRanges}). Another
+alternative would be to either operate on transcript abundance, and perform
+differential analysis on transcript (and so avoid defining the TSS of a set of
+isoforms), or to use gene-level summarized expression but to pick the most
+representative TSS based on isoform expression.
 
 \hypertarget{atac}{%
 \subsection{\texorpdfstring{Importing ATAC-seq data as a \emph{SummarizedExperiment} object}{Importing ATAC-seq data as a SummarizedExperiment object}}\label{atac}}
@@ -519,7 +522,7 @@ used to generate the \texttt{coldata} table for the RNA-seq experiment:
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{atac_coldata <-}\StringTok{ }\KeywordTok{read_tsv}\NormalTok{(}\StringTok{"ATAC_sample_metadata.txt.gz"}\NormalTok{) }\OperatorTok{%>%}
-\StringTok{ }\KeywordTok{select}\NormalTok{(}
+\StringTok{  }\KeywordTok{select}\NormalTok{(}
 \NormalTok{    sample_id,}
 \NormalTok{    donor,}
     \DataTypeTok{condition =}\NormalTok{ condition_name}
@@ -555,7 +558,7 @@ the \href{https://zenodo.org/record/1188300\#.XJOFSlNKiL5}{Zenodo entry}.
 \begin{Highlighting}[]
 \KeywordTok{library}\NormalTok{(plyranges)}
 \NormalTok{peaks_df <-}\StringTok{ }\KeywordTok{read_tsv}\NormalTok{(}\StringTok{"ATAC_peak_metadata.txt.gz"}\NormalTok{,}
-  \DataTypeTok{col_types =} \KeywordTok{c}\NormalTok{(}\StringTok{"cidciicdc"}\NormalTok{)}
+                     \DataTypeTok{col_types =} \KeywordTok{c}\NormalTok{(}\StringTok{"cidciicdc"}\NormalTok{)}
 \NormalTok{)}
 
 \NormalTok{peaks_gr <-}\StringTok{ }\NormalTok{peaks_df }\OperatorTok{%>%}
@@ -646,9 +649,9 @@ The model is fit with the following line of code:
 \end{verbatim}
 
 Below we set the contrast on the condition variable, indicating we are
-estimating the \(\log_2\) fold change (LFC) of IFNg stimulated cell lines against naive cell
-lines. We are interested in LFC greater than 1 at a nominal false discovery
-rate (FDR) of 1\%.
+estimating the \(\log_2\) fold change (LFC) of IFNg stimulated cell lines against
+naive cell lines. We are interested in LFC greater than 1 at a nominal false
+discovery rate (FDR) of 1\%.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -692,7 +695,8 @@ and an MA plot:
 
 }
 
-\caption{Visualization of \emph{DESeq2} results as an ``MA plot''. Genes that have an adjusted \emph{p-value} below 0.01 are colored red.}\label{fig:ma-plot}
+\caption{Visualization of \emph{DESeq2} results as an ``MA plot''. Genes that have
+an adjusted \emph{p-value} below 0.01 are colored red.}\label{fig:ma-plot}
 \end{figure}
 
 We now output the results as a \emph{GRanges} object, and due to the conventions of
@@ -773,13 +777,13 @@ select (and rename) the metadata columns we're interested in:
 \end{Highlighting}
 \end{Shaded}
 
-We now wish to extract genes for which there is evidence that the LFC
-is \emph{not} large. We perform this test by specifying an LFC threshold
-and an alternative hypothesis (\texttt{altHypothesis}) that the LFC is less
-than the threshold in absolute value. To visualize the result of this
-test, you can run \texttt{results} without \texttt{format="GRanges"}, and pass this
-object to \texttt{plotMA} as before. We label these genes as \texttt{other\_genes}
-and later as ``non-DE genes'', for comparison with our \texttt{de\_genes} set.
+We now wish to extract genes for which there is evidence that the LFC is \emph{not}
+large. We perform this test by specifying an LFC threshold and an alternative
+hypothesis (\texttt{altHypothesis}) that the LFC is less than the threshold in
+absolute value. To visualize the result of this test, you can run \texttt{results}
+without \texttt{format="GRanges"}, and pass this object to \texttt{plotMA} as before. We
+label these genes as \texttt{other\_genes} and later as ``non-DE genes'', for comparison
+with our \texttt{de\_genes} set.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -821,9 +825,9 @@ generate the a summary of LFCs and adjusted p-values for the peaks:
 We now take the \texttt{rowRanges} of the \emph{SummarizedExperiment} and attach the LFCs
 and adjusted p-values from \emph{limma}, so that we can consider the overlap with
 differential expression. Note that we set the genome build to ``hg38'' and
-restyle the chromosome information to use the ``UCSC'' style
-(e.g.~``chr1'', ``chr2'', etc.). Again, we know the genome build from the
-Zenodo entry for the ATAC-seq data.
+restyle the chromosome information to use the ``UCSC'' style (e.g.~``chr1'',
+``chr2'', etc.). Again, we know the genome build from the Zenodo entry for the
+ATAC-seq data.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -881,16 +885,16 @@ package and can be loaded as follows:
 ##   seqinfo: 23 sequences from hg38 genome; no seqlengths
 \end{verbatim}
 
-\hypertarget{transform-ranges}{%
-\section{Transform ranges}\label{transform-ranges}}
+\hypertarget{integrate-ranges}{%
+\section{Integrate ranges}\label{integrate-ranges}}
 
 \hypertarget{finding-overlaps-with-plyranges}{%
 \subsection{\texorpdfstring{Finding overlaps with \emph{plyranges}}{Finding overlaps with plyranges}}\label{finding-overlaps-with-plyranges}}
 
-We have already used \emph{plyranges} a number of times above, to \texttt{filter}, \texttt{mutate},
-and \texttt{select} on \emph{GRanges} objects, as well as ensuring the correct genome
-annotation and style has been used. The \emph{plyranges} package provides a grammar
-for performing transformations of genomic data (Lee, Cook, and Lawrence \protect\hyperlink{ref-Lee2019}{2019}). Computations
+We have already used \emph{plyranges} a number of times above, to \texttt{filter},
+\texttt{mutate}, and \texttt{select} on \emph{GRanges} objects, as well as ensuring the correct
+genome annotation and style has been used. The \emph{plyranges} package provides a
+grammar for performing transformations of genomic data (Lee, Cook, and Lawrence \protect\hyperlink{ref-Lee2019}{2019}). Computations
 resulting from compositions of \emph{plyranges} ``verbs'' are performed using
 underlying, highly optimized range operations in the \emph{GenomicRanges} package
 (Lawrence et al. \protect\hyperlink{ref-granges}{2013}).
@@ -914,8 +918,8 @@ without sufficient DE signal?
 \subsection{Down sampling non-differentially expressed genes}\label{down-sampling-non-differentially-expressed-genes}}
 
 As \emph{plyranges} is built on top of \emph{dplyr}, it implements methods for many of
-its verbs for \emph{GRanges} objects. Here we can use \texttt{slice} to randomly sample
-the rows of the \texttt{other\_genes}. The \texttt{sample.int} function will generate random
+its verbs for \emph{GRanges} objects. Here we can use \texttt{slice} to randomly sample the
+rows of the \texttt{other\_genes}. The \texttt{sample.int} function will generate random
 samples of size equal to the number of DE-genes from the number of rows in
 \texttt{other\_genes}:
 
@@ -928,32 +932,32 @@ samples of size equal to the number of DE-genes from the number of rows in
 
 \begin{verbatim}
 ## GRanges object with 749 ranges and 3 metadata columns:
-##         seqnames            ranges strand |            gene_id
-##            <Rle>         <IRanges>  <Rle> |        <character>
-##     [1]     chr1 40464319-40466767      + |  ENSG00000260920.2
-##     [2]     chr8 23385783-23457695      - | ENSG00000197217.12
-##     [3]    chr16 69299682-69322700      + |  ENSG00000260914.3
-##     [4]    chr20 49903391-49915508      - | ENSG00000158480.10
-##     [5]    chr17 64854312-64919480      - | ENSG00000176809.10
-##     ...      ...               ...    ... .                ...
-##   [745]     chr3 49359145-49412998      - | ENSG00000067560.10
-##   [746]     chrX 13689125-13710506      + |  ENSG00000123595.7
-##   [747]     chr1   1253909-1273885      - | ENSG00000160087.20
-##   [748]     chr6 43307134-43369478      - | ENSG00000171467.15
-##   [749]    chr17   7402975-7404137      - |  ENSG00000205544.3
-##                   de_log2FC              de_padj
-##                   <numeric>            <numeric>
-##     [1]  0.0361231204640872 0.000235710889954686
-##     [2]   0.150157932674516 4.75279023559999e-08
-##     [3]   0.300145293963725 7.96548867585358e-33
-##     [4]  0.0415438758470776 1.66804153823191e-18
-##     [5] -0.0753291474692551 0.000553765151068586
-##     ...                 ...                  ...
-##   [745] -0.0990824775557732 2.45025122339732e-30
-##   [746]   0.153155394148403 9.05410642889974e-11
-##   [747] -0.0794696732761527 1.64275096444335e-29
-##   [748]  -0.431530973640365  0.00428938844160663
-##   [749]  -0.609058719414445  0.00247680999616502
+##         seqnames              ranges strand |            gene_id
+##            <Rle>           <IRanges>  <Rle> |        <character>
+##     [1]    chr12     6556863-6568691      - | ENSG00000111641.11
+##     [2]     chr1   94896949-94927278      - | ENSG00000117519.15
+##     [3]    chr17     7012417-7014532      + | ENSG00000219200.11
+##     [4]     chr4 183504994-183511096      + |  ENSG00000168556.6
+##     [5]    chr19   51331536-51342124      - |  ENSG00000186806.5
+##     ...      ...                 ...    ... .                ...
+##   [745]     chr1 212992182-213015826      - | ENSG00000174606.13
+##   [746]    chr12 122229564-122266521      - | ENSG00000139719.10
+##   [747]    chr14   69050881-69153150      - | ENSG00000139990.17
+##   [748]     chr2   28751640-28802940      + |  ENSG00000213639.9
+##   [749]     chr1   42817088-42844993      + | ENSG00000164010.14
+##                    de_log2FC              de_padj
+##                    <numeric>            <numeric>
+##     [1]  -0.0445831699553787 5.35512825315853e-05
+##     [2]   0.0266180072755017  0.00103922542346175
+##     [3]    0.303503711979519 8.60395162271825e-08
+##     [4]   -0.305122275169083 0.000143081887254772
+##     [5]    0.238967710152019 0.000164287372035615
+##     ...                  ...                  ...
+##   [745]     0.36521302838666 1.38853748148324e-09
+##   [746]     0.26676843207082 7.45364124832023e-06
+##   [747]     0.35920922993907 4.17563059333001e-05
+##   [748] -0.00288664631669075 3.61200130514092e-12
+##   [749]   0.0454961027832531 4.15511283611586e-11
 ##   -------
 ##   seqinfo: 25 sequences (1 circular) from hg38 genome
 \end{verbatim}
@@ -972,9 +976,10 @@ enrichment statistics induced by the sampling process.
 \end{Highlighting}
 \end{Shaded}
 
-This creates a list of \emph{GRanges} objects as a list, and we can bind these together
-using the \texttt{bind\_ranges} function. This function creates a new column called
-``resample'' on the result that identifies each of the input \emph{GRanges} objects:
+This creates a list of \emph{GRanges} objects as a list, and we can bind these
+together using the \texttt{bind\_ranges} function. This function creates a new column
+called ``resample'' on the result that identifies each of the input \emph{GRanges}
+objects:
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -992,7 +997,7 @@ object, this is given a missing value which we recode to a 0 using \texttt{mutat
   \DataTypeTok{de=}\NormalTok{de_genes,}
   \DataTypeTok{not_de =}\NormalTok{ boot_genes,}
   \DataTypeTok{.id=}\StringTok{"origin"}
-\NormalTok{  ) }\OperatorTok{%>%}
+\NormalTok{) }\OperatorTok{%>%}
 \StringTok{  }\KeywordTok{mutate}\NormalTok{(}
     \DataTypeTok{origin =} \KeywordTok{factor}\NormalTok{(origin, }\KeywordTok{c}\NormalTok{(}\StringTok{"not_de"}\NormalTok{, }\StringTok{"de"}\NormalTok{)),}
     \DataTypeTok{resample =} \KeywordTok{ifelse}\NormalTok{(}\KeywordTok{is.na}\NormalTok{(resample), 0L, }\KeywordTok{as.integer}\NormalTok{(resample))}
@@ -1224,11 +1229,11 @@ genes, so we can see how this ratio changes for various DA LFC thresholds.
 
 For all variables except for the \texttt{origin} column we divide the first row's
 values by the second row, which will be the enrichment of peaks in DE genes
-compared to other genes. This requires us to reshape the summary table from long
-form back to wide form using the \emph{tidyr} package. First we pivot the results of
-the \texttt{peak\_count} columns into name-value pairs, then pivot again to place values
-into the \texttt{origin} column. Then we create a new column with the relative
-enrichment:
+compared to other genes. This requires us to reshape the summary table from
+long form back to wide form using the \emph{tidyr} package. First we pivot the
+results of the \texttt{peak\_count} columns into name-value pairs, then pivot again to
+place values into the \texttt{origin} column. Then we create a new column with the
+relative enrichment:
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1319,9 +1324,9 @@ hundred thresholds based on the range of absolute LFC values in the \texttt{da\_
 The peak counts for each threshold are computed as a new list-column called
 \texttt{value}. First, the \emph{GRanges} object has been grouped by the gene, origin, and
 the number of resamples columns. Then we aggregate over those columns, so each
-row will contain the peak counts for all of the thresholds for a gene,
-origin, and resample. We also maintain another list-column that contains the
-threshold values.
+row will contain the peak counts for all of the thresholds for a gene, origin,
+and resample. We also maintain another list-column that contains the threshold
+values.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1418,8 +1423,8 @@ before:
 
 Again we can compute the relative enrichment in LFCs in the same manner as
 before, by pivoting the results to long form then back to wide form to compute
-the enrichment. We visualize the peak enrichment changes of DE genes
-relative to other genes as a line chart:
+the enrichment. We visualize the peak enrichment changes of DE genes relative
+to other genes as a line chart:
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1491,28 +1496,24 @@ scale.}\label{fig:line-chart2}
 \section{Discussion}\label{discussion}}
 
 We have shown that by using \emph{plyranges} and \emph{tximeta} (with support of
-Bioconductor and \emph{tidyverse} packages) we can fluently iterate through the
-biological data science workflow: from import, through to modeling, wrangling
-and visualization.
-
-Using \emph{tximeta}, we have shown that it is straightforward to import RNA-seq
-quantification data such that proper metadata and the genomic ranges giving the
-context of the features are automatically attached.
-
-Using \emph{plyranges}, we have extended the principles of the \emph{tidyverse} to
-genomic ranges, and that, by design we can leverage those packages to understand
-data measured along the genome. We have shown that analyses performed with
-\emph{plyranges} is readable and clear; in most cases the code we have
-written closely matches its description in English and clarifies how
-the features of a genomic range are being modified. Moreover, we have shown
-how we can build up a workflow using small and modular pieces of code.
+Bioconductor and \emph{tidyverse} ecosystems) we can fluently iterate through the
+biological data science workflow: from import, through to modeling, and data
+integration.
 
 There are several further steps that would be interesting to perform in this
 analysis; for example, we could modify window size around the TSS to see how it
-affects enrichment, and vary the FDR cut-offs for
-both the DE gene and DA peak sets. We could also have computed variance in addition to
-the mean of the bootstrap set, and so drawn an interval around the enrichment
-line.
+affects enrichment, and vary the FDR cut-offs for both the DE gene and DA peak
+sets. We could also have computed variance in addition to the mean of the
+bootstrap set, and so drawn an interval around the enrichment line.
+
+Finally, our workflow illustrates the benefits of using appropriate data
+abstractions provided by Bioconductor such as the \emph{SummarizedExperiment} and
+\emph{GRanges}. These abstractions provide users with a mental model of their
+experimental data and are the building blocks for constructing the modular and
+iterative analyses we have shown here. Consequently, we have been able to
+interoperate many decoupled R packages (from both Bioconductor and the
+tidyverse) to construct a seamless end-to-end workflow that is far too
+specialized for a single monolithic tool.
 
 \hypertarget{software-availability}{%
 \section{Software Availability}\label{software-availability}}
@@ -1570,7 +1571,7 @@ This article and the analyses were performed with R (R Core Team \protect\hyperl
 ## [13] IRanges_2.20.1              S4Vectors_0.24.1           
 ## [15] BiocGenerics_0.32.0         readr_1.3.1                
 ## [17] dplyr_0.8.3                 tximeta_1.4.2              
-## [19] fluentGenomics_0.0.4        rmarkdown_2.0              
+## [19] fluentGenomics_0.0.5        rmarkdown_2.0              
 ## 
 ## loaded via a namespace (and not attached):
 ##   [1] colorspace_1.4-1         htmlTable_1.13.3         XVector_0.26.0          
