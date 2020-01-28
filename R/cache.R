@@ -26,20 +26,6 @@
 #'  path_to_se <- cache_atac_se()
 #'  atac <- readRDS(path_to_se)
 #' }
-retrieve_cache <- function() {
-  if (!requireNamespace("rappdirs", quietly = TRUE)) {
-    stop("Please install rappdirs to set cache directory")
-  }
-  cache <- rappdirs::user_cache_dir(appname = "fluentGenomics")
-  
-  if (!requireNamespace("BiocFileCache", quietly = TRUE)) {
-    stop("Please install BiocFileCache to generate new cache.")
-  }
-  BiocFileCache::BiocFileCache(cache)
-}
-
-#' @rdname cache-se
-#' @export
 cache_atac_se <- function(verbose = FALSE) {
   dir_url <- "https://zenodo.org/record/1188300/files/"
   
@@ -70,6 +56,18 @@ cache_atac_se <- function(verbose = FALSE) {
   }
   # the path of the file to load
   BiocFileCache::bfcrpath(bfc, resource)
+}
+
+retrieve_cache <- function() {
+  if (!requireNamespace("rappdirs", quietly = TRUE)) {
+    stop("Please install rappdirs to set cache directory")
+  }
+  cache <- rappdirs::user_cache_dir(appname = "fluentGenomics")
+  
+  if (!requireNamespace("BiocFileCache", quietly = TRUE)) {
+    stop("Please install BiocFileCache to generate new cache.")
+  }
+  BiocFileCache::BiocFileCache(cache)
 }
 
 prep_coldata <- function(dir_url, verbose) {
