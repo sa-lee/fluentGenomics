@@ -827,9 +827,9 @@ the development version of the workflow and all downstream dependencies can be
 installed using the `BiocManager` package by running:
 
 ```{r, eval = FALSE}
-# dev
+# development version from Github
 BiocManager::install("sa-lee/fluentGenomics")
-# stable version available from Bioconductor
+# version available from Bioconductor
 BiocManager::install("fluentGenomics")
 ```
 
