@@ -1,7 +1,7 @@
 Package: fluentGenomics
 Type: Package
 Title: A plyranges and tximeta workflow
-Version: 0.99.1
+Version: 0.99.2
 Authors@R: c(
              person(role = c("aut", "cre"), "Stuart", "Lee", email = "lee.s@wehi.edu.au"),
              person(role=c("aut", "ctb"), "Michael", "Love", email = "michaelisaiahlove@gmail.com")
