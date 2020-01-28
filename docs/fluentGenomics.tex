@@ -176,7 +176,7 @@ can be detected by ATAC-seq.
 
 \begin{figure}
 
-{\centering \includegraphics[width=\textwidth]{/Library/Frameworks/R.framework/Versions/3.6/Resources/library/fluentGenomics/vignettes/workflow} 
+{\centering \includegraphics[width=\textwidth]{workflow} 
 
 }
 
@@ -934,30 +934,30 @@ samples of size equal to the number of DE-genes from the number of rows in
 ## GRanges object with 749 ranges and 3 metadata columns:
 ##         seqnames              ranges strand |            gene_id
 ##            <Rle>           <IRanges>  <Rle> |        <character>
-##     [1]    chr12     6556863-6568691      - | ENSG00000111641.11
-##     [2]     chr1   94896949-94927278      - | ENSG00000117519.15
-##     [3]    chr17     7012417-7014532      + | ENSG00000219200.11
-##     [4]     chr4 183504994-183511096      + |  ENSG00000168556.6
-##     [5]    chr19   51331536-51342124      - |  ENSG00000186806.5
+##     [1]     chr1   26890488-26900466      - | ENSG00000198746.12
+##     [2]     chr4 141220887-141234697      + | ENSG00000109445.10
+##     [3]    chr12 112160188-112382439      - | ENSG00000173064.12
+##     [4]    chr13   31134974-31162388      - | ENSG00000120694.19
+##     [5]    chr17   37514797-37609496      - |  ENSG00000275066.4
 ##     ...      ...                 ...    ... .                ...
-##   [745]     chr1 212992182-213015826      - | ENSG00000174606.13
-##   [746]    chr12 122229564-122266521      - | ENSG00000139719.10
-##   [747]    chr14   69050881-69153150      - | ENSG00000139990.17
-##   [748]     chr2   28751640-28802940      + |  ENSG00000213639.9
-##   [749]     chr1   42817088-42844993      + | ENSG00000164010.14
-##                    de_log2FC              de_padj
-##                    <numeric>            <numeric>
-##     [1]  -0.0445831699553787 5.35512825315853e-05
-##     [2]   0.0266180072755017  0.00103922542346175
-##     [3]    0.303503711979519 8.60395162271825e-08
-##     [4]   -0.305122275169083 0.000143081887254772
-##     [5]    0.238967710152019 0.000164287372035615
-##     ...                  ...                  ...
-##   [745]     0.36521302838666 1.38853748148324e-09
-##   [746]     0.26676843207082 7.45364124832023e-06
-##   [747]     0.35920922993907 4.17563059333001e-05
-##   [748] -0.00288664631669075 3.61200130514092e-12
-##   [749]   0.0454961027832531 4.15511283611586e-11
+##   [745]    chr20     3045945-3048254      + |  ENSG00000125901.5
+##   [746]    chr16   70346829-70373383      + | ENSG00000168872.16
+##   [747]    chr19   18831938-18868236      + | ENSG00000005007.12
+##   [748]    chr12     6666477-6689572      - | ENSG00000126746.17
+##   [749]     chr2     3575205-3580920      + | ENSG00000171863.14
+##                   de_log2FC              de_padj
+##                   <numeric>            <numeric>
+##     [1]    0.16909882503824 1.36439677663303e-15
+##     [2]  -0.110147580079407 2.08542530094741e-11
+##     [3]   0.144029835606733 1.68431882130248e-07
+##     [4]  -0.023454391472986 0.000530800735408018
+##     [5]   0.252722313137111  2.0839123931282e-11
+##     ...                 ...                  ...
+##   [745]  -0.424589720947925  0.00440766986950405
+##   [746]  0.0726651236153919 2.26389160906564e-09
+##   [747] -0.0847460249226525  7.4089673378162e-29
+##   [748]  0.0158683098473536 1.15330450566857e-13
+##   [749]  -0.416796080579922 1.83298968911328e-08
 ##   -------
 ##   seqinfo: 25 sequences (1 circular) from hg38 genome
 \end{verbatim}
@@ -1488,7 +1488,7 @@ many of the aspects underlying the enrichment plot above.
 
 \caption{A line chart displaying how gene and peak counts change as the
 absolute DA LFC threshold increases. Lines are colored according to whether
-they represent a gene that is DE or not. Note the x-axis is on a \(\log_10\)
+they represent a gene that is DE or not. Note the x-axis is on a \(\log_{10}\)
 scale.}\label{fig:line-chart2}
 \end{figure}
 
@@ -1574,41 +1574,41 @@ This article and the analyses were performed with R (R Core Team \protect\hyperl
 ## [19] fluentGenomics_0.0.5        rmarkdown_2.0              
 ## 
 ## loaded via a namespace (and not attached):
-##   [1] colorspace_1.4-1         htmlTable_1.13.3         XVector_0.26.0          
-##   [4] base64enc_0.1-3          rstudioapi_0.10          farver_2.0.3            
-##   [7] bit64_0.9-7              fansi_0.4.1              xml2_1.2.2              
-##  [10] splines_3.6.1            tximport_1.14.0          geneplotter_1.64.0      
-##  [13] knitr_1.27               zeallot_0.1.0            Formula_1.2-3           
-##  [16] jsonlite_1.6             Rsamtools_2.2.1          annotate_1.64.0         
-##  [19] cluster_2.1.0            dbplyr_1.4.2             png_0.1-7               
-##  [22] compiler_3.6.1           httr_1.4.1               backports_1.1.5         
-##  [25] assertthat_0.2.1         Matrix_1.2-18            lazyeval_0.2.2          
-##  [28] cli_2.0.1                acepack_1.4.1            htmltools_0.4.0         
-##  [31] prettyunits_1.1.0        tools_3.6.1              gtable_0.3.0            
-##  [34] glue_1.3.1               GenomeInfoDbData_1.2.2   rappdirs_0.3.1          
-##  [37] Rcpp_1.0.3               vctrs_0.2.1              Biostrings_2.54.0       
-##  [40] rtracklayer_1.46.0       xfun_0.12                stringr_1.4.0           
-##  [43] lifecycle_0.1.0          ensembldb_2.10.2         XML_3.99-0.3            
-##  [46] zlibbioc_1.32.0          scales_1.1.0             hms_0.5.3               
-##  [49] ProtGenerics_1.18.0      AnnotationFilter_1.10.0  RColorBrewer_1.1-2      
-##  [52] yaml_2.2.0               curl_4.3                 memoise_1.1.0           
-##  [55] gridExtra_2.3            biomaRt_2.42.0           rpart_4.1-15            
-##  [58] hunspell_3.0             latticeExtra_0.6-29      stringi_1.4.5           
-##  [61] RSQLite_2.2.0            genefilter_1.68.0        checkmate_1.9.4         
-##  [64] rlang_0.4.2              pkgconfig_2.0.3          commonmark_1.7          
-##  [67] bitops_1.0-6             evaluate_0.14            lattice_0.20-38         
-##  [70] purrr_0.3.3              labeling_0.3             GenomicAlignments_1.22.1
-##  [73] htmlwidgets_1.5.1        bit_1.1-15.1             tidyselect_0.2.5        
-##  [76] magrittr_1.5             bookdown_0.16            R6_2.4.1                
-##  [79] spelling_2.1             Hmisc_4.3-0              DBI_1.1.0               
-##  [82] withr_2.1.2              pillar_1.4.3             foreign_0.8-73          
-##  [85] survival_3.1-8           RCurl_1.98-1.1           nnet_7.3-12             
-##  [88] tibble_2.1.3             crayon_1.3.4             utf8_1.1.4              
-##  [91] BiocFileCache_1.10.2     jpeg_0.1-8.1             progress_1.2.2          
-##  [94] locfit_1.5-9.1           grid_3.6.1               data.table_1.12.8       
-##  [97] blob_1.2.1               digest_0.6.23            xtable_1.8-4            
-## [100] tidyr_1.0.0              openssl_1.4.1            munsell_0.5.0           
-## [103] askpass_1.1
+##   [1] colorspace_1.4-1         rprojroot_1.3-2          htmlTable_1.13.3        
+##   [4] XVector_0.26.0           base64enc_0.1-3          rstudioapi_0.10         
+##   [7] farver_2.0.3             bit64_0.9-7              fansi_0.4.1             
+##  [10] xml2_1.2.2               splines_3.6.1            tximport_1.14.0         
+##  [13] geneplotter_1.64.0       knitr_1.27               zeallot_0.1.0           
+##  [16] Formula_1.2-3            jsonlite_1.6             Rsamtools_2.2.1         
+##  [19] annotate_1.64.0          cluster_2.1.0            dbplyr_1.4.2            
+##  [22] png_0.1-7                compiler_3.6.1           httr_1.4.1              
+##  [25] backports_1.1.5          assertthat_0.2.1         Matrix_1.2-18           
+##  [28] lazyeval_0.2.2           cli_2.0.1                acepack_1.4.1           
+##  [31] htmltools_0.4.0          prettyunits_1.1.0        tools_3.6.1             
+##  [34] gtable_0.3.0             glue_1.3.1               GenomeInfoDbData_1.2.2  
+##  [37] rappdirs_0.3.1           Rcpp_1.0.3               vctrs_0.2.1             
+##  [40] Biostrings_2.54.0        rtracklayer_1.46.0       xfun_0.12               
+##  [43] stringr_1.4.0            lifecycle_0.1.0          ensembldb_2.10.2        
+##  [46] XML_3.99-0.3             zlibbioc_1.32.0          scales_1.1.0            
+##  [49] hms_0.5.3                ProtGenerics_1.18.0      AnnotationFilter_1.10.0 
+##  [52] RColorBrewer_1.1-2       yaml_2.2.0               curl_4.3                
+##  [55] memoise_1.1.0            gridExtra_2.3            biomaRt_2.42.0          
+##  [58] rpart_4.1-15             hunspell_3.0             latticeExtra_0.6-29     
+##  [61] stringi_1.4.5            RSQLite_2.2.0            genefilter_1.68.0       
+##  [64] checkmate_1.9.4          rlang_0.4.2              pkgconfig_2.0.3         
+##  [67] commonmark_1.7           bitops_1.0-6             evaluate_0.14           
+##  [70] lattice_0.20-38          purrr_0.3.3              labeling_0.3            
+##  [73] GenomicAlignments_1.22.1 htmlwidgets_1.5.1        bit_1.1-15.1            
+##  [76] tidyselect_0.2.5         here_0.1                 magrittr_1.5            
+##  [79] bookdown_0.16            R6_2.4.1                 spelling_2.1            
+##  [82] Hmisc_4.3-0              DBI_1.1.0                withr_2.1.2             
+##  [85] pillar_1.4.3             foreign_0.8-73           survival_3.1-8          
+##  [88] RCurl_1.98-1.1           nnet_7.3-12              tibble_2.1.3            
+##  [91] crayon_1.3.4             utf8_1.1.4               BiocFileCache_1.10.2    
+##  [94] jpeg_0.1-8.1             progress_1.2.2           locfit_1.5-9.1          
+##  [97] grid_3.6.1               data.table_1.12.8        blob_1.2.1              
+## [100] digest_0.6.23            xtable_1.8-4             tidyr_1.0.0             
+## [103] openssl_1.4.1            munsell_0.5.0            askpass_1.1
 \end{verbatim}
 
 \hypertarget{author-contributions}{%
