@@ -8,8 +8,14 @@ In *fluentGenomics* we explore the use of the Bioconductor packages plyranges an
 
 ## Installation
 
-Currently, `fluentGenomics` is available only on github,
-install it and associated dependencies with
+The `fluentGenomics` package is currently available on the Bioconductor
+development branch:
+
+```r
+BiocManager::install('fluentGenomics', version = 'devel')
+```
+
+To install `fluentGenomics` from github with associated dependencies use
 
 ``` r
 BiocManager::install('sa-lee/fluentGenomics', 
