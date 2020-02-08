@@ -11,7 +11,7 @@ output:
 bibliography: library.bib
 link-citations: true
 vignette: >
-  %\VignetteIndexEntry{plyrangesTximetaCaseStudy}
+  %\VignetteIndexEntry{fluentGenomics}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding[utf8]{inputenc}
 ---
