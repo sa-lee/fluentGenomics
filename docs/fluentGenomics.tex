@@ -133,22 +133,6 @@ We construct a simple workflow for fluent genomics data analysis using the R/Bio
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 \hypertarget{introduction}{%
 \section{Introduction}\label{introduction}}
 
@@ -180,16 +164,7 @@ can be detected by ATAC-seq.
 
 }
 
-\caption{An overview of the fluent genomics workflow. First, we \emph{import}
-data as a \emph{SummarizedExperiment} object, which enables interoperability with
-downstream analysis packages. Then we \emph{model} our assay data, using the
-existing Bioconductor packages \emph{DESeq2} and \emph{limma}. We take the results of our
-models for each assay with respect to their genomic coordinates, and
-\emph{integrate} them. First, we compute the overlap between the results of each
-assay, then aggregate over the combined genomic regions, and finally summarize
-to compare enrichment for differentially expressed genes to non differentially
-expressed genes. The final output can be used for downstream visualization or
-further transformation.}\label{fig:workflow}
+\caption{An overview of the fluent genomics workflow. First, we \emph{import} data as a \emph{SummarizedExperiment} object, which enables interoperability with downstream analysis packages. Then we \emph{model} our assay data, using the existing Bioconductor packages \emph{DESeq2} and \emph{limma}. We take the results of our models for each assay with respect to their genomic coordinates, and \emph{integrate} them. First, we compute the overlap between the results of each assay, then aggregate over the combined genomic regions, and finally summarize to compare enrichment for differentially expressed genes to non differentially expressed genes. The final output can be used for downstream visualization or further transformation.}\label{fig:workflow}
 \end{figure}
 
 Throughout the workflow (Figure \ref{fig:workflow}), we will use existing
@@ -695,8 +670,7 @@ and an MA plot:
 
 }
 
-\caption{Visualization of \emph{DESeq2} results as an ``MA plot''. Genes that have
-an adjusted \emph{p-value} below 0.01 are colored red.}\label{fig:ma-plot}
+\caption{Visualization of \emph{DESeq2} results as an ``MA plot''. Genes that have an adjusted \emph{p-value} below 0.01 are colored red.}\label{fig:ma-plot}
 \end{figure}
 
 We now output the results as a \emph{GRanges} object, and due to the conventions of
@@ -723,45 +697,45 @@ genomes.
 
 \begin{verbatim}
 ## GRanges object with 17806 ranges and 7 metadata columns:
-##           seqnames              ranges strand |            gene_id
-##              <Rle>           <IRanges>  <Rle> |        <character>
-##       [1]     chrX 100627109-100639991      - | ENSG00000000003.14
-##       [2]    chr20   50934867-50958555      - | ENSG00000000419.12
-##       [3]     chr1 169849631-169894267      - | ENSG00000000457.13
-##       [4]     chr1 169662007-169854080      + | ENSG00000000460.16
-##       [5]     chr1   27612064-27635277      - | ENSG00000000938.12
-##       ...      ...                 ...    ... .                ...
-##   [17802]    chr10   84167228-84172093      - |  ENSG00000285972.1
-##   [17803]     chr6   63572012-63583587      + |  ENSG00000285976.1
-##   [17804]    chr16   57177349-57181390      + |  ENSG00000285979.1
-##   [17805]     chr8 103398658-103501895      - |  ENSG00000285982.1
-##   [17806]    chr10   12563151-12567351      + |  ENSG00000285994.1
-##                   baseMean     log2FoldChange              lfcSE
-##                  <numeric>          <numeric>          <numeric>
-##       [1] 171.570646163445 -0.282245015065582  0.300571026277417
-##       [2] 967.751278980391 0.0391222756936352 0.0859707605047955
-##       [3] 682.432885098654    1.2846178585311  0.196906721741941
-##       [4] 262.963397841117  -1.47187616421189  0.218691645887265
-##       [5] 2660.10225731917  0.675478091290521  0.236053041372838
-##       ...              ...                ...                ...
-##   [17802] 10.0474624496157  0.548451844773876  0.444318686394084
-##   [17803] 4586.34616821518 -0.033929582570062  0.188004977365846
-##   [17804] 14.2965310090402  0.312347650582085  0.522699844356108
-##   [17805] 27.7629588245413  0.994518742790125   1.58237312176743
-##   [17806] 6.60408582708505   0.25399752352481    0.5957511892896
-##                        stat             pvalue              padj
-##                   <numeric>          <numeric>         <numeric>
-##       [1]                 0                  1                 1
-##       [2]                 0                  1                 1
-##       [3]  1.44544511235177  0.148332899695748                 1
-##       [4] -2.15772377722715 0.0309493141635637 0.409727500369082
-##       [5]                 0                  1                 1
-##       ...               ...                ...               ...
-##   [17802]                 0                  1                 1
-##   [17803]                 0                  1                 1
-##   [17804]                 0                  1                 1
-##   [17805]                 0                  1                 1
-##   [17806]                 0                  1                 1
+##           seqnames              ranges strand |         baseMean
+##              <Rle>           <IRanges>  <Rle> |        <numeric>
+##       [1]     chrX 100627109-100639991      - | 171.570646163445
+##       [2]    chr20   50934867-50958555      - | 967.751278980391
+##       [3]     chr1 169849631-169894267      - | 682.432885098654
+##       [4]     chr1 169662007-169854080      + | 262.963397841117
+##       [5]     chr1   27612064-27635277      - | 2660.10225731917
+##       ...      ...                 ...    ... .              ...
+##   [17802]    chr10   84167228-84172093      - | 10.0474624496157
+##   [17803]     chr6   63572012-63583587      + | 4586.34616821518
+##   [17804]    chr16   57177349-57181390      + | 14.2965310090402
+##   [17805]     chr8 103398658-103501895      - | 27.7629588245413
+##   [17806]    chr10   12563151-12567351      + | 6.60408582708505
+##               log2FoldChange              lfcSE              stat
+##                    <numeric>          <numeric>         <numeric>
+##       [1] -0.282245015065582  0.300571026277417                 0
+##       [2] 0.0391222756936352 0.0859707605047955                 0
+##       [3]    1.2846178585311  0.196906721741941  1.44544511235177
+##       [4]  -1.47187616421189  0.218691645887265 -2.15772377722715
+##       [5]  0.675478091290521  0.236053041372838                 0
+##       ...                ...                ...               ...
+##   [17802]  0.548451844773876  0.444318686394084                 0
+##   [17803] -0.033929582570062  0.188004977365846                 0
+##   [17804]  0.312347650582085  0.522699844356108                 0
+##   [17805]  0.994518742790125   1.58237312176743                 0
+##   [17806]   0.25399752352481    0.5957511892896                 0
+##                       pvalue              padj            gene_id
+##                    <numeric>         <numeric>        <character>
+##       [1]                  1                 1 ENSG00000000003.14
+##       [2]                  1                 1 ENSG00000000419.12
+##       [3]  0.148332899695748                 1 ENSG00000000457.13
+##       [4] 0.0309493141635637 0.409727500369082 ENSG00000000460.16
+##       [5]                  1                 1 ENSG00000000938.12
+##       ...                ...               ...                ...
+##   [17802]                  1                 1  ENSG00000285972.1
+##   [17803]                  1                 1  ENSG00000285976.1
+##   [17804]                  1                 1  ENSG00000285979.1
+##   [17805]                  1                 1  ENSG00000285982.1
+##   [17806]                  1                 1  ENSG00000285994.1
 ##   -------
 ##   seqinfo: 25 sequences (1 circular) from hg38 genome
 \end{verbatim}
@@ -932,32 +906,32 @@ samples of size equal to the number of DE-genes from the number of rows in
 
 \begin{verbatim}
 ## GRanges object with 749 ranges and 3 metadata columns:
-##         seqnames              ranges strand |            gene_id
-##            <Rle>           <IRanges>  <Rle> |        <character>
-##     [1]     chr9 128819651-128829821      - | ENSG00000198917.12
-##     [2]     chr4       958887-986895      - | ENSG00000145214.13
-##     [3]     chr7   32916815-32943176      - | ENSG00000205763.13
-##     [4]    chr15   74598500-74645414      + | ENSG00000179335.18
-##     [5]    chr19   43996896-44002836      - |  ENSG00000266921.1
-##     ...      ...                 ...    ... .                ...
-##   [745]     chr2 231732425-231786272      - | ENSG00000156973.13
-##   [746]    chr13 112686769-112689815      - |  ENSG00000274922.1
-##   [747]     chr9   93576407-93679587      + | ENSG00000197724.10
-##   [748]     chr8 143597835-143603224      + |  ENSG00000179886.5
-##   [749]    chr17   81666364-81673904      + | ENSG00000185298.12
-##                    de_log2FC              de_padj
-##                    <numeric>            <numeric>
-##     [1]   0.0125804041562409 8.20768195120974e-09
-##     [2]    -0.27201809520893 3.08085205452332e-07
-##     [3]   0.0781232048133288  8.0547909233735e-07
-##     [4]    0.120324259003472 1.36912324994382e-13
-##     [5] 0.000218895401361497  0.00485688559956773
-##     ...                  ...                  ...
-##   [745]    0.498346851622183  0.00118441064644543
-##   [746]    0.169372408097565  0.00120695857265466
-##   [747]   -0.252325705825331 5.95814403873254e-11
-##   [748]    0.108005256969665 5.27090615809167e-06
-##   [749]   0.0592693549492427 1.73737397840478e-06
+##         seqnames              ranges strand |           de_log2FC
+##            <Rle>           <IRanges>  <Rle> |           <numeric>
+##     [1]     chr8       406428-477967      + |  -0.103541447900297
+##     [2]    chr11   46700818-46705912      + |  -0.272610402876693
+##     [3]     chr1   23084023-23177808      - | -0.0941092469772679
+##     [4]     chr8   41929479-42052026      - |   0.332317656589964
+##     [5]     chr7       897901-955407      - |  -0.160333802044551
+##     ...      ...                 ...    ... .                 ...
+##   [745]    chr15   88621296-88632282      + |  -0.117501995148534
+##   [746]    chr17   81539885-81553961      - |  -0.173635510047773
+##   [747]    chr18     9708165-9862551      + |  -0.367264906278055
+##   [748]    chr16   47154387-47464149      - |  0.0813777224293717
+##   [749]     chr1 173477266-173488807      + |  -0.274568303467944
+##                      de_padj            gene_id
+##                    <numeric>        <character>
+##     [1] 6.10725716421605e-06 ENSG00000147364.16
+##     [2] 6.47841246383306e-07  ENSG00000175213.2
+##     [3] 1.50713029067845e-13 ENSG00000169641.13
+##     [4] 1.10283377705704e-09 ENSG00000083168.10
+##     [5] 8.29209481096862e-05 ENSG00000105963.14
+##     ...                  ...                ...
+##   [745] 8.83302649877123e-07 ENSG00000181026.14
+##   [746]  3.4396181156589e-05 ENSG00000185504.16
+##   [747]  0.00522268692216022 ENSG00000168461.12
+##   [748] 6.36242652923543e-16 ENSG00000129636.12
+##   [749] 2.72855753943722e-06  ENSG00000117592.8
 ##   -------
 ##   seqinfo: 25 sequences (1 circular) from hg38 genome
 \end{verbatim}
@@ -1008,32 +982,32 @@ object, this is given a missing value which we recode to a 0 using \texttt{mutat
 
 \begin{verbatim}
 ## GRanges object with 8239 ranges and 5 metadata columns:
-##          seqnames              ranges strand |            gene_id
-##             <Rle>           <IRanges>  <Rle> |        <character>
-##      [1]     chr1 196651878-196747504      + | ENSG00000000971.15
-##      [2]     chr6   46129993-46146699      + |  ENSG00000001561.6
-##      [3]     chr4   17577192-17607972      + | ENSG00000002549.12
-##      [4]     chr7 150800403-150805120      + |  ENSG00000002933.8
-##      [5]     chr4   15778275-15853230      + | ENSG00000004468.12
+##          seqnames              ranges strand |          de_log2FC
+##             <Rle>           <IRanges>  <Rle> |          <numeric>
+##      [1]     chr1 196651878-196747504      + |   4.98711071930695
+##      [2]     chr6   46129993-46146699      + |   1.92721595378787
+##      [3]     chr4   17577192-17607972      + |   2.93372501059128
+##      [4]     chr7 150800403-150805120      + |   3.16721751137972
+##      [5]     chr4   15778275-15853230      + |   5.40894352968188
 ##      ...      ...                 ...    ... .                ...
-##   [8235]    chr17   43527844-43579620      - | ENSG00000175832.12
-##   [8236]    chr17   18260534-18266552      + | ENSG00000177427.12
-##   [8237]    chr20   63895182-63936031      + | ENSG00000101152.10
-##   [8238]     chr1   39081316-39487177      + | ENSG00000127603.25
-##   [8239]     chr8   41577187-41625001      + | ENSG00000158669.11
-##                   de_log2FC              de_padj  resample   origin
-##                   <numeric>            <numeric> <integer> <factor>
-##      [1]   4.98711071930695 1.37057050625117e-13         0       de
-##      [2]   1.92721595378787  3.1747750217733e-05         0       de
-##      [3]   2.93372501059128  2.0131038573066e-11         0       de
-##      [4]   3.16721751137972 1.07359906028984e-08         0       de
-##      [5]   5.40894352968188 4.82904694023763e-18         0       de
-##      ...                ...                  ...       ...      ...
-##   [8235] -0.240918426099239  0.00991611085813261        10   not_de
-##   [8236] -0.166059030395757  9.1205141062356e-05        10   not_de
-##   [8237]  0.250538999517482 1.74084544559733e-09        10   not_de
-##   [8238] -0.385053503003028  0.00265539384929076        10   not_de
-##   [8239]  0.155922038318879  2.9637514745875e-17        10   not_de
+##   [8235]    chr17   43527844-43579620      - | -0.240918426099239
+##   [8236]    chr17   18260534-18266552      + | -0.166059030395757
+##   [8237]    chr20   63895182-63936031      + |  0.250538999517482
+##   [8238]     chr1   39081316-39487177      + | -0.385053503003028
+##   [8239]     chr8   41577187-41625001      + |  0.155922038318879
+##                       de_padj            gene_id  resample   origin
+##                     <numeric>        <character> <integer> <factor>
+##      [1] 1.37057050625117e-13 ENSG00000000971.15         0       de
+##      [2]  3.1747750217733e-05  ENSG00000001561.6         0       de
+##      [3]  2.0131038573066e-11 ENSG00000002549.12         0       de
+##      [4] 1.07359906028984e-08  ENSG00000002933.8         0       de
+##      [5] 4.82904694023763e-18 ENSG00000004468.12         0       de
+##      ...                  ...                ...       ...      ...
+##   [8235]  0.00991611085813261 ENSG00000175832.12        10   not_de
+##   [8236]  9.1205141062356e-05 ENSG00000177427.12        10   not_de
+##   [8237] 1.74084544559733e-09 ENSG00000101152.10        10   not_de
+##   [8238]  0.00265539384929076 ENSG00000127603.25        10   not_de
+##   [8239]  2.9637514745875e-17 ENSG00000158669.11        10   not_de
 ##   -------
 ##   seqinfo: 25 sequences (1 circular) from hg38 genome
 \end{verbatim}
@@ -1099,32 +1073,32 @@ overlaps, the DA peak columns will have \texttt{NA}'s.
 
 \begin{verbatim}
 ## GRanges object with 27766 ranges and 8 metadata columns:
-##           seqnames              ranges strand |            gene_id
-##              <Rle>           <IRanges>  <Rle> |        <character>
-##       [1]     chr1 196641878-196661877      + | ENSG00000000971.15
-##       [2]     chr6   46119993-46139992      + |  ENSG00000001561.6
-##       [3]     chr4   17567192-17587191      + | ENSG00000002549.12
-##       [4]     chr4   17567192-17587191      + | ENSG00000002549.12
-##       [5]     chr4   17567192-17587191      + | ENSG00000002549.12
+##           seqnames              ranges strand |          de_log2FC
+##              <Rle>           <IRanges>  <Rle> |          <numeric>
+##       [1]     chr1 196641878-196661877      + |   4.98711071930695
+##       [2]     chr6   46119993-46139992      + |   1.92721595378787
+##       [3]     chr4   17567192-17587191      + |   2.93372501059128
+##       [4]     chr4   17567192-17587191      + |   2.93372501059128
+##       [5]     chr4   17567192-17587191      + |   2.93372501059128
 ##       ...      ...                 ...    ... .                ...
-##   [27762]     chr1   39071316-39091315      + | ENSG00000127603.25
-##   [27763]     chr1   39071316-39091315      + | ENSG00000127603.25
-##   [27764]     chr8   41567187-41587186      + | ENSG00000158669.11
-##   [27765]     chr8   41567187-41587186      + | ENSG00000158669.11
-##   [27766]     chr8   41567187-41587186      + | ENSG00000158669.11
-##                    de_log2FC              de_padj  resample   origin
-##                    <numeric>            <numeric> <integer> <factor>
-##       [1]   4.98711071930695 1.37057050625117e-13         0       de
-##       [2]   1.92721595378787  3.1747750217733e-05         0       de
-##       [3]   2.93372501059128  2.0131038573066e-11         0       de
-##       [4]   2.93372501059128  2.0131038573066e-11         0       de
-##       [5]   2.93372501059128  2.0131038573066e-11         0       de
-##       ...                ...                  ...       ...      ...
-##   [27762] -0.385053503003028  0.00265539384929076        10   not_de
-##   [27763] -0.385053503003028  0.00265539384929076        10   not_de
-##   [27764]  0.155922038318879  2.9637514745875e-17        10   not_de
-##   [27765]  0.155922038318879  2.9637514745875e-17        10   not_de
-##   [27766]  0.155922038318879  2.9637514745875e-17        10   not_de
+##   [27762]     chr1   39071316-39091315      + | -0.385053503003028
+##   [27763]     chr1   39071316-39091315      + | -0.385053503003028
+##   [27764]     chr8   41567187-41587186      + |  0.155922038318879
+##   [27765]     chr8   41567187-41587186      + |  0.155922038318879
+##   [27766]     chr8   41567187-41587186      + |  0.155922038318879
+##                        de_padj            gene_id  resample   origin
+##                      <numeric>        <character> <integer> <factor>
+##       [1] 1.37057050625117e-13 ENSG00000000971.15         0       de
+##       [2]  3.1747750217733e-05  ENSG00000001561.6         0       de
+##       [3]  2.0131038573066e-11 ENSG00000002549.12         0       de
+##       [4]  2.0131038573066e-11 ENSG00000002549.12         0       de
+##       [5]  2.0131038573066e-11 ENSG00000002549.12         0       de
+##       ...                  ...                ...       ...      ...
+##   [27762]  0.00265539384929076 ENSG00000127603.25        10   not_de
+##   [27763]  0.00265539384929076 ENSG00000127603.25        10   not_de
+##   [27764]  2.9637514745875e-17 ENSG00000158669.11        10   not_de
+##   [27765]  2.9637514745875e-17 ENSG00000158669.11        10   not_de
+##   [27766]  2.9637514745875e-17 ENSG00000158669.11        10   not_de
 ##                    peak_id          da_log2FC              da_padj
 ##                <character>          <numeric>            <numeric>
 ##       [1]  ATAC_peak_21236 -0.546582189082724 0.000115273676444232
@@ -1188,8 +1162,7 @@ changes between non-DE and DE genes using a boxplot:
 
 }
 
-\caption{A boxplot of maximum LFCs for DA peaks for DE genes compared to
-non-DE genes where genes have at least one DA peak.}\label{fig:boxplot}
+\caption{A boxplot of maximum LFCs for DA peaks for DE genes compared to non-DE genes where genes have at least one DA peak.}\label{fig:boxplot}
 \end{figure}
 
 In general, the DE genes have larger maximum DA fold changes relative to the
@@ -1456,9 +1429,7 @@ to other genes as a line chart:
 
 }
 
-\caption{A line chart displaying how relative enrichment of DA peaks
-change between DE genes compared to non-DE genes as the absolute DA LFC
-threshold increases.}\label{fig:line-chart}
+\caption{A line chart displaying how relative enrichment of DA peaks change between DE genes compared to non-DE genes as the absolute DA LFC threshold increases.}\label{fig:line-chart}
 \end{figure}
 
 We computed the sum of DA peaks near the DE genes, for increasing LFC
@@ -1486,10 +1457,7 @@ many of the aspects underlying the enrichment plot above.
 
 }
 
-\caption{A line chart displaying how gene and peak counts change as the
-absolute DA LFC threshold increases. Lines are colored according to whether
-they represent a gene that is DE or not. Note the x-axis is on a \(\log_{10}\)
-scale.}\label{fig:line-chart2}
+\caption{A line chart displaying how gene and peak counts change as the absolute DA LFC threshold increases. Lines are colored according to whether they represent a gene that is DE or not. Note the x-axis is on a \(\log_{10}\) scale.}\label{fig:line-chart2}
 \end{figure}
 
 \hypertarget{discussion}{%
@@ -1546,7 +1514,7 @@ This article and the analyses were performed with R (R Core Team \protect\hyperl
 \end{Shaded}
 
 \begin{verbatim}
-## R version 3.6.1 (2019-07-05)
+## R version 3.6.2 (2019-12-12)
 ## Platform: x86_64-apple-darwin15.6.0 (64-bit)
 ## Running under: macOS Mojave 10.14.6
 ## 
@@ -1563,30 +1531,30 @@ This article and the analyses were performed with R (R Core Team \protect\hyperl
 ## 
 ## other attached packages:
 ##  [1] ggplot2_3.3.0.9000          plyranges_1.7.8            
-##  [3] DESeq2_1.26.0               GenomicFeatures_1.38.0     
-##  [5] AnnotationDbi_1.48.0        SummarizedExperiment_1.16.0
-##  [7] DelayedArray_0.12.1         BiocParallel_1.20.0        
+##  [3] DESeq2_1.26.0               GenomicFeatures_1.38.1     
+##  [5] AnnotationDbi_1.48.0        SummarizedExperiment_1.16.1
+##  [7] DelayedArray_0.12.2         BiocParallel_1.20.1        
 ##  [9] matrixStats_0.55.0          Biobase_2.46.0             
 ## [11] GenomicRanges_1.38.0        GenomeInfoDb_1.22.0        
-## [13] IRanges_2.20.1              S4Vectors_0.24.1           
+## [13] IRanges_2.20.2              S4Vectors_0.24.3           
 ## [15] BiocGenerics_0.32.0         readr_1.3.1                
-## [17] dplyr_0.8.3                 tximeta_1.4.2              
-## [19] fluentGenomics_0.0.5        rmarkdown_2.0              
+## [17] dplyr_0.8.3                 tximeta_1.4.3              
+## [19] fluentGenomics_0.0.5        rmarkdown_2.1              
 ## 
 ## loaded via a namespace (and not attached):
-##   [1] colorspace_1.4-1         rprojroot_1.3-2          htmlTable_1.13.3        
-##   [4] XVector_0.26.0           base64enc_0.1-3          rstudioapi_0.10         
-##   [7] farver_2.0.3             bit64_0.9-7              fansi_0.4.1             
-##  [10] xml2_1.2.2               splines_3.6.1            tximport_1.14.0         
-##  [13] geneplotter_1.64.0       knitr_1.27               zeallot_0.1.0           
+##   [1] colorspace_1.4-1         ellipsis_0.3.0           rprojroot_1.3-2         
+##   [4] htmlTable_1.13.3         XVector_0.26.0           base64enc_0.1-3         
+##   [7] rstudioapi_0.10          farver_2.0.3             bit64_0.9-7             
+##  [10] fansi_0.4.1              xml2_1.2.2               splines_3.6.2           
+##  [13] tximport_1.14.0          geneplotter_1.64.0       knitr_1.27.2            
 ##  [16] Formula_1.2-3            jsonlite_1.6             Rsamtools_2.2.1         
 ##  [19] annotate_1.64.0          cluster_2.1.0            dbplyr_1.4.2            
-##  [22] png_0.1-7                compiler_3.6.1           httr_1.4.1              
+##  [22] png_0.1-7                compiler_3.6.2           httr_1.4.1              
 ##  [25] backports_1.1.5          assertthat_0.2.1         Matrix_1.2-18           
 ##  [28] lazyeval_0.2.2           cli_2.0.1                acepack_1.4.1           
-##  [31] htmltools_0.4.0          prettyunits_1.1.0        tools_3.6.1             
+##  [31] htmltools_0.4.0          prettyunits_1.1.1        tools_3.6.2             
 ##  [34] gtable_0.3.0             glue_1.3.1               GenomeInfoDbData_1.2.2  
-##  [37] rappdirs_0.3.1           Rcpp_1.0.3               vctrs_0.2.1             
+##  [37] rappdirs_0.3.1           Rcpp_1.0.3               vctrs_0.2.2             
 ##  [40] Biostrings_2.54.0        rtracklayer_1.46.0       xfun_0.12               
 ##  [43] stringr_1.4.0            lifecycle_0.1.0          ensembldb_2.10.2        
 ##  [46] XML_3.99-0.3             zlibbioc_1.32.0          scales_1.1.0            
@@ -1595,20 +1563,21 @@ This article and the analyses were performed with R (R Core Team \protect\hyperl
 ##  [55] memoise_1.1.0            gridExtra_2.3            biomaRt_2.42.0          
 ##  [58] rpart_4.1-15             hunspell_3.0             latticeExtra_0.6-29     
 ##  [61] stringi_1.4.5            RSQLite_2.2.0            genefilter_1.68.0       
-##  [64] checkmate_1.9.4          rlang_0.4.2              pkgconfig_2.0.3         
+##  [64] checkmate_1.9.4          rlang_0.4.4              pkgconfig_2.0.3         
 ##  [67] commonmark_1.7           bitops_1.0-6             evaluate_0.14           
 ##  [70] lattice_0.20-38          purrr_0.3.3              labeling_0.3            
 ##  [73] GenomicAlignments_1.22.1 htmlwidgets_1.5.1        bit_1.1-15.1            
-##  [76] tidyselect_0.2.5         here_0.1                 magrittr_1.5            
-##  [79] bookdown_0.16            R6_2.4.1                 spelling_2.1            
-##  [82] Hmisc_4.3-0              DBI_1.1.0                withr_2.1.2             
-##  [85] pillar_1.4.3             foreign_0.8-73           survival_3.1-8          
-##  [88] RCurl_1.98-1.1           nnet_7.3-12              tibble_2.1.3            
-##  [91] crayon_1.3.4             utf8_1.1.4               BiocFileCache_1.10.2    
-##  [94] jpeg_0.1-8.1             progress_1.2.2           locfit_1.5-9.1          
-##  [97] grid_3.6.1               data.table_1.12.8        blob_1.2.1              
-## [100] digest_0.6.23            xtable_1.8-4             tidyr_1.0.0             
-## [103] openssl_1.4.1            munsell_0.5.0            askpass_1.1
+##  [76] tidyselect_1.0.0         here_0.1                 magrittr_1.5            
+##  [79] bookdown_0.17            R6_2.4.1                 magick_2.3              
+##  [82] spelling_2.1             Hmisc_4.3-0              DBI_1.1.0               
+##  [85] withr_2.1.2              pillar_1.4.3             foreign_0.8-75          
+##  [88] survival_3.1-8           RCurl_1.98-1.1           nnet_7.3-12             
+##  [91] tibble_2.1.3             crayon_1.3.4             utf8_1.1.4              
+##  [94] BiocFileCache_1.10.2     jpeg_0.1-8.1             progress_1.2.2          
+##  [97] locfit_1.5-9.1           grid_3.6.2               data.table_1.12.8       
+## [100] blob_1.2.1               digest_0.6.23            xtable_1.8-4            
+## [103] tidyr_1.0.2              openssl_1.4.1            munsell_0.5.0           
+## [106] askpass_1.1
 \end{verbatim}
 
 \hypertarget{author-contributions}{%
