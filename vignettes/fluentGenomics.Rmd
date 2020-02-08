@@ -4,14 +4,14 @@ author: "Stuart Lee, Michael Lawrence, Michael Love"
 abstract: "We construct a simple workflow for fluent genomics data analysis using the R/Bioconductor ecosystem. This involves three core steps: **import** the data into an appropriate abstraction, **model** the data with respect to the biological questions of interest, and **integrate** the results with respect to their underlying genomic coordinates. Here we show how to implement these steps to integrate published RNA-seq and ATAC-seq experiments on macrophage cell lines. Using *tximeta*, we **import** RNA-seq transcript quantifications into an analysis-ready data structure, called the *SummarizedExperiment*, that contains the ranges of the reference transcripts and metadata on their provenance. Using *SummarizedExperiment*s to represent the ATAC-seq and RNA-seq data, we **model**  differentially accessible (DA) chromatin peaks and differentially expressed (DE) genes with existing Bioconductor packages. Using *plyranges* we then **integrate** the results to see if there is an enrichment of DA peaks near DE genes by finding overlaps and aggregating over log-fold change thresholds. The combination of these packages and their integration with the Bioconductor ecosystem provide a coherent framework for analysts to iteratively and reproducibly explore their biological data."
 output:
   bookdown::html_document2:
-    highlight: pygments
+    base_format: rmarkdown::html_vignette
     toc: true
     toc_depth: 3
     fig_width: 5
 bibliography: library.bib
 link-citations: true
 vignette: >
-  %\VignetteIndexEntry{plyrangesTximetaCaseStudy}
+  %\VignetteIndexEntry{fluentGenomics}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding[utf8]{inputenc}
 ---
@@ -37,31 +37,15 @@ knitr::opts_chunk$set(
 )
 ```
 
-(ref:workflow) An overview of the fluent genomics workflow. First, we *import*
-data as a *SummarizedExperiment* object, which enables interoperability with
-downstream analysis packages. Then we *model* our assay data, using the
-existing Bioconductor packages *DESeq2* and *limma*. We take the results of our
-models for each assay with respect to their genomic coordinates, and
-*integrate* them. First, we compute the overlap between the results of each
-assay, then aggregate over the combined genomic regions, and finally summarize
-to compare enrichment for differentially expressed genes to non differentially
-expressed genes. The final output can be used for downstream visualization or
-further transformation.
+(ref:workflow) An overview of the fluent genomics workflow. First, we *import* data as a *SummarizedExperiment* object, which enables interoperability with downstream analysis packages. Then we *model* our assay data, using the existing Bioconductor packages *DESeq2* and *limma*. We take the results of our models for each assay with respect to their genomic coordinates, and *integrate* them. First, we compute the overlap between the results of each assay, then aggregate over the combined genomic regions, and finally summarize to compare enrichment for differentially expressed genes to non differentially expressed genes. The final output can be used for downstream visualization or further transformation.
 
-(ref:maplot) Visualization of *DESeq2* results as an "MA plot". Genes that have
-an adjusted *p-value* below 0.01 are colored red.
+(ref:maplot) Visualization of *DESeq2* results as an "MA plot". Genes that have an adjusted *p-value* below 0.01 are colored red.
 
-(ref:boxplot) A boxplot of maximum LFCs for DA peaks for DE genes compared to
-non-DE genes where genes have at least one DA peak.
+(ref:boxplot) A boxplot of maximum LFCs for DA peaks for DE genes compared to non-DE genes where genes have at least one DA peak.
 
-(ref:linechart) A line chart displaying how relative enrichment of DA peaks
-change between DE genes compared to non-DE genes as the absolute DA LFC
-threshold increases.
+(ref:linechart) A line chart displaying how relative enrichment of DA peaks change between DE genes compared to non-DE genes as the absolute DA LFC threshold increases.
 
-(ref:linechart2) A line chart displaying how gene and peak counts change as the
-absolute DA LFC threshold increases. Lines are colored according to whether
-they represent a gene that is DE or not. Note the x-axis is on a $\log_{10}$
-scale.
+(ref:linechart2) A line chart displaying how gene and peak counts change as the absolute DA LFC threshold increases. Lines are colored according to whether they represent a gene that is DE or not. Note the x-axis is on a $\log_{10}$ scale.
 
 # Introduction
 
