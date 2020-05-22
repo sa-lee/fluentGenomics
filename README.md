@@ -1,7 +1,6 @@
 # Fluent genomics with plyranges and tximeta 
 
 <!-- badges: start -->
-[![BioC status](http://www.bioconductor.org/shields/build/release/bioc/fluentGenomics.svg)](https://bioconductor.org/checkResults/release/bioc-LATEST/fluentGenomics)
 [![R build status](https://github.com/sa-lee/fluentGenomics/workflows/R-CMD-check-bioc/badge.svg)](https://github.com/sa-lee/fluentGenomics/actions)
 <!-- badges: end -->
 
