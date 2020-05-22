@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Download, retrieve and cache macrophage ATAC seq results — cache_atac_se • fluentGenomics</title>
+<title>Changelog • fluentGenomics</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,7 @@
 
 
 
-<meta property="og:title" content="Download, retrieve and cache macrophage ATAC seq results — cache_atac_se" />
-<meta property="og:description" content="Download, retrieve and cache macrophage ATAC seq results" />
+<meta property="og:title" content="Changelog" />
 
 
 
@@ -59,7 +58,7 @@
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    <div class="container template-reference-topic">
+    <div class="container template-news">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -114,49 +113,25 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Download, retrieve and cache macrophage ATAC seq results</h1>
-    <small class="dont-index">Source: <a href='https://github.com/sa-lee/fluentGenomics/blob/master/R/cache.R'><code>R/cache.R</code></a></small>
-    <div class="hidden name"><code>cache-se.Rd</code></div>
+      <h1 data-toc-skip>Changelog <small></small></h1>
+      <small>Source: <a href='https://github.com/sa-lee/fluentGenomics/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
-    <div class="ref-description">
-    <p>Download, retrieve and cache macrophage ATAC seq results</p>
-    </div>
-
-    <pre class="usage"><span class='fu'>cache_atac_se</span>(<span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
-
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
-    <table class="ref-arguments">
-    <colgroup><col class="name" /><col class="desc" /></colgroup>
-    <tr>
-      <th>verbose</th>
-      <td><p>Provide progress bar for downloading and updating the cache?
-(Default is FALSE)</p></td>
-    </tr>
-    </table>
-
-    <h2 class="hasAnchor" id="source"><a class="anchor" href="#source"></a>Source</h2>
-
-    <p><a href='https://zenodo.org/record/1188300/files/'>https://zenodo.org/record/1188300/files/</a></p>
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
-
-    <p>the path to the .rds file containing the SummarizedExperiment</p>
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
-
-    <p>This code generates the SummarizedExperiment object
-used for ATAC seq peaks data analysis as discussed in the vignette.</p>
-
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>()) {
- <span class='no'>path_to_se</span> <span class='kw'>&lt;-</span> <span class='fu'>cache_atac_se</span>()
- <span class='no'>atac</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/readRDS.html'>readRDS</a></span>(<span class='no'>path_to_se</span>)
-}</div></pre>
+    <div id="fluentgenomics-0-99-0" class="section level1">
+<h1 class="page-header" data-toc-text="0.99.0">
+<a href="#fluentgenomics-0-99-0" class="anchor"></a>fluentGenomics 0.99.0</h1>
+<ul>
+<li>Added a <code>NEWS.md</code> file to track changes to the package.</li>
+</ul>
+</div>
   </div>
+
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
       <h2 data-toc-skip>Contents</h2>
     </nav>
   </div>
+
 </div>
 
 
