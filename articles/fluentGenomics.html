@@ -229,7 +229,7 @@
 )</pre></body></html></div>
 <p>Because <em>tximeta</em> knows the correct reference transcriptome, we can ask <em>tximeta</em> to summarize the transcript-level data to the gene level using the methods of <span class="citation">Soneson, Love, and Robinson (<a href="#ref-Soneson2015">2015</a>)</span>.</p>
 <div class="sourceCode" id="cb21"><html><body><pre class="r"><span class="no">gse</span> <span class="kw">&lt;-</span> <span class="fu">summarizeToGene</span>(<span class="no">se</span>)</pre></body></html></div>
-<pre><code>## loading existing TxDb created: 2020-05-22 03:02:40</code></pre>
+<pre><code>## loading existing TxDb created: 2020-05-22 03:12:47</code></pre>
 <pre><code>## Loading required package: GenomicFeatures</code></pre>
 <pre><code>## Loading required package: AnnotationDbi</code></pre>
 <pre><code>## 
@@ -470,32 +470,32 @@ data.frame(rmu = rowMeans(assay(atac)), -->
 <div class="sourceCode" id="cb60"><html><body><pre class="r"><span class="no">size</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span>(<span class="no">de_genes</span>)
 <span class="fu"><a href="https://rdrr.io/pkg/plyranges/man/tidyverse-reexports.html">slice</a></span>(<span class="no">other_genes</span>, <span class="fu"><a href="https://rdrr.io/r/base/sample.html">sample.int</a></span>(<span class="fu"><a href="https://rdrr.io/pkg/plyranges/man/n.html">n</a></span>(), <span class="no">size</span>))</pre></body></html></div>
 <pre><code>## GRanges object with 749 ranges and 3 metadata columns:
-##         seqnames            ranges strand |            gene_id  de_log2FC
-##            &lt;Rle&gt;         &lt;IRanges&gt;  &lt;Rle&gt; |        &lt;character&gt;  &lt;numeric&gt;
-##     [1]    chr16 66802875-66873256      - | ENSG00000159593.14  -0.415055
-##     [2]    chr19 52797409-52857600      - | ENSG00000198538.10   0.175975
-##     [3]    chr15 74843730-74873365      - | ENSG00000140497.16  -0.601723
-##     [4]     chr6 31879759-31897687      - | ENSG00000204371.11  -0.203302
-##     [5]    chr17 36948875-37056871      + |  ENSG00000275700.4   0.349455
-##     ...      ...               ...    ... .                ...        ...
-##   [745]     chr8 73972437-73982783      + | ENSG00000175606.10  0.2752368
-##   [746]    chr14 77457870-77469474      + |  ENSG00000100591.7  0.0777779
-##   [747]    chr19   1905214-1926013      + |  ENSG00000227500.9  0.0213695
-##   [748]    chr20 63861212-63864293      - |  ENSG00000268858.2  0.1773121
-##   [749]     chr7 80742538-80922359      - | ENSG00000075223.13 -0.2251939
+##         seqnames              ranges strand |            gene_id  de_log2FC
+##            &lt;Rle&gt;           &lt;IRanges&gt;  &lt;Rle&gt; |        &lt;character&gt;  &lt;numeric&gt;
+##     [1]    chr14   71320449-71741229      + |  ENSG00000197555.9  0.0932994
+##     [2]     chr3   33496245-33718356      - | ENSG00000163539.16 -0.0293167
+##     [3]     chr1 179954738-180114880      + | ENSG00000135837.15 -0.1040588
+##     [4]     chr1   32816767-32858879      + | ENSG00000116497.17 -0.0554904
+##     [5]     chrX   46446857-46497422      + | ENSG00000147121.15 -0.0343707
+##     ...      ...                 ...    ... .                ...        ...
+##   [745]     chr1 115641953-115698224      + | ENSG00000173218.14  0.1542813
+##   [746]     chr5 134194334-134226142      - |  ENSG00000113575.9  0.0605227
+##   [747]    chr16   85169525-85676204      + | ENSG00000131149.18  0.0438177
+##   [748]    chr14   58298385-58373887      + | ENSG00000032219.18  0.0389672
+##   [749]     chr1   51236271-51273455      + |  ENSG00000123091.4  0.1516520
 ##             de_padj
 ##           &lt;numeric&gt;
-##     [1] 4.06865e-06
-##     [2] 5.18734e-11
-##     [3] 8.78434e-03
-##     [4] 1.64183e-04
-##     [5] 2.44019e-09
+##     [1] 2.68021e-11
+##     [2] 9.55469e-12
+##     [3] 8.61364e-06
+##     [4] 7.73583e-10
+##     [5] 2.76313e-08
 ##     ...         ...
-##   [745] 9.62869e-04
-##   [746] 1.39809e-14
-##   [747] 1.15319e-19
-##   [748] 1.68267e-04
-##   [749] 9.38845e-03
+##   [745] 3.53106e-08
+##   [746] 8.24597e-24
+##   [747] 2.66357e-05
+##   [748] 2.96254e-07
+##   [749] 1.69203e-08
 ##   -------
 ##   seqinfo: 25 sequences (1 circular) from hg38 genome</code></pre>
 <p>We can repeat this many times to create many samples via <code>replicate</code>. By replicating the sub-sampling multiple times, we minimize the variance on the enrichment statistics induced by the sampling process.</p>
