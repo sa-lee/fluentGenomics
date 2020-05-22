@@ -33,8 +33,6 @@ cache_atac_se <- function(verbose = FALSE) {
   
   resource <- "macrophage_atac_se"
   
-  
-  
   res <- BiocFileCache::bfcquery(bfc, resource)
   if (BiocFileCache::bfccount(res) == 0L) {
     if (verbose) {
@@ -76,7 +74,7 @@ prep_coldata <- function(dir_url, verbose) {
   sample_id <- donor <- condition_name <- NULL
   # download sample metadata
   tmp_coldata <- tempfile(fileext = "txt.gz")
-  download.file(coldata, tmp_coldata, quiet = !verbose)
+  download.file(coldata, tmp_coldata, quiet = !verbose, mode = "wb")
   atac_coldata <- readr::read_tsv(tmp_coldata, 
                                   progress = verbose)
   atac_coldata <- dplyr::select(atac_coldata, 
@@ -93,7 +91,7 @@ prep_peaks <- function(dir_url, verbose) {
   chr <- gene_id <- NULL
   # download atac peaks
   tmp_peaks <- tempfile(fileext = ".txt.gz")
-  download.file(peaks, tmp_peaks, quiet = !verbose)
+  download.file(peaks, tmp_peaks, quiet = !verbose, mode = "wb")
   peaks_df <- readr::read_tsv(tmp_peaks, col_types = c("cidciicdc"))
   peaks_gr <- plyranges::as_granges(peaks_df, 
                                     seqnames = chr)
@@ -108,7 +106,7 @@ prep_mat <- function(dir_url, verbose, sample_id) {
   cqn_matrix <- paste0(dir_url, "ATAC_cqn_matrix.txt.gz?download=1")
   # download matrix
   mat_file <- tempfile(fileext = ".txt.gz")
-  download.file(cqn_matrix, mat_file, quiet = !verbose)
+  download.file(cqn_matrix, mat_file, quiet = !verbose, mode = "wb")
   atac_mat <- readr::read_tsv(mat_file, skip = 1, 
                               col_names = c("rownames", sample_id))
   rownames <- atac_mat[["rownames"]]

@@ -114,20 +114,15 @@ The following code loads the path to the cached data file, or if it is not
 present, will create the cache and generate a *SummarizedExperiment* using the
 the *BiocFileCache* package [@bcfilecache].
 
-```{r cache-path, eval = FALSE}
-library(fluentGenomics)
-path_to_se <- cache_atac_se()
-```
-
 We can then read the cached file and assign it to an object called `atac`.
 
 ```{r read-cache, eval = FALSE}
-atac <- readRDS(path_to_se)
+library(fluentGenomics)
+atac <- readRDS(cache_atac_se())
 ```
 
 A precise description of how we obtained this *SummarizedExperiment* object can
 be found in section \@ref(atac).
-
 
 # Import Data as a *SummarizedExperiment* {#se}
 

@@ -5,7 +5,7 @@
 #' this object was generated can be found in the vignette.
 #' 
 #' 
-#' #' @format A GRanges with 296220 rows and 3 metadata columns:
+#' @format A GRanges with 296220 rows and 3 metadata columns:
 #' \describe{
 #'   \item{peak_id}{the ATAC peak identifer}
 #'   \item{da_log2FC}{the estimated log2 fold change}

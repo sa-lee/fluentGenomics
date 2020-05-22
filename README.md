@@ -1,18 +1,19 @@
 # Fluent genomics with plyranges and tximeta 
 
 <!-- badges: start -->
-[![Travis build status](https://travis-ci.org/sa-lee/fluentGenomics.svg?branch=master)](https://travis-ci.org/sa-lee/fluentGenomics)
+[![BioC status](http://www.bioconductor.org/shields/build/release/bioc/fluentGenomics.svg)](https://bioconductor.org/checkResults/release/bioc-LATEST/fluentGenomics)
+[![R build status](https://github.com/sa-lee/fluentGenomics/workflows/R-CMD-check-bioc/badge.svg)](https://github.com/sa-lee/fluentGenomics/actions)
 <!-- badges: end -->
 
 In *fluentGenomics* we explore the use of the Bioconductor packages plyranges and tximeta through integrating results from an experiment using RNA-seq and ATAC-seq data. Readers will learn how to perform genomic range based operations in a principled way using *plyranges* and how to cleanly import quantification and differential expression data into R using *tximeta*. 
 
 ## Installation
 
-The `fluentGenomics` package is currently available on the Bioconductor
-development branch:
+The `fluentGenomics` package is available on Bioconductor:
 
 ```r
-BiocManager::install('fluentGenomics', version = 'devel')
+# install.packages("BiocManager")
+BiocManager::install('fluentGenomics')
 ```
 
 To install `fluentGenomics` from github with associated dependencies use
@@ -21,6 +22,11 @@ To install `fluentGenomics` from github with associated dependencies use
 BiocManager::install('sa-lee/fluentGenomics', 
                      build_vignettes = TRUE,
                      dependencies = TRUE)
+```
+
+To install `fluentGenomics` from Bioconductor's devel branch use:
+``` r
+BiocManager::install('fluentGenomics',  version = 'devel')
 ```
 
 ## Workflow
@@ -33,7 +39,7 @@ vignette("fluentGenomics")
 ```
 
 Or you can read it online 
-[here](https://sa-lee.github.io/fluentGenomics/articles/fluentGenomics.html)
+[here](https://bioconductor.org/packages/devel/workflows/vignettes/fluentGenomics/inst/doc/fluentGenomics.html)
 
 ## Course
 
