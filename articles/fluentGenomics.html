@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fluent genomics with plyranges and tximeta • fluentGenomics</title>
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
+<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/journal/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
 <script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
@@ -481,30 +481,30 @@ data.frame(rmu = rowMeans(assay(atac)), -->
 <pre><code>## GRanges object with 749 ranges and 3 metadata columns:
 ##         seqnames              ranges strand |            gene_id
 ##            &lt;Rle&gt;           &lt;IRanges&gt;  &lt;Rle&gt; |        &lt;character&gt;
-##     [1]     chr2 189031896-189225312      - | ENSG00000204262.12
-##     [2]     chr7   99438922-99457371      + | ENSG00000160917.14
-##     [3]    chr10   96129715-96205288      + | ENSG00000177853.14
-##     [4]     chr3 169483671-169484080      - |  ENSG00000213178.3
-##     [5]     chr1 151008420-151035713      + | ENSG00000143363.16
+##     [1]     chrX 150766337-150898816      - | ENSG00000102181.20
+##     [2]     chr6   30058899-30064909      + | ENSG00000066379.14
+##     [3]     chr2 159235793-159286799      - | ENSG00000196151.10
+##     [4]    chr17   82614562-82648553      - | ENSG00000141580.15
+##     [5]     chr1 156806243-156816862      - | ENSG00000027869.11
 ##     ...      ...                 ...    ... .                ...
-##   [745]    chr14   35121846-35277614      + | ENSG00000100890.15
-##   [746]    chr13   43883800-44028526      + |  ENSG00000281883.1
-##   [747]     chr6   33289302-33298401      + | ENSG00000204220.11
-##   [748]     chr1 156193932-156212796      + | ENSG00000160785.13
-##   [749]    chr19   49850735-49860744      + | ENSG00000104960.15
-##                   de_log2FC              de_padj
-##                   &lt;numeric&gt;            &lt;numeric&gt;
-##     [1] -0.0639184162979704  0.00319918932448794
-##     [2]   0.512640590907921 0.000156175186049556
-##     [3]   0.391999064938515 5.33264851979434e-06
-##     [4]  -0.659042067458097  0.00494871845791508
-##     [5]  -0.253961339254339 2.01079273417619e-06
-##     ...                 ...                  ...
-##   [745]  -0.187050748991764 6.27660521234585e-17
-##   [746]  -0.168034678808612  0.00422278007127478
-##   [747]   0.220097143043114 1.45348123698556e-05
-##   [748]   0.145439484935321 3.07049753852261e-07
-##   [749]  -0.630881393391701  0.00143202691714562
+##   [745]    chr20   49113339-49188367      - | ENSG00000124214.19
+##   [746]     chr1 153947669-153958625      - | ENSG00000160741.16
+##   [747]     chr9     4679559-4708398      + | ENSG00000106993.11
+##   [748]     chr4   89111500-89114899      + |  ENSG00000180346.3
+##   [749]     chr5   62306162-62537249      + | ENSG00000068796.16
+##                    de_log2FC              de_padj
+##                    &lt;numeric&gt;            &lt;numeric&gt;
+##     [1]   -0.272040104752616 5.86907402267837e-06
+##     [2]    0.206228732965553 2.01458208857189e-08
+##     [3]   0.0967223329529933 4.21132464438304e-10
+##     [4]    0.031323723250008 2.35999361309147e-28
+##     [5]  -0.0479074929865177  0.00882423929948942
+##     ...                  ...                  ...
+##   [745]     0.40719304743568  4.7392982143654e-06
+##   [746]    0.173857305203052  1.5845979543298e-12
+##   [747]    0.153919331037674 1.14055849413626e-07
+##   [748] -0.00618708714393156  0.00329438256027511
+##   [749]    0.474165057581258 2.46605465636008e-07
 ##   -------
 ##   seqinfo: 25 sequences (1 circular) from hg38 genome</code></pre>
 <p>We can repeat this many times to create many samples via <code>replicate</code>. By replicating the sub-sampling multiple times, we minimize the variance on the enrichment statistics induced by the sampling process.</p>
