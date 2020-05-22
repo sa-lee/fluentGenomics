@@ -86,19 +86,22 @@
 <div id="installation" class="section level2">
 <h2 class="hasAnchor">
 <a href="#installation" class="anchor"></a>Installation</h2>
-<p>The <code>fluentGenomics</code> package is currently available on the Bioconductor development branch:</p>
-<div class="sourceCode" id="cb1"><pre class="r"><span class="kw pkg">BiocManager</span><span class="kw ns">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocManager/man/install.html">install</a></span>(<span class="st">'fluentGenomics'</span>, <span class="kw">version</span> <span class="kw">=</span> <span class="st">'devel'</span>)</pre></div>
+<p>The <code>fluentGenomics</code> package is available on Bioconductor:</p>
+<div class="sourceCode" id="cb1"><pre class="r"><span class="co"># install.packages("BiocManager")</span>
+<span class="kw pkg">BiocManager</span><span class="kw ns">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocManager/man/install.html">install</a></span>(<span class="st">'fluentGenomics'</span>)</pre></div>
 <p>To install <code>fluentGenomics</code> from github with associated dependencies use</p>
 <div class="sourceCode" id="cb2"><pre class="r"><span class="kw pkg">BiocManager</span><span class="kw ns">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocManager/man/install.html">install</a></span>(<span class="st">'sa-lee/fluentGenomics'</span>,
                      <span class="kw">build_vignettes</span> <span class="kw">=</span> <span class="fl">TRUE</span>,
                      <span class="kw">dependencies</span> <span class="kw">=</span> <span class="fl">TRUE</span>)</pre></div>
+<p>To install <code>fluentGenomics</code> from Bioconductor’s devel branch use:</p>
+<div class="sourceCode" id="cb3"><pre class="r"><span class="kw pkg">BiocManager</span><span class="kw ns">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocManager/man/install.html">install</a></span>(<span class="st">'fluentGenomics'</span>,  <span class="kw">version</span> <span class="kw">=</span> <span class="st">'devel'</span>)</pre></div>
 </div>
 <div id="workflow" class="section level2">
 <h2 class="hasAnchor">
 <a href="#workflow" class="anchor"></a>Workflow</h2>
 <p>Once the package has been installed, you can work through the vignette directly from R/Rstudio with:</p>
-<div class="sourceCode" id="cb3"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/vignette.html">vignette</a></span>(<span class="st">"fluentGenomics"</span>)</pre></div>
-<p>Or you can read it online <a href="https://sa-lee.github.io/fluentGenomics/articles/fluentGenomics.html">here</a></p>
+<div class="sourceCode" id="cb4"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/vignette.html">vignette</a></span>(<span class="st">"fluentGenomics"</span>)</pre></div>
+<p>Or you can read it online <a href="https://bioconductor.org/packages/devel/workflows/vignettes/fluentGenomics/inst/doc/fluentGenomics.html">here</a></p>
 </div>
 <div id="course" class="section level2">
 <h2 class="hasAnchor">
@@ -139,7 +142,8 @@
   <div class="dev-status">
 <h2>Dev status</h2>
 <ul class="list-unstyled">
-<li><a href="https://travis-ci.org/sa-lee/fluentGenomics"><img src="https://travis-ci.org/sa-lee/fluentGenomics.svg?branch=master" alt="Travis build status"></a></li>
+<li><a href="https://bioconductor.org/checkResults/release/bioc-LATEST/fluentGenomics"><img src="http://www.bioconductor.org/shields/build/release/bioc/fluentGenomics.svg" alt="BioC status"></a></li>
+<li><a href="https://github.com/sa-lee/fluentGenomics/actions"><img src="https://github.com/sa-lee/fluentGenomics/workflows/R-CMD-check-bioc/badge.svg" alt="R build status"></a></li>
 </ul>
 </div>
 </div>
