@@ -10,3 +10,4 @@ WORDLIST
 ^_render\.R$
 ^doc$
 ^Meta$
+^\.github$
