@@ -1,7 +1,6 @@
-pandoc: 2.3.1
-pkgdown: 1.5.1
+pandoc: 3.8.2.1
+pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
   fluentGenomics: fluentGenomics.html
-last_built: 2020-05-22T03:44Z
-
+last_built: 2025-12-17T01:47Z
