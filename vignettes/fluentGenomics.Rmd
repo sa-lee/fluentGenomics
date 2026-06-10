@@ -189,16 +189,19 @@ The result is a *SummarizedExperiment* object.
 ```{r tximeta-run}
 suppressPackageStartupMessages(library(SummarizedExperiment))
 library(tximeta)
-se <- tximeta(coldata, dropInfReps = TRUE)
+se <- tximeta(coldata, dropInfReps = TRUE, useHub = FALSE)
 se
 ```
 <!-- should we describe the data structure in more detail, or use a figure -->
 
 On a machine with a working internet connection, the above command works
 without any extra steps, as the `tximeta` function obtains any necessary
-metadata via FTP, unless it is already cached locally. The *tximeta* package
-can also be used without an internet connection, in this case the linked
-transcriptome can be created directly from a *Salmon* index and gtf.
+metadata via FTP, unless it is already cached locally. Here we pass
+`useHub = FALSE` so that the transcript database is built directly from the
+local GTF registered by `makeLinkedTxome` above, rather than being retrieved
+from *AnnotationHub*. The *tximeta* package can also be used without an
+internet connection, in this case the linked transcriptome can be created
+directly from a *Salmon* index and gtf.
 
 ```{r linkedtxome-ex, eval = FALSE}
 makeLinkedTxome(
