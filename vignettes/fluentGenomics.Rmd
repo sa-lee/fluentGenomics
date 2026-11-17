@@ -28,7 +28,7 @@ makeLinkedTxome(
   release = "29",
   genome = "GRCh38",
   fasta = "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_29/gencode.v29.transcripts.fa.gz",
-  gtf = file.path(dir, "gencode.v29.annotation.gtf.gz"), # local version
+  gtf = file.path(dir, "gencode.v29.annotation.slim.gtf.gz"), # local (slim) version
   write = FALSE
 )
 
@@ -211,7 +211,7 @@ makeLinkedTxome(
   release = "29",
   genome = "GRCh38",
   fasta = "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_29/gencode.v29.transcripts.fa.gz",
-  gtf = file.path(dir, "gencode.v29.annotation.gtf.gz"), # local version
+  gtf = file.path(dir, "gencode.v29.annotation.slim.gtf.gz"), # local (slim) version
   write = FALSE
 )
 ```

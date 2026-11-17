@@ -1,7 +1,7 @@
 Package: fluentGenomics
 Type: Package
 Title: A plyranges and tximeta workflow
-Version: 1.25.0
+Version: 1.25.1
 Authors@R: c(
              person(role = c("aut", "cre"), "Stuart", "Lee", email = "stuart.andrew.lee@gmail.com", comment = c(ORCID = "0000-0003-1179-8436")),
              person(role=c("aut", "ctb"), "Michael", "Love", email = "michaelisaiahlove@gmail.com")
@@ -39,7 +39,7 @@ Suggests:
     ggplot2,
     tidyr,
     tximeta (>= 1.4.2),
-    macrophage (>= 1.2.0),
+    macrophage (>= 1.29.1),
 biocViews: Workflow, BasicWorkflow, GeneExpressionWorkflow
 Workflow: true
 URL: https://github.com/sa-lee/fluentGenomics
