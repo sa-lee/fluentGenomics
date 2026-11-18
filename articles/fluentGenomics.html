@@ -244,17 +244,17 @@ these packages to accommodate genomic ranges.</p>
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://readr.tidyverse.org" class="external-link">readr</a></span><span class="op">)</span></span>
 <span><span class="va">colfile</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">dir</span>, <span class="st">"coldata.csv"</span><span class="op">)</span></span>
 <span><span class="va">coldata</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html" class="external-link">read_csv</a></span><span class="op">(</span><span class="va">colfile</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span></span>
-<span>    <span class="va">names</span>,</span>
-<span>    id <span class="op">=</span> <span class="va">sample_id</span>,</span>
-<span>    line <span class="op">=</span> <span class="va">line_id</span>,</span>
-<span>    condition <span class="op">=</span> <span class="va">condition_name</span></span>
-<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
-<span>    files <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">dir</span>, <span class="st">"quants"</span>, <span class="va">names</span>, <span class="st">"quant.sf.gz"</span><span class="op">)</span>,</span>
-<span>    line <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">line</span><span class="op">)</span>,</span>
-<span>    condition <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/relevel.html" class="external-link">relevel</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">condition</span><span class="op">)</span>, <span class="st">"naive"</span><span class="op">)</span></span>
-<span>  <span class="op">)</span></span></code></pre></div>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span></span>
+<span>        <span class="va">names</span>,</span>
+<span>        id <span class="op">=</span> <span class="va">sample_id</span>,</span>
+<span>        line <span class="op">=</span> <span class="va">line_id</span>,</span>
+<span>        condition <span class="op">=</span> <span class="va">condition_name</span></span>
+<span>    <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
+<span>        files <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">dir</span>, <span class="st">"quants"</span>, <span class="va">names</span>, <span class="st">"quant.sf.gz"</span><span class="op">)</span>,</span>
+<span>        line <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">line</span><span class="op">)</span>,</span>
+<span>        condition <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/relevel.html" class="external-link">relevel</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">condition</span><span class="op">)</span>, <span class="st">"naive"</span><span class="op">)</span></span>
+<span>    <span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="font-weight: bold;">Rows: </span><span style="color: #0000BB;">24</span> <span style="font-weight: bold;">Columns: </span><span style="color: #0000BB;">13</span></span></span>
 <span><span class="co">## <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Column specification</span> <span style="color: #00BBBB;">────────────────────────────────────────────────────────</span></span></span>
 <span><span class="co">## <span style="font-weight: bold;">Delimiter:</span> ","</span></span>
@@ -343,14 +343,14 @@ without an internet connection, in this case the linked transcriptome
 can be created directly from a <em>Salmon</em> index and gtf.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://thelovelab.github.io/tximeta/reference/linkedTxome.html" class="external-link">makeLinkedTxome</a></span><span class="op">(</span></span>
-<span>  indexDir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">dir</span>, <span class="st">"gencode.v29_salmon_0.12.0"</span><span class="op">)</span>,</span>
-<span>  source <span class="op">=</span> <span class="st">"Gencode"</span>,</span>
-<span>  organism <span class="op">=</span> <span class="st">"Homo sapiens"</span>,</span>
-<span>  release <span class="op">=</span> <span class="st">"29"</span>,</span>
-<span>  genome <span class="op">=</span> <span class="st">"GRCh38"</span>,</span>
-<span>  fasta <span class="op">=</span> <span class="st">"ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_29/gencode.v29.transcripts.fa.gz"</span>,</span>
-<span>  gtf <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">dir</span>, <span class="st">"gencode.v29.annotation.slim.gtf.gz"</span><span class="op">)</span>, <span class="co"># local (slim) version</span></span>
-<span>  write <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>    indexDir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">dir</span>, <span class="st">"gencode.v29_salmon_0.12.0"</span><span class="op">)</span>,</span>
+<span>    source <span class="op">=</span> <span class="st">"Gencode"</span>,</span>
+<span>    organism <span class="op">=</span> <span class="st">"Homo sapiens"</span>,</span>
+<span>    release <span class="op">=</span> <span class="st">"29"</span>,</span>
+<span>    genome <span class="op">=</span> <span class="st">"GRCh38"</span>,</span>
+<span>    fasta <span class="op">=</span> <span class="st">"ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_29/gencode.v29.transcripts.fa.gz"</span>,</span>
+<span>    gtf <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">dir</span>, <span class="st">"gencode.v29.annotation.slim.gtf.gz"</span><span class="op">)</span>, <span class="co"># local (slim) version</span></span>
+<span>    write <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Because <em>tximeta</em> knows the correct reference transcriptome,
 we can ask <em>tximeta</em> to summarize the transcript-level data to
@@ -358,7 +358,7 @@ the gene level using the methods of <span class="citation">Soneson et
 al. (<a href="#ref-Soneson2015">2015</a>)</span>.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gse</span> <span class="op">&lt;-</span> <span class="fu">summarizeToGene</span><span class="op">(</span><span class="va">se</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## loading existing TxDb created: 2026-11-18 00:40:42</span></span></code></pre>
+<pre><code><span><span class="co">## loading existing TxDb created: 2026-11-18 01:15:38</span></span></code></pre>
 <pre><code><span><span class="co">## Loading required package: GenomicFeatures</span></span></code></pre>
 <pre><code><span><span class="co">## Loading required package: AnnotationDbi</span></span></code></pre>
 <pre><code><span><span class="co">## obtaining transcript-to-gene mapping from database</span></span></code></pre>
@@ -397,12 +397,12 @@ those we used to generate the <code>coldata</code> table for the RNA-seq
 experiment:</p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">atac_coldata</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html" class="external-link">read_tsv</a></span><span class="op">(</span><span class="st">"ATAC_sample_metadata.txt.gz"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">select</span><span class="op">(</span></span>
-<span>    <span class="va">sample_id</span>,</span>
-<span>    <span class="va">donor</span>,</span>
-<span>    condition <span class="op">=</span> <span class="va">condition_name</span></span>
-<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">mutate</span><span class="op">(</span>condition <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/relevel.html" class="external-link">relevel</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">condition</span><span class="op">)</span>, <span class="st">"naive"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span>    <span class="fu">select</span><span class="op">(</span></span>
+<span>        <span class="va">sample_id</span>,</span>
+<span>        <span class="va">donor</span>,</span>
+<span>        condition <span class="op">=</span> <span class="va">condition_name</span></span>
+<span>    <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">mutate</span><span class="op">(</span>condition <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/relevel.html" class="external-link">relevel</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">condition</span><span class="op">)</span>, <span class="st">"naive"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>The ATAC-seq counts have already been normalized with <em>cqn</em>
 <span class="citation">(<a href="#ref-Hansen2012">Hansen et al.
 2012</a>)</span> and log2 transformed. Loading the
@@ -412,9 +412,11 @@ the first column contains the rownames of the matrix, and the remaining
 columns are the sample identities from the <code>atac_coldata</code>
 object.</p>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">atac_mat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html" class="external-link">read_tsv</a></span><span class="op">(</span><span class="st">"ATAC_cqn_matrix.txt.gz"</span>,</span>
-<span>                     skip <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>                     col_names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"rownames"</span>, <span class="va">atac_coldata</span><span class="op">[[</span><span class="st">"sample_id"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">atac_mat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html" class="external-link">read_tsv</a></span><span class="op">(</span></span>
+<span>    <span class="st">"ATAC_cqn_matrix.txt.gz"</span>,</span>
+<span>    skip <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>    col_names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"rownames"</span>, <span class="va">atac_coldata</span><span class="op">[[</span><span class="st">"sample_id"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
 <span><span class="va">rownames</span> <span class="op">&lt;-</span> <span class="va">atac_mat</span><span class="op">[[</span><span class="st">"rownames"</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="va">atac_mat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">atac_mat</span><span class="op">[</span>, <span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">atac_mat</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">rownames</span></span></code></pre></div>
@@ -429,17 +431,19 @@ entry</a>.</p>
 <span><span class="va">peaks_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html" class="external-link">read_tsv</a></span><span class="op">(</span><span class="st">"ATAC_peak_metadata.txt.gz"</span>, col_types <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cidciicdc"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">peaks_gr</span> <span class="op">&lt;-</span> <span class="va">peaks_df</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://tidyomics.github.io/plyranges/reference/ranges-construct.html" class="external-link">as_granges</a></span><span class="op">(</span>seqnames <span class="op">=</span> <span class="va">chr</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span>peak_id <span class="op">=</span> <span class="va">gene_id</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://tidyomics.github.io/plyranges/reference/ranges-info.html" class="external-link">set_genome_info</a></span><span class="op">(</span>genome <span class="op">=</span> <span class="st">"GRCh38"</span><span class="op">)</span></span></code></pre></div>
+<span>    <span class="fu"><a href="https://tidyomics.github.io/plyranges/reference/ranges-construct.html" class="external-link">as_granges</a></span><span class="op">(</span>seqnames <span class="op">=</span> <span class="va">chr</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span>peak_id <span class="op">=</span> <span class="va">gene_id</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://tidyomics.github.io/plyranges/reference/ranges-info.html" class="external-link">set_genome_info</a></span><span class="op">(</span>genome <span class="op">=</span> <span class="st">"GRCh38"</span><span class="op">)</span></span></code></pre></div>
 <p>Finally, we construct a <em>SummarizedExperiment</em> object. We
 place the matrix into the assays slot as a named list, the annotated
 peaks into the row-wise ranges slot, and the sample metadata into the
 column-wise data slot:</p>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">atac</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">SummarizedExperiment</a></span><span class="op">(</span>assays <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>cqndata <span class="op">=</span> <span class="va">atac_mat</span><span class="op">)</span>,</span>
-<span>                             rowRanges <span class="op">=</span> <span class="va">peaks_gr</span>,</span>
-<span>                             colData <span class="op">=</span> <span class="va">atac_coldata</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">atac</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">SummarizedExperiment</a></span><span class="op">(</span></span>
+<span>    assays <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>cqndata <span class="op">=</span> <span class="va">atac_mat</span><span class="op">)</span>,</span>
+<span>    rowRanges <span class="op">=</span> <span class="va">peaks_gr</span>,</span>
+<span>    colData <span class="op">=</span> <span class="va">atac_coldata</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -480,9 +484,12 @@ fold change (LFC) of IFNg stimulated cell lines against naive cell
 lines. We are interested in LFC greater than 1 at a nominal false
 discovery rate (FDR) of 1%.</p>
 <div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/DESeq2/man/results.html" class="external-link">results</a></span><span class="op">(</span><span class="va">dds</span>,</span>
-<span>               contrast <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"condition"</span>, <span class="st">"IFNg"</span>, <span class="st">"naive"</span><span class="op">)</span>,</span>
-<span>               lfcThreshold <span class="op">=</span> <span class="fl">1</span>, alpha <span class="op">=</span> <span class="fl">0.01</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/DESeq2/man/results.html" class="external-link">results</a></span><span class="op">(</span></span>
+<span>    <span class="va">dds</span>,</span>
+<span>    contrast <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"condition"</span>, <span class="st">"IFNg"</span>, <span class="st">"naive"</span><span class="op">)</span>,</span>
+<span>    lfcThreshold <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>    alpha <span class="op">=</span> <span class="fl">0.01</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <p>To see the results of the expression analysis, we can generate a
 summary table and an MA plot:</p>
 <div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
@@ -517,11 +524,13 @@ operations are performed to ensure that <em>plyranges</em> is not
 comparing across incompatible genomes.</p>
 <div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyomics.github.io/plyranges" class="external-link">plyranges</a></span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">de_genes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/DESeq2/man/results.html" class="external-link">results</a></span><span class="op">(</span><span class="va">dds</span>,</span>
-<span>                    contrast <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"condition"</span>, <span class="st">"IFNg"</span>, <span class="st">"naive"</span><span class="op">)</span>,</span>
-<span>                    lfcThreshold <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>                    format <span class="op">=</span> <span class="st">"GRanges"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://tidyomics.github.io/plyranges/reference/ranges-names.html" class="external-link">names_to_column</a></span><span class="op">(</span><span class="st">"gene_id"</span><span class="op">)</span></span>
+<span><span class="va">de_genes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/DESeq2/man/results.html" class="external-link">results</a></span><span class="op">(</span></span>
+<span>    <span class="va">dds</span>,</span>
+<span>    contrast <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"condition"</span>, <span class="st">"IFNg"</span>, <span class="st">"naive"</span><span class="op">)</span>,</span>
+<span>    lfcThreshold <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>    format <span class="op">=</span> <span class="st">"GRanges"</span></span>
+<span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://tidyomics.github.io/plyranges/reference/ranges-names.html" class="external-link">names_to_column</a></span><span class="op">(</span><span class="st">"gene_id"</span><span class="op">)</span></span>
 <span><span class="va">de_genes</span></span></code></pre></div>
 <pre><code><span><span class="co">## GRanges object with 17806 ranges and 7 metadata columns:</span></span>
 <span><span class="co">##           seqnames              ranges strand |            gene_id   baseMean</span></span>
@@ -557,8 +566,8 @@ threshold and select (and rename) the metadata columns we’re interested
 in:</p>
 <div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">de_genes</span> <span class="op">&lt;-</span> <span class="va">de_genes</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">padj</span> <span class="op">&lt;</span> <span class="fl">0.01</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">gene_id</span>, de_log2FC <span class="op">=</span> <span class="va">log2FoldChange</span>, de_padj <span class="op">=</span> <span class="va">padj</span><span class="op">)</span></span></code></pre></div>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">padj</span> <span class="op">&lt;</span> <span class="fl">0.01</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">gene_id</span>, de_log2FC <span class="op">=</span> <span class="va">log2FoldChange</span>, de_padj <span class="op">=</span> <span class="va">padj</span><span class="op">)</span></span></code></pre></div>
 <p>We now wish to extract genes for which there is evidence that the LFC
 is <em>not</em> large. We perform this test by specifying an LFC
 threshold and an alternative hypothesis (<code>altHypothesis</code>)
@@ -569,16 +578,16 @@ the result of this test, you can run <code>results</code> without
 <code>other_genes</code> and later as “non-DE genes”, for comparison
 with our <code>de_genes</code> set.</p>
 <div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">other_genes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/DESeq2/man/results.html" class="external-link">results</a></span><span class="op">(</span><span class="va">dds</span>,</span>
-<span>                       contrast <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"condition"</span>, <span class="st">"IFNg"</span>, <span class="st">"naive"</span><span class="op">)</span>,</span>
-<span>                       lfcThreshold <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>                       altHypothesis <span class="op">=</span> <span class="st">"lessAbs"</span>,</span>
-<span>                       format <span class="op">=</span> <span class="st">"GRanges"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">padj</span> <span class="op">&lt;</span> <span class="fl">0.01</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://tidyomics.github.io/plyranges/reference/ranges-names.html" class="external-link">names_to_column</a></span><span class="op">(</span><span class="st">"gene_id"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">gene_id</span>,</span>
-<span>                de_log2FC <span class="op">=</span> <span class="va">log2FoldChange</span>,</span>
-<span>                de_padj <span class="op">=</span> <span class="va">padj</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">other_genes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/DESeq2/man/results.html" class="external-link">results</a></span><span class="op">(</span></span>
+<span>    <span class="va">dds</span>,</span>
+<span>    contrast <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"condition"</span>, <span class="st">"IFNg"</span>, <span class="st">"naive"</span><span class="op">)</span>,</span>
+<span>    lfcThreshold <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>    altHypothesis <span class="op">=</span> <span class="st">"lessAbs"</span>,</span>
+<span>    format <span class="op">=</span> <span class="st">"GRanges"</span></span>
+<span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">padj</span> <span class="op">&lt;</span> <span class="fl">0.01</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://tidyomics.github.io/plyranges/reference/ranges-names.html" class="external-link">names_to_column</a></span><span class="op">(</span><span class="st">"gene_id"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">gene_id</span>, de_log2FC <span class="op">=</span> <span class="va">log2FoldChange</span>, de_padj <span class="op">=</span> <span class="va">padj</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="atac-seq-peak-differential-abundance-analysis">ATAC-seq peak differential abundance analysis<a class="anchor" aria-label="anchor" href="#atac-seq-peak-differential-abundance-analysis"></a>
@@ -617,18 +626,19 @@ restyle the chromosome information to use the “UCSC” style (e.g. “chr1”
 the ATAC-seq data.</p>
 <div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">atac_peaks</span> <span class="op">&lt;-</span> <span class="fu">rowRanges</span><span class="op">(</span><span class="va">atac</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://tidyomics.github.io/plyranges/reference/ranges-names.html" class="external-link">remove_names</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
-<span>    da_log2FC <span class="op">=</span> <span class="va">tt</span><span class="op">$</span><span class="va">logFC</span>,</span>
-<span>    da_padj <span class="op">=</span> <span class="va">tt</span><span class="op">$</span><span class="va">adj.P.Val</span></span>
-<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://tidyomics.github.io/plyranges/reference/ranges-info.html" class="external-link">set_genome_info</a></span><span class="op">(</span>genome <span class="op">=</span> <span class="st">"hg38"</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="https://tidyomics.github.io/plyranges/reference/ranges-names.html" class="external-link">remove_names</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
+<span>        da_log2FC <span class="op">=</span> <span class="va">tt</span><span class="op">$</span><span class="va">logFC</span>,</span>
+<span>        da_padj <span class="op">=</span> <span class="va">tt</span><span class="op">$</span><span class="va">adj.P.Val</span></span>
+<span>    <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://tidyomics.github.io/plyranges/reference/ranges-info.html" class="external-link">set_genome_info</a></span><span class="op">(</span>genome <span class="op">=</span> <span class="st">"hg38"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">seqlevelsStyle</span><span class="op">(</span><span class="va">atac_peaks</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"UCSC"</span></span></code></pre></div>
 <p>The final <em>GRanges</em> object containing the DA peaks is included
 in the workflow package and can be loaded as follows:</p>
 <div class="sourceCode" id="cb52"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/sa-lee/fluentGenomics" class="external-link">fluentGenomics</a></span><span class="op">)</span></span>
+<span><span class="fu">data</span><span class="op">(</span><span class="st">"peaks"</span>, package <span class="op">=</span> <span class="st">"fluentGenomics"</span><span class="op">)</span></span>
 <span><span class="va">peaks</span></span></code></pre></div>
 <pre><code><span><span class="co">## GRanges object with 296220 ranges and 3 metadata columns:</span></span>
 <span><span class="co">##            seqnames              ranges strand |          peak_id da_log2FC</span></span>
@@ -679,7 +689,7 @@ are performed using underlying, highly optimized range operations in the
 nominal FDR bound of 1%.</p>
 <div class="sourceCode" id="cb54"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">da_peaks</span> <span class="op">&lt;-</span> <span class="va">peaks</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">da_padj</span> <span class="op">&lt;</span> <span class="fl">0.01</span><span class="op">)</span></span></code></pre></div>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">da_padj</span> <span class="op">&lt;</span> <span class="fl">0.01</span><span class="op">)</span></span></code></pre></div>
 <p>We now have <em>GRanges</em> objects that contain DE genes, genes
 without strong signal of DE, and DA peaks. We are ready to answer the
 question: is there an enrichment of DA ATAC-seq peaks in the vicinity of
@@ -733,9 +743,11 @@ sampling process.</p>
 <div class="sourceCode" id="cb57"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># set a seed for the results</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2019</span> <span class="op">-</span> <span class="fl">08</span> <span class="op">-</span> <span class="fl">02</span><span class="op">)</span></span>
-<span><span class="va">boot_genes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">replicate</a></span><span class="op">(</span><span class="fl">10</span>,</span>
-<span>                        <span class="fu"><a href="https://rdrr.io/pkg/IRanges/man/slice-methods.html" class="external-link">slice</a></span><span class="op">(</span><span class="va">other_genes</span>, <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample.int</a></span><span class="op">(</span><span class="fu"><a href="https://tidyomics.github.io/plyranges/reference/n.html" class="external-link">n</a></span><span class="op">(</span><span class="op">)</span>, <span class="va">size</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>                        simplify <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">boot_genes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">replicate</a></span><span class="op">(</span></span>
+<span>    <span class="fl">10</span>,</span>
+<span>    <span class="fu"><a href="https://rdrr.io/pkg/IRanges/man/slice-methods.html" class="external-link">slice</a></span><span class="op">(</span><span class="va">other_genes</span>, <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample.int</a></span><span class="op">(</span><span class="fu"><a href="https://tidyomics.github.io/plyranges/reference/n.html" class="external-link">n</a></span><span class="op">(</span><span class="op">)</span>, <span class="va">size</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>    simplify <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <p>This creates a list of <em>GRanges</em> objects as a list, and we can
 bind these together using the <code>bind_ranges</code> function. This
 function creates a new column called “resample” on the result that
@@ -748,14 +760,14 @@ column was not present on the DE <em>GRanges</em> object, this is given
 a missing value which we recode to a 0 using <code><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate()</a></code></p>
 <div class="sourceCode" id="cb59"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">all_genes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://tidyomics.github.io/plyranges/reference/ranges-bind.html" class="external-link">bind_ranges</a></span><span class="op">(</span></span>
-<span>  de <span class="op">=</span> <span class="va">de_genes</span>,</span>
-<span>  not_de <span class="op">=</span> <span class="va">boot_genes</span>,</span>
-<span>  .id <span class="op">=</span> <span class="st">"origin"</span></span>
+<span>    de <span class="op">=</span> <span class="va">de_genes</span>,</span>
+<span>    not_de <span class="op">=</span> <span class="va">boot_genes</span>,</span>
+<span>    .id <span class="op">=</span> <span class="st">"origin"</span></span>
 <span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
-<span>    origin <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">origin</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"not_de"</span>, <span class="st">"de"</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>    resample <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">resample</span><span class="op">)</span>, <span class="fl">0L</span>, <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="va">resample</span><span class="op">)</span><span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
+<span>        origin <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">origin</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"not_de"</span>, <span class="st">"de"</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>        resample <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">resample</span><span class="op">)</span>, <span class="fl">0L</span>, <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="va">resample</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="op">)</span></span>
 <span><span class="va">all_genes</span></span></code></pre></div>
 <pre><code><span><span class="co">## GRanges object with 9042 ranges and 5 metadata columns:</span></span>
 <span><span class="co">##          seqnames              ranges strand |            gene_id  de_log2FC</span></span>
@@ -803,8 +815,8 @@ anchor by the 5’ end of the range and modify the width of the range to
 equal 1.</p>
 <div class="sourceCode" id="cb61"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">all_genes</span> <span class="op">&lt;-</span> <span class="va">all_genes</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://tidyomics.github.io/plyranges/reference/ranges-anchor.html" class="external-link">anchor_5p</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>width <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
+<span>    <span class="fu"><a href="https://tidyomics.github.io/plyranges/reference/ranges-anchor.html" class="external-link">anchor_5p</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>width <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
 <p>Anchoring by the 5’ end of a range will fix the <code>end</code> of
 negatively stranded ranges, and fix the <code>start</code> of positively
 stranded ranges.</p>
@@ -814,8 +826,8 @@ making the TSS the midpoint of a range that has total width of 20kb, or
 10kb both upstream and downstream of the TSS.</p>
 <div class="sourceCode" id="cb62"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">all_genes</span> <span class="op">&lt;-</span> <span class="va">all_genes</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://tidyomics.github.io/plyranges/reference/ranges-anchor.html" class="external-link">anchor_center</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>width <span class="op">=</span> <span class="fl">2</span> <span class="op">*</span> <span class="fl">1e4</span><span class="op">)</span></span></code></pre></div>
+<span>    <span class="fu"><a href="https://tidyomics.github.io/plyranges/reference/ranges-anchor.html" class="external-link">anchor_center</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>width <span class="op">=</span> <span class="fl">2</span> <span class="op">*</span> <span class="fl">1e4</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="use-overlap-joins-to-find-relative-enrichment">Use overlap joins to find relative enrichment<a class="anchor" aria-label="anchor" href="#use-overlap-joins-to-find-relative-enrichment"></a>
@@ -836,7 +848,7 @@ DA peaks. For any gene that has no overlaps, the DA peak columns will
 have <code>NA</code>’s.</p>
 <div class="sourceCode" id="cb63"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">genes_olap_peaks</span> <span class="op">&lt;-</span> <span class="va">all_genes</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://tidyomics.github.io/plyranges/reference/overlap-joins.html" class="external-link">join_overlap_left</a></span><span class="op">(</span><span class="va">da_peaks</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="https://tidyomics.github.io/plyranges/reference/overlap-joins.html" class="external-link">join_overlap_left</a></span><span class="op">(</span><span class="va">da_peaks</span><span class="op">)</span></span>
 <span><span class="va">genes_olap_peaks</span></span></code></pre></div>
 <pre><code><span><span class="co">## GRanges object with 30449 ranges and 8 metadata columns:</span></span>
 <span><span class="co">##           seqnames              ranges strand |            gene_id de_log2FC</span></span>
@@ -885,20 +897,20 @@ if there are any peaks, to ensure we do not double count the same
 peak:</p>
 <div class="sourceCode" id="cb65"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gene_peak_max_lfc</span> <span class="op">&lt;-</span> <span class="va">genes_olap_peaks</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">gene_id</span>, <span class="va">origin</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://tidyomics.github.io/plyranges/reference/ranges-reduce.html" class="external-link">reduce_ranges_directed</a></span><span class="op">(</span></span>
-<span>    peak_count <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">da_padj</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://tidyomics.github.io/plyranges/reference/n_distinct.html" class="external-link">n_distinct</a></span><span class="op">(</span><span class="va">resample</span><span class="op">)</span>,</span>
-<span>    peak_max_lfc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">da_log2FC</span><span class="op">)</span><span class="op">)</span></span>
-<span>  <span class="op">)</span></span></code></pre></div>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">gene_id</span>, <span class="va">origin</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://tidyomics.github.io/plyranges/reference/ranges-reduce.html" class="external-link">reduce_ranges_directed</a></span><span class="op">(</span></span>
+<span>        peak_count <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">da_padj</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://tidyomics.github.io/plyranges/reference/n_distinct.html" class="external-link">n_distinct</a></span><span class="op">(</span><span class="va">resample</span><span class="op">)</span>,</span>
+<span>        peak_max_lfc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">da_log2FC</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="op">)</span></span></code></pre></div>
 <p>We can then filter genes if they have any peaks and compare the peak
 fold changes between non-DE and DE genes using a boxplot:</p>
 <div class="sourceCode" id="cb66"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span><span class="va">gene_peak_max_lfc</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">peak_count</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">origin</span>, <span class="va">peak_max_lfc</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_boxplot.html" class="external-link">geom_boxplot</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">peak_count</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">origin</span>, <span class="va">peak_max_lfc</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_boxplot.html" class="external-link">geom_boxplot</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <div class="figure" style="text-align: center">
 <img src="fluentGenomics_files/figure-html/boxplot-1.png" class="r-plt" alt="(ref:boxplot)" width="700"><p class="caption">
 (ref:boxplot)
@@ -913,16 +925,20 @@ threshold values on the peak LFC. As an example, we could compute this
 by arbitrarily chosen LFC thresholds of 1 or 2 as follows:</p>
 <div class="sourceCode" id="cb67"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">origin_peak_lfc</span> <span class="op">&lt;-</span> <span class="va">genes_olap_peaks</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">origin</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarize</a></span><span class="op">(</span></span>
-<span>    peak_count <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">da_padj</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://tidyomics.github.io/plyranges/reference/n_distinct.html" class="external-link">n_distinct</a></span><span class="op">(</span><span class="va">resample</span><span class="op">)</span>,</span>
-<span>    lfc1_peak_count <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span></span>
-<span>      <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">da_log2FC</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">1</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span>    <span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://tidyomics.github.io/plyranges/reference/n_distinct.html" class="external-link">n_distinct</a></span><span class="op">(</span><span class="va">resample</span><span class="op">)</span>,</span>
-<span>    lfc2_peak_count <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span></span>
-<span>      <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">da_log2FC</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">2</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span>    <span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://tidyomics.github.io/plyranges/reference/n_distinct.html" class="external-link">n_distinct</a></span><span class="op">(</span><span class="va">resample</span><span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">origin</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarize</a></span><span class="op">(</span></span>
+<span>        peak_count <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">da_padj</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://tidyomics.github.io/plyranges/reference/n_distinct.html" class="external-link">n_distinct</a></span><span class="op">(</span><span class="va">resample</span><span class="op">)</span>,</span>
+<span>        lfc1_peak_count <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span></span>
+<span>            <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">da_log2FC</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">1</span>,</span>
+<span>            na.rm <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>        <span class="op">)</span> <span class="op">/</span></span>
+<span>            <span class="fu"><a href="https://tidyomics.github.io/plyranges/reference/n_distinct.html" class="external-link">n_distinct</a></span><span class="op">(</span><span class="va">resample</span><span class="op">)</span>,</span>
+<span>        lfc2_peak_count <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span></span>
+<span>            <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">da_log2FC</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">2</span>,</span>
+<span>            na.rm <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>        <span class="op">)</span> <span class="op">/</span></span>
+<span>            <span class="fu"><a href="https://tidyomics.github.io/plyranges/reference/n_distinct.html" class="external-link">n_distinct</a></span><span class="op">(</span><span class="va">resample</span><span class="op">)</span></span>
+<span>    <span class="op">)</span></span>
 <span><span class="va">origin_peak_lfc</span></span></code></pre></div>
 <pre><code><span><span class="co">## DataFrame with 2 rows and 4 columns</span></span>
 <span><span class="co">##     origin peak_count lfc1_peak_count lfc2_peak_count</span></span>
@@ -944,10 +960,10 @@ to place values into the <code>origin</code> column. Then we create a
 new column with the relative enrichment:</p>
 <div class="sourceCode" id="cb69"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">origin_peak_lfc</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">tidyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html" class="external-link">pivot_longer</a></span><span class="op">(</span>cols <span class="op">=</span> <span class="op">-</span><span class="va">origin</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">tidyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_wider.html" class="external-link">pivot_wider</a></span><span class="op">(</span>names_from <span class="op">=</span> <span class="va">origin</span>, values_from <span class="op">=</span> <span class="va">value</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>enrichment <span class="op">=</span> <span class="va">de</span> <span class="op">/</span> <span class="va">not_de</span><span class="op">)</span></span></code></pre></div>
+<span>    <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">tidyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html" class="external-link">pivot_longer</a></span><span class="op">(</span>cols <span class="op">=</span> <span class="op">-</span><span class="va">origin</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">tidyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_wider.html" class="external-link">pivot_wider</a></span><span class="op">(</span>names_from <span class="op">=</span> <span class="va">origin</span>, values_from <span class="op">=</span> <span class="va">value</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>enrichment <span class="op">=</span> <span class="va">de</span> <span class="op">/</span> <span class="va">not_de</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 3 × 4</span></span></span>
 <span><span class="co">##   name            not_de    de enrichment</span></span>
 <span><span class="co">##   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
@@ -967,18 +983,18 @@ the DA LFC threshold and the number of genes that have more than zero
 peaks (again averaging over the number of resamples).</p>
 <div class="sourceCode" id="cb71"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">genes_olap_peaks</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">gene_id</span>, <span class="va">origin</span>, <span class="va">resample</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://tidyomics.github.io/plyranges/reference/ranges-reduce.html" class="external-link">reduce_ranges_directed</a></span><span class="op">(</span></span>
-<span>    lfc1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">da_log2FC</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">1</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
-<span>    lfc2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">da_log2FC</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">2</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">origin</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarize</a></span><span class="op">(</span></span>
-<span>    lfc1_gene_count <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">lfc1</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://tidyomics.github.io/plyranges/reference/n_distinct.html" class="external-link">n_distinct</a></span><span class="op">(</span><span class="va">resample</span><span class="op">)</span>,</span>
-<span>    lfc1_peak_count <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">lfc1</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://tidyomics.github.io/plyranges/reference/n_distinct.html" class="external-link">n_distinct</a></span><span class="op">(</span><span class="va">resample</span><span class="op">)</span>,</span>
-<span>    lfc2_gene_count <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">lfc2</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://tidyomics.github.io/plyranges/reference/n_distinct.html" class="external-link">n_distinct</a></span><span class="op">(</span><span class="va">resample</span><span class="op">)</span>,</span>
-<span>    lfc2_peak_count <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">lfc2</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://tidyomics.github.io/plyranges/reference/n_distinct.html" class="external-link">n_distinct</a></span><span class="op">(</span><span class="va">resample</span><span class="op">)</span></span>
-<span>  <span class="op">)</span></span></code></pre></div>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">gene_id</span>, <span class="va">origin</span>, <span class="va">resample</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://tidyomics.github.io/plyranges/reference/ranges-reduce.html" class="external-link">reduce_ranges_directed</a></span><span class="op">(</span></span>
+<span>        lfc1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">da_log2FC</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">1</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
+<span>        lfc2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">da_log2FC</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">2</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span>    <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">origin</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarize</a></span><span class="op">(</span></span>
+<span>        lfc1_gene_count <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">lfc1</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://tidyomics.github.io/plyranges/reference/n_distinct.html" class="external-link">n_distinct</a></span><span class="op">(</span><span class="va">resample</span><span class="op">)</span>,</span>
+<span>        lfc1_peak_count <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">lfc1</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://tidyomics.github.io/plyranges/reference/n_distinct.html" class="external-link">n_distinct</a></span><span class="op">(</span><span class="va">resample</span><span class="op">)</span>,</span>
+<span>        lfc2_gene_count <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">lfc2</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://tidyomics.github.io/plyranges/reference/n_distinct.html" class="external-link">n_distinct</a></span><span class="op">(</span><span class="va">resample</span><span class="op">)</span>,</span>
+<span>        lfc2_peak_count <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">lfc2</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://tidyomics.github.io/plyranges/reference/n_distinct.html" class="external-link">n_distinct</a></span><span class="op">(</span><span class="va">resample</span><span class="op">)</span></span>
+<span>    <span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## DataFrame with 2 rows and 5 columns</span></span>
 <span><span class="co">##     origin lfc1_gene_count lfc1_peak_count lfc2_gene_count lfc2_peak_count</span></span>
 <span><span class="co">##   &lt;factor&gt;       &lt;numeric&gt;       &lt;numeric&gt;       &lt;numeric&gt;       &lt;numeric&gt;</span></span>
@@ -991,7 +1007,7 @@ of thresholds, and computes the sum of the absolute value of the
 variable for each element in the <code>thresholds</code> vector.</p>
 <div class="sourceCode" id="cb73"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">count_if_above_threshold</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">var</span>, <span class="va">thresholds</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">thresholds</span>, <span class="kw">function</span><span class="op">(</span><span class="va">.</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">var</span><span class="op">)</span> <span class="op">&gt;</span> <span class="va">.</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">thresholds</span>, <span class="kw">function</span><span class="op">(</span><span class="va">.</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">var</span><span class="op">)</span> <span class="op">&gt;</span> <span class="va">.</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>The above function will compute the counts for any arbitrary
 threshold, so we can apply it over possible LFC thresholds of interest.
@@ -1000,10 +1016,10 @@ absolute LFC values in the <code>da_peaks</code> <em>GRanges</em>
 object:</p>
 <div class="sourceCode" id="cb74"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">thresholds</span> <span class="op">&lt;-</span> <span class="va">da_peaks</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>abs_lfc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">da_log2FC</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">abs_lfc</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">abs_lfc</span><span class="op">)</span>, length.out <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
-<span>  <span class="op">)</span></span></code></pre></div>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>abs_lfc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">da_log2FC</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span></span>
+<span>        <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">abs_lfc</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">abs_lfc</span><span class="op">)</span>, length.out <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
+<span>    <span class="op">)</span></span></code></pre></div>
 <p>The peak counts for each threshold are computed as a new list-column
 called <code>value</code>. First, the <em>GRanges</em> object has been
 grouped by the gene, origin, and the number of resamples columns. Then
@@ -1013,11 +1029,11 @@ also maintain another list-column that contains the threshold
 values.</p>
 <div class="sourceCode" id="cb75"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">genes_peak_all_thresholds</span> <span class="op">&lt;-</span> <span class="va">genes_olap_peaks</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">gene_id</span>, <span class="va">origin</span>, <span class="va">resample</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://tidyomics.github.io/plyranges/reference/ranges-reduce.html" class="external-link">reduce_ranges_directed</a></span><span class="op">(</span></span>
-<span>    value <span class="op">=</span> <span class="fu">count_if_above_threshold</span><span class="op">(</span><span class="va">da_log2FC</span>, <span class="va">thresholds</span><span class="op">)</span>,</span>
-<span>    threshold <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">thresholds</span><span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">gene_id</span>, <span class="va">origin</span>, <span class="va">resample</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://tidyomics.github.io/plyranges/reference/ranges-reduce.html" class="external-link">reduce_ranges_directed</a></span><span class="op">(</span></span>
+<span>        value <span class="op">=</span> <span class="fu">count_if_above_threshold</span><span class="op">(</span><span class="va">da_log2FC</span>, <span class="va">thresholds</span><span class="op">)</span>,</span>
+<span>        threshold <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">thresholds</span><span class="op">)</span></span>
+<span>    <span class="op">)</span></span>
 <span><span class="va">genes_peak_all_thresholds</span></span></code></pre></div>
 <pre><code><span><span class="co">## GRanges object with 9042 ranges and 5 metadata columns:</span></span>
 <span><span class="co">##          seqnames              ranges strand |            gene_id   origin</span></span>
@@ -1056,12 +1072,12 @@ and gene counts for each threshold, we apply the same summarization as
 before:</p>
 <div class="sourceCode" id="cb77"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">origin_peak_all_thresholds</span> <span class="op">&lt;-</span> <span class="va">genes_peak_all_thresholds</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://tidyomics.github.io/plyranges/reference/ranges-expand.html" class="external-link">expand_ranges</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">origin</span>, <span class="va">threshold</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarize</a></span><span class="op">(</span></span>
-<span>    gene_count <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">value</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://tidyomics.github.io/plyranges/reference/n_distinct.html" class="external-link">n_distinct</a></span><span class="op">(</span><span class="va">resample</span><span class="op">)</span>,</span>
-<span>    peak_count <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">value</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://tidyomics.github.io/plyranges/reference/n_distinct.html" class="external-link">n_distinct</a></span><span class="op">(</span><span class="va">resample</span><span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
+<span>    <span class="fu"><a href="https://tidyomics.github.io/plyranges/reference/ranges-expand.html" class="external-link">expand_ranges</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">origin</span>, <span class="va">threshold</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarize</a></span><span class="op">(</span></span>
+<span>        gene_count <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">value</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://tidyomics.github.io/plyranges/reference/n_distinct.html" class="external-link">n_distinct</a></span><span class="op">(</span><span class="va">resample</span><span class="op">)</span>,</span>
+<span>        peak_count <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">value</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://tidyomics.github.io/plyranges/reference/n_distinct.html" class="external-link">n_distinct</a></span><span class="op">(</span><span class="va">resample</span><span class="op">)</span></span>
+<span>    <span class="op">)</span></span>
 <span><span class="va">origin_peak_all_thresholds</span></span></code></pre></div>
 <pre><code><span><span class="co">## DataFrame with 200 rows and 4 columns</span></span>
 <span><span class="co">##       origin threshold gene_count peak_count</span></span>
@@ -1083,20 +1099,22 @@ form to compute the enrichment. We visualize the peak enrichment changes
 of DE genes relative to other genes as a line chart:</p>
 <div class="sourceCode" id="cb79"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">origin_threshold_counts</span> <span class="op">&lt;-</span> <span class="va">origin_peak_all_thresholds</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">tidyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html" class="external-link">pivot_longer</a></span><span class="op">(</span>cols <span class="op">=</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">origin</span>, <span class="va">threshold</span><span class="op">)</span>,</span>
-<span>                      names_to <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"type"</span>, <span class="st">"var"</span><span class="op">)</span>,</span>
-<span>                      names_sep <span class="op">=</span> <span class="st">"_"</span>,</span>
-<span>                      values_to <span class="op">=</span> <span class="st">"count"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="op">-</span><span class="va">var</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">tidyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html" class="external-link">pivot_longer</a></span><span class="op">(</span></span>
+<span>        cols <span class="op">=</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">origin</span>, <span class="va">threshold</span><span class="op">)</span>,</span>
+<span>        names_to <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"type"</span>, <span class="st">"var"</span><span class="op">)</span>,</span>
+<span>        names_sep <span class="op">=</span> <span class="st">"_"</span>,</span>
+<span>        values_to <span class="op">=</span> <span class="st">"count"</span></span>
+<span>    <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="op">-</span><span class="va">var</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">origin_threshold_counts</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">type</span> <span class="op">==</span> <span class="st">"peak"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">tidyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_wider.html" class="external-link">pivot_wider</a></span><span class="op">(</span>names_from <span class="op">=</span> <span class="va">origin</span>, values_from <span class="op">=</span> <span class="va">count</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>enrichment <span class="op">=</span> <span class="va">de</span> <span class="op">/</span> <span class="va">not_de</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">threshold</span>, y <span class="op">=</span> <span class="va">enrichment</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"logFC threshold"</span>, y <span class="op">=</span> <span class="st">"Relative Enrichment"</span><span class="op">)</span></span></code></pre></div>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">type</span> <span class="op">==</span> <span class="st">"peak"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">tidyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_wider.html" class="external-link">pivot_wider</a></span><span class="op">(</span>names_from <span class="op">=</span> <span class="va">origin</span>, values_from <span class="op">=</span> <span class="va">count</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>enrichment <span class="op">=</span> <span class="va">de</span> <span class="op">/</span> <span class="va">not_de</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">threshold</span>, y <span class="op">=</span> <span class="va">enrichment</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"logFC threshold"</span>, y <span class="op">=</span> <span class="st">"Relative Enrichment"</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Warning: Removed 4 rows containing missing values or values outside the scale range</span></span>
 <span><span class="co">## (`geom_line()`).</span></span></code></pre>
 <div class="figure" style="text-align: center">
@@ -1113,12 +1131,9 @@ a plot that summarizes many of the aspects underlying the enrichment
 plot above.</p>
 <div class="sourceCode" id="cb81"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">origin_threshold_counts</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">threshold</span>,</span>
-<span>             y <span class="op">=</span> <span class="va">count</span> <span class="op">+</span> <span class="fl">1</span>,</span>
-<span>             color <span class="op">=</span> <span class="va">origin</span>,</span>
-<span>             linetype <span class="op">=</span> <span class="va">type</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_log10</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">threshold</span>, y <span class="op">=</span> <span class="va">count</span> <span class="op">+</span> <span class="fl">1</span>, color <span class="op">=</span> <span class="va">origin</span>, linetype <span class="op">=</span> <span class="va">type</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_log10</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <div class="figure" style="text-align: center">
 <img src="fluentGenomics_files/figure-html/line-chart2-1.png" class="r-plt" alt="(ref:linechart2)" width="700"><p class="caption">
 (ref:linechart2)
