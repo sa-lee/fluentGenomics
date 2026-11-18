@@ -20,11 +20,15 @@
 ## * GHA: GitHub Action
 ## * OS: operating system
 
+## Following the Bioconductor git workflow
+## (https://contributions.bioconductor.org/git-version-control.html):
+## * pushes/PRs to devel are checked against Bioconductor devel only
+## * pushes/PRs to a RELEASE_X_Y branch are checked against that release only
 on:
   push:
-    branches: [master, devel]
+    branches: [devel, 'RELEASE_*']
   pull_request:
-    branches: [devel]
+    branches: [devel, 'RELEASE_*']
 
 name: R-CMD-check-bioc
 
@@ -44,18 +48,37 @@ env:
   run_docker: 'false'
 
 jobs:
+  ## Pick the Bioconductor version from the target branch. For a PR this is
+  ## the base branch, for a push it is the pushed branch. RELEASE_3_23 maps to
+  ## Bioconductor 3.23 and the RELEASE_3_23 docker image; anything else is devel.
+  define-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      config: ${{ steps.set.outputs.config }}
+    steps:
+      - id: set
+        run: |
+          branch="${GITHUB_BASE_REF:-$GITHUB_REF_NAME}"
+          rspm="https://packagemanager.rstudio.com/cran/__linux__/focal/latest"
+          if [[ "$branch" =~ ^RELEASE_([0-9]+)_([0-9]+)$ ]]; then
+            bioc="${BASH_REMATCH[1]}.${BASH_REMATCH[2]}"
+            config="[{\"os\":\"ubuntu-latest\",\"r\":\"release\",\"bioc\":\"$bioc\",\"cont\":\"bioconductor/bioconductor_docker:$branch\",\"rspm\":\"$rspm\"}]"
+          else
+            config="[{\"os\":\"ubuntu-latest\",\"r\":\"devel\",\"bioc\":\"3.24\",\"cont\":\"bioconductor/bioconductor_docker:devel\",\"rspm\":\"$rspm\"}]"
+          fi
+          echo "config=$config" >> "$GITHUB_OUTPUT"
+
   build-check:
+    needs: define-matrix
     runs-on: ${{ matrix.config.os }}
-    name: ${{ matrix.config.os }} (${{ matrix.config.r }})
+    name: ${{ matrix.config.os }} (bioc ${{ matrix.config.bioc }})
     container: ${{ matrix.config.cont }}
     ## Environment variables unique to this job.
 
     strategy:
       fail-fast: false
       matrix:
-        config:
-          - { os: ubuntu-latest, r: 'devel', bioc: '3.24', cont: "bioconductor/bioconductor_docker:devel", rspm: "https://packagemanager.rstudio.com/cran/__linux__/focal/latest" }
-          - { os: ubuntu-latest, r: '4.6', bioc: '3.23', cont: "bioconductor/bioconductor_docker:RELEASE_3_23", rspm: "https://packagemanager.rstudio.com/cran/__linux__/focal/latest" }
+        config: ${{ fromJSON(needs.define-matrix.outputs.config) }}
     env:
       R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
       RSPM: ${{ matrix.config.rspm }}
@@ -183,7 +206,7 @@ jobs:
           ## For running the checks
           message(paste('****', Sys.time(), 'installing rcmdcheck and BiocCheck ****'))
           remotes::install_cran("rcmdcheck")
-          # BiocManager::install("BiocCheck")
+          BiocManager::install("BiocCheck", ask = FALSE, update = FALSE)
         shell: Rscript {0}
 
       - name: Install BiocGenerics
@@ -235,15 +258,19 @@ jobs:
           BiocGenerics:::testPackage()
         shell: Rscript {0}
 
-      # - name: Run BiocCheck
-      #   run: |
-      #     BiocCheck::BiocCheck(
-      #         dir('check', 'tar.gz$', full.names = TRUE),
-      #         `quit-with-status` = TRUE,
-      #         `no-check-R-ver` = TRUE,
-      #         `no-check-bioc-help` = TRUE
-      #     )
-      #   shell: Rscript {0}
+      ## BiocCheck is advisory: Bioconductor only enforces it at submission, and
+      ## the nightly builds (what the badge mirrors) run R CMD check. Errors mark
+      ## this step red but don't fail the job.
+      - name: Run BiocCheck
+        continue-on-error: true
+        run: |
+          BiocCheck::BiocCheck(
+              dir('check', 'tar.gz$', full.names = TRUE),
+              `quit-with-status` = TRUE,
+              `no-check-R-ver` = TRUE,
+              `no-check-bioc-help` = TRUE
+          )
+        shell: Rscript {0}
 
       - name: Test coverage
         if: github.ref == 'refs/heads/devel' && env.run_covr == 'true' && runner.os == 'Linux'

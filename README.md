@@ -1,7 +1,7 @@
 # Fluent genomics with plyranges and tximeta 
 
 <!-- badges: start -->
-[![R build status](https://github.com/sa-lee/fluentGenomics/workflows/R-CMD-check-bioc/badge.svg)](https://github.com/sa-lee/fluentGenomics/actions)
+[![R build status](https://github.com/sa-lee/fluentGenomics/actions/workflows/check-bioc.yml/badge.svg?branch=devel)](https://github.com/sa-lee/fluentGenomics/actions/workflows/check-bioc.yml?query=branch%3Adevel)
 <!-- badges: end -->
 
 In *fluentGenomics* we explore the use of the Bioconductor packages plyranges and tximeta through integrating results from an experiment using RNA-seq and ATAC-seq data. Readers will learn how to perform genomic range based operations in a principled way using *plyranges* and how to cleanly import quantification and differential expression data into R using *tximeta*. 
