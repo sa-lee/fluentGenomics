@@ -50,7 +50,9 @@ env:
 jobs:
   ## Pick the Bioconductor version from the target branch. For a PR this is
   ## the base branch, for a push it is the pushed branch. RELEASE_3_23 maps to
-  ## Bioconductor 3.23 and the RELEASE_3_23 docker image; anything else is devel.
+  ## Bioconductor 3.23 and the RELEASE_3_23 docker image; anything else is devel
+  ## (BiocManager resolves "devel" to the current devel version, so this never
+  ## needs bumping at release time).
   define-matrix:
     runs-on: ubuntu-latest
     outputs:
@@ -64,7 +66,7 @@ jobs:
             bioc="${BASH_REMATCH[1]}.${BASH_REMATCH[2]}"
             config="[{\"os\":\"ubuntu-latest\",\"r\":\"release\",\"bioc\":\"$bioc\",\"cont\":\"bioconductor/bioconductor_docker:$branch\",\"rspm\":\"$rspm\"}]"
           else
-            config="[{\"os\":\"ubuntu-latest\",\"r\":\"devel\",\"bioc\":\"3.24\",\"cont\":\"bioconductor/bioconductor_docker:devel\",\"rspm\":\"$rspm\"}]"
+            config="[{\"os\":\"ubuntu-latest\",\"r\":\"devel\",\"bioc\":\"devel\",\"cont\":\"bioconductor/bioconductor_docker:devel\",\"rspm\":\"$rspm\"}]"
           fi
           echo "config=$config" >> "$GITHUB_OUTPUT"
 
