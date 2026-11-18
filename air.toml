@@ -1,0 +1,11 @@
+# Air formatter settings, aligned with the Bioconductor coding style:
+# https://contributions.bioconductor.org/r-code.html
+[format]
+# "No lines longer than 80 characters."
+line-width = 80
+# "Use 4 spaces for indenting. No tabs."
+indent-width = 4
+indent-style = "space"
+# "Use <- not = for assignment."
+assignment-style = "arrow"
+line-ending = "lf"

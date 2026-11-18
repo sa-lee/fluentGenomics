@@ -11,3 +11,5 @@ WORDLIST
 ^doc$
 ^Meta$
 ^\.github$
+^air\.toml$
+^\.pre-commit-config\.yaml$

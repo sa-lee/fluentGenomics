@@ -1,0 +1,21 @@
+# Install the hooks once per clone with:
+#   uv tool install pre-commit && pre-commit install
+# Formatter settings live in air.toml. CI runs these via
+# .github/workflows/pre-commit.yml.
+repos:
+  - repo: https://github.com/posit-dev/air-pre-commit
+    # Air version
+    rev: 0.13.0
+    hooks:
+      - id: air-format
+
+  # Air doesn't format R Markdown / Quarto, so format their R chunks with a
+  # small wrapper. Keep the air-formatter pin in step with the rev above.
+  - repo: local
+    hooks:
+      - id: air-format-rmd
+        name: air format (R chunks in Rmd/qmd)
+        entry: python .github/scripts/air_rmd.py
+        language: python
+        additional_dependencies: ["air-formatter==0.13.0"]
+        files: \.(Rmd|rmd|qmd)$

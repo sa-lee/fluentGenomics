@@ -1,0 +1,30 @@
+# Runs the hooks in .pre-commit-config.yaml on every push and PR, so code
+# committed without the local hook installed still gets flagged. Fix failures
+# locally with `pre-commit run --all-files` and commit the result.
+name: pre-commit
+
+on:
+  push:
+    branches: [devel, 'RELEASE_*']
+  pull_request:
+    branches: [devel, 'RELEASE_*']
+
+permissions:
+  contents: read
+
+jobs:
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v10.3.3
+
+      - name: Cache pre-commit environments
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit-${{ runner.os }}-${{ hashFiles('.pre-commit-config.yaml') }}
+
+      - name: Run pre-commit
+        run: uvx pre-commit run --all-files --show-diff-on-failure --color=always
