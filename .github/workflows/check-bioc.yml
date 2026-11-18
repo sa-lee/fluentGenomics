@@ -135,13 +135,24 @@ jobs:
           key: ${{ env.cache-version }}-${{ runner.os }}-biocversion-${{ matrix.config.bioc }}-r-${{ matrix.config.r }}-${{ hashFiles('.github/depends.Rds') }}
           restore-keys: ${{ env.cache-version }}-${{ runner.os }}-biocversion-${{ matrix.config.bioc }}-r-${{ matrix.config.r }}-
 
+      ## The "devel" label doesn't change when R-devel moves to a new minor
+      ## version, so key the Linux cache on the container's actual R x.y too.
+      ## Otherwise packages built for the old R could be restored into the new one.
+      - name: Record R version for cache key
+        id: rver
+        run: |
+          cat(sprintf("v=%s\n", as.character(getRversion()[, 1:2])), file = Sys.getenv("GITHUB_OUTPUT"), append = TRUE)
+        shell: Rscript {0}
+
+      ## Steps run inside the container, so the path must be the container path
+      ## that "Set R Library home on Linux" points .libPaths() at.
       - name: Cache R packages on Linux
         if: "!contains(github.event.head_commit.message, '/nocache') && runner.os == 'Linux' "
         uses: actions/cache@v4
         with:
-          path: /home/runner/work/_temp/Library
-          key: ${{ env.cache-version }}-${{ runner.os }}-biocversion-${{ matrix.config.bioc }}-r-${{ matrix.config.r }}-${{ hashFiles('.github/depends.Rds') }}
-          restore-keys: ${{ env.cache-version }}-${{ runner.os }}-biocversion-${{ matrix.config.bioc }}-r-${{ matrix.config.r }}-
+          path: /__w/_temp/Library
+          key: ${{ env.cache-version }}-${{ runner.os }}-biocversion-${{ matrix.config.bioc }}-r-${{ steps.rver.outputs.v }}-${{ hashFiles('.github/depends.Rds') }}
+          restore-keys: ${{ env.cache-version }}-${{ runner.os }}-biocversion-${{ matrix.config.bioc }}-r-${{ steps.rver.outputs.v }}-
 
       - name: Install Linux system dependencies
         if: runner.os == 'Linux'
@@ -206,9 +217,8 @@ jobs:
           remotes::install_local(dependencies = TRUE, repos = BiocManager::repositories(), build_vignettes = FALSE, upgrade = TRUE)
 
           ## For running the checks
-          message(paste('****', Sys.time(), 'installing rcmdcheck and BiocCheck ****'))
+          message(paste('****', Sys.time(), 'installing rcmdcheck ****'))
           remotes::install_cran("rcmdcheck")
-          BiocManager::install("BiocCheck", ask = FALSE, update = FALSE)
         shell: Rscript {0}
 
       - name: Install BiocGenerics
@@ -261,11 +271,13 @@ jobs:
         shell: Rscript {0}
 
       ## BiocCheck is advisory: Bioconductor only enforces it at submission, and
-      ## the nightly builds (what the badge mirrors) run R CMD check. Errors mark
-      ## this step red but don't fail the job.
+      ## the nightly builds (what the badge mirrors) run R CMD check. It is
+      ## installed here rather than with the dependencies so that neither a
+      ## failed install nor BiocCheck errors fail the job; they mark this step red.
       - name: Run BiocCheck
         continue-on-error: true
         run: |
+          BiocManager::install("BiocCheck", ask = FALSE, update = FALSE)
           BiocCheck::BiocCheck(
               dir('check', 'tar.gz$', full.names = TRUE),
               `quit-with-status` = TRUE,
@@ -273,6 +285,16 @@ jobs:
               `no-check-bioc-help` = TRUE
           )
         shell: Rscript {0}
+
+      ## Keep the BiocCheck report (check/<pkg>.BiocCheck) whether or not it
+      ## found problems, since a continue-on-error step never trips failure().
+      - name: Upload BiocCheck results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ runner.os }}-biocversion-${{ matrix.config.bioc }}-BiocCheck
+          path: check/*.BiocCheck
+          if-no-files-found: warn
 
       - name: Test coverage
         if: github.ref == 'refs/heads/devel' && env.run_covr == 'true' && runner.os == 'Linux'
